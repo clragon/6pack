@@ -169,6 +169,14 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     return searchActions(query, children)[0];
   };
 
+  const surfacedChild = (action: Action): Action | undefined => {
+    const match = childMatchOf(action);
+    if (match) return match;
+    const children = reachableChildren(action);
+    const only = children && children.length === 1 ? children[0] : undefined;
+    return only && !only.submenu && !only.search ? only : undefined;
+  };
+
   const filtered = useMemo(() => {
     const query = filter.trim();
     if (!query) {
@@ -228,8 +236,8 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   const activate = (action: Action) => {
     if (action.search) return enterSearch(action);
-    const match = childMatchOf(action);
-    if (match) runAction(match, action);
+    const surfaced = surfacedChild(action);
+    if (surfaced) runAction(surfaced, action);
     else if (action.submenu) drillInto(action, false);
     else runAction(action);
   };
@@ -274,15 +282,20 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     }));
   } else {
     rows = filtered.map((action) => {
-      const match = childMatchOf(action);
+      const surfaced = surfacedChild(action);
       const isGroup = !!action.submenu;
       return {
         id: action.id,
-        title: isGroup && match ? `${action.title} → ${match.title}` : action.title,
+        title:
+          isGroup && surfaced
+            ? `${action.title} → ${surfaced.title}`
+            : action.title,
         detail: action.description,
         isGroup,
         onSelect: () => activate(action),
-        onDrill: isGroup ? () => drillInto(action, !!match) : undefined,
+        onDrill: isGroup
+          ? () => drillInto(action, !!childMatchOf(action))
+          : undefined,
       };
     });
   }
