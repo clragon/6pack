@@ -181,4 +181,19 @@ export const PALETTE_CSS = `
   border-color: #b3343a;
   color: #fff;
 }
+.sp-banner {
+  padding: 12px 14px;
+  background: #8a1a1f;
+  border-bottom: 2px solid #e0454c;
+  color: #fff;
+}
+.sp-banner-title {
+  font-size: 14px;
+  font-weight: bold;
+}
+.sp-banner-detail {
+  margin-top: 3px;
+  font-size: 12px;
+  color: #ffd9db;
+}
 `;

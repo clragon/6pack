@@ -1,5 +1,6 @@
 import type { Action } from '../core/actions/types';
 import { readModes, setMode } from '../site/mode';
+import { notify } from '../site/toast';
 
 const IMPORTANT = new Set(['approve', 'delete', 'view']);
 
@@ -15,6 +16,9 @@ export const mode: Action = {
       title: option.label,
       keywords: [option.label, option.value],
       submenuOnly: !IMPORTANT.has(option.value),
-      run: () => setMode(option.value),
+      run: () => {
+        setMode(option.value);
+        notify(`Mode: ${option.label}`);
+      },
     })),
 };
