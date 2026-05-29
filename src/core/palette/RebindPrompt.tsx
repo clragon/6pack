@@ -1,6 +1,8 @@
 import { useEffect } from 'preact/hooks';
 
+import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { formatTrigger, setTrigger, triggerFromEvent } from '../config';
+import { useNav, returnTo } from './nav';
 
 interface RebindPromptProps {
   active: boolean;
@@ -8,6 +10,7 @@ interface RebindPromptProps {
 }
 
 export function RebindPrompt({ active, onClose }: RebindPromptProps) {
+  const nav = useNav();
   useEffect(() => {
     if (!active) return;
     const onKey = (event: KeyboardEvent) => {
@@ -28,12 +31,39 @@ export function RebindPrompt({ active, onClose }: RebindPromptProps) {
 
   if (!active) return null;
 
+  const crumbs: Crumb[] = nav
+    ? [
+        ...nav.stack.slice(1).map((level, i) => ({
+          label: level.title ?? '',
+          onClick: () => {
+            onClose();
+            returnTo(i + 1);
+          },
+        })),
+        { label: nav.leaf },
+      ]
+    : [{ label: 'Change shortcut' }];
+
   return (
     <div class="sp-backdrop" onClick={onClose}>
-      <div class="sp-panel sp-capture" onClick={(e) => e.stopPropagation()}>
-        <div class="sp-capture-title">Press a new shortcut to open the palette</div>
-        <div class="sp-capture-hint">
-          Current: {formatTrigger()} · Esc to cancel
+      <div class="sp-panel" onClick={(e) => e.stopPropagation()}>
+        <div class="sp-input-row">
+          <Breadcrumb
+            crumbs={crumbs}
+            onHome={() => {
+              onClose();
+              if (nav) returnTo(0);
+            }}
+          />
+          <input class="sp-input" disabled aria-hidden="true" tabIndex={-1} />
+        </div>
+        <div class="sp-capture">
+          <div class="sp-capture-title">
+            Press a new shortcut to open the palette
+          </div>
+          <div class="sp-capture-hint">
+            Current: {formatTrigger()} · Esc to cancel
+          </div>
         </div>
       </div>
     </div>

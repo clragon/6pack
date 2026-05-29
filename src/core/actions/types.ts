@@ -18,6 +18,7 @@ export interface Action {
   submenuOnly?: boolean;
   run?: (ctx: ActionContext) => void | Promise<void>;
   submenu?: (ctx: ActionContext) => Action[] | Promise<Action[]>;
+  placeholder?: string;
   prefix?: string;
   search?: SearchSpec;
 }

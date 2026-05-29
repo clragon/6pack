@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
+import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { resolveConfirm, useConfirm } from './confirm';
 import { focusNoScroll } from './focus';
+import { useNav, returnTo } from './nav';
 
 export function ConfirmPrompt() {
   const request = useConfirm();
+  const nav = useNav();
   const [values, setValues] = useState<Record<string, string>>({});
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const panelRef = useRef<HTMLDivElement>(null);
@@ -72,53 +75,87 @@ export function ConfirmPrompt() {
     submit();
   };
 
+  const crumbs: Crumb[] = nav
+    ? [
+        ...nav.stack.slice(1).map((level, i) => ({
+          label: level.title ?? '',
+          onClick: () => {
+            resolveConfirm(null);
+            returnTo(i + 1);
+          },
+        })),
+        { label: nav.leaf },
+      ]
+    : [{ label: request.title }];
+
   return (
     <div class="sp-backdrop" onClick={() => resolveConfirm(null)}>
       <div
         ref={panelRef}
-        class="sp-panel sp-confirm"
+        class="sp-panel"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={onKeyDown}
       >
-        <div class="sp-confirm-title">{request.title}</div>
-        {request.detail && <div class="sp-confirm-detail">{request.detail}</div>}
+        <div class="sp-input-row">
+          <Breadcrumb
+            crumbs={crumbs}
+            onHome={() => {
+              resolveConfirm(null);
+              if (nav) returnTo(0);
+            }}
+          />
+          <input class="sp-input" disabled aria-hidden="true" tabIndex={-1} />
+        </div>
+        <div class="sp-confirm">
+          <div class="sp-confirm-title">{request.title}</div>
+          {request.detail && (
+            <div class="sp-confirm-detail">{request.detail}</div>
+          )}
 
-        {(request.fields ?? []).map((field) => (
-          <label class="sp-confirm-field" key={field.key}>
-            <span>{field.label}</span>
-            <input
-              class="sp-confirm-input"
-              type="text"
-              inputMode={field.numeric ? 'numeric' : undefined}
-              placeholder={field.placeholder}
-              value={values[field.key] ?? ''}
-              onInput={(e) =>
-                setValues((v) => ({ ...v, [field.key]: e.currentTarget.value }))
-              }
-            />
-          </label>
-        ))}
+          {(request.fields ?? []).map((field) => (
+            <label class="sp-confirm-field" key={field.key}>
+              <span>{field.label}</span>
+              <input
+                class="sp-confirm-input"
+                type="text"
+                inputMode={field.numeric ? 'numeric' : undefined}
+                placeholder={field.placeholder}
+                value={values[field.key] ?? ''}
+                onInput={(e) =>
+                  setValues((v) => ({ ...v, [field.key]: e.currentTarget.value }))
+                }
+              />
+            </label>
+          ))}
 
-        {(request.options ?? []).map((option) => (
-          <label class="sp-confirm-option" key={option.key}>
-            <input
-              type="checkbox"
-              checked={checked[option.key] ?? false}
-              onChange={(e) =>
-                setChecked((c) => ({ ...c, [option.key]: e.currentTarget.checked }))
-              }
-            />
-            {option.label}
-          </label>
-        ))}
+          {(request.options ?? []).map((option) => (
+            <label class="sp-confirm-option" key={option.key}>
+              <input
+                type="checkbox"
+                checked={checked[option.key] ?? false}
+                onChange={(e) =>
+                  setChecked((c) => ({
+                    ...c,
+                    [option.key]: e.currentTarget.checked,
+                  }))
+                }
+              />
+              {option.label}
+            </label>
+          ))}
 
-        <div class="sp-confirm-actions">
-          <button class="sp-btn" onClick={() => resolveConfirm(null)}>
-            Cancel
-          </button>
-          <button class="sp-btn sp-btn-danger" disabled={!canConfirm} onClick={submit}>
-            {request.confirmLabel ?? 'Confirm'}
-          </button>
+          <div class="sp-confirm-actions">
+            <button class="sp-btn" onClick={() => resolveConfirm(null)}>
+              Cancel
+            </button>
+            <button
+              class="sp-btn sp-btn-danger"
+              disabled={!canConfirm}
+              onClick={submit}
+            >
+              {request.confirmLabel ?? 'Confirm'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
