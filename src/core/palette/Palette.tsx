@@ -7,9 +7,12 @@ import type {
   SearchSuggestion,
 } from '../actions/types';
 import type { PageContext } from '../context/types';
+import { log } from '../log';
+import { notifyError } from '../../site/toast';
 import { focusNoScroll } from './focus';
 import { getRecency, recordRecency } from './recency';
 import { searchActions } from './search';
+import { WarningBanner } from './WarningBanner';
 
 interface PaletteProps {
   open: boolean;
@@ -35,6 +38,15 @@ interface Row {
   color?: string;
   onSelect: () => void;
   onDrill?: () => void;
+}
+
+function describeError(error: unknown): string {
+  return error instanceof Error ? (error.stack ?? error.message) : String(error);
+}
+
+function reportRunFailure(action: Action, error: unknown): void {
+  log.error(`${action.id} failed: ${describeError(error)}`);
+  notifyError("Couldn't complete that action");
 }
 
 export function Palette({ open, page, actions, onClose }: PaletteProps) {
@@ -143,8 +155,16 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     if (!action.submenu) return null;
     const cache = childCache.current;
     if (cache.has(action.id)) return cache.get(action.id) ?? null;
-    const result = action.submenu(ctx);
-    const value = result instanceof Promise ? null : result;
+    // Resolving children is a load-time concern: if it throws, the feature can't
+    // present itself, so fail silently (log only) rather than break the list.
+    let value: Action[] | null;
+    try {
+      const result = action.submenu(ctx);
+      value = result instanceof Promise ? null : result;
+    } catch (error) {
+      log.warn(`${action.id} submenu failed: ${describeError(error)}`);
+      value = null;
+    }
     cache.set(action.id, value);
     return value;
   };
@@ -187,7 +207,17 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   const runAction = (action: Action) => {
     setRecency(recordRecency(action.id));
-    void action.run?.(ctx);
+    // Safety net for active failures: a feature that can't function should log
+    // the detail and toast generically, never throw into the palette. Actions
+    // with their own try/catch return void here, so this won't double-report.
+    try {
+      const result = action.run?.(ctx);
+      if (result instanceof Promise) {
+        result.catch((error) => reportRunFailure(action, error));
+      }
+    } catch (error) {
+      reportRunFailure(action, error);
+    }
     onClose();
   };
 
@@ -306,6 +336,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   return (
     <div class="sp-backdrop" onClick={onClose}>
       <div class="sp-panel" onClick={(e) => e.stopPropagation()}>
+        <WarningBanner />
         <div class="sp-input-row">
           {breadcrumb && <span class="sp-breadcrumb">{breadcrumb} ›</span>}
           <input
