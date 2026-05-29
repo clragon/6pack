@@ -37,14 +37,56 @@ export const PALETTE_CSS = `
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 14px;
+  padding: 0 10px;
   background: var(--color-section-darken-5, transparent);
   border-bottom: 1px solid var(--color-table-border, #313d52);
 }
-.sp-breadcrumb {
+.sp-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+.sp-home {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0 2px;
+  color: #e8743b;
+  cursor: pointer;
+}
+.sp-home:hover {
+  color: #ff8c4a;
+}
+.sp-crumb-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.sp-crumb-arrow {
+  flex-shrink: 0;
   font-size: 13px;
   color: var(--color-text-muted, #9aa6bd);
+}
+.sp-crumb {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 13px;
+  padding: 0;
+  color: var(--color-text-muted, #9aa6bd);
   white-space: nowrap;
+  cursor: pointer;
+}
+button.sp-crumb:hover {
+  color: var(--color-text, #e6e9ef);
+}
+.sp-crumb-current {
+  cursor: default;
 }
 .sp-go {
   flex-shrink: 0;
@@ -114,6 +156,8 @@ export const PALETTE_CSS = `
   font-size: 13px;
 }
 .sp-capture {
+  display: flex;
+  flex-direction: column;
   padding: 20px;
   gap: 8px;
 }
@@ -125,6 +169,8 @@ export const PALETTE_CSS = `
   color: var(--color-text-muted, #9aa6bd);
 }
 .sp-confirm {
+  display: flex;
+  flex-direction: column;
   padding: 18px;
   gap: 12px;
 }

@@ -25,6 +25,9 @@ export interface Action {
   // be a Promise (e.g. an API call); sync children additionally enable query
   // reach-in, matching and pre-selecting a child from the parent list.
   submenu?: (ctx: ActionContext) => Action[] | Promise<Action[]>;
+  // Placeholder for the input once this group's submenu level is open. Omit for
+  // none: submenus filter a list, they aren't "type a command" like the root.
+  placeholder?: string;
   // Prefix-search. Typing this char at the root, or selecting the action, opens
   // the action's search level: an autocomplete-driven query box.
   prefix?: string;

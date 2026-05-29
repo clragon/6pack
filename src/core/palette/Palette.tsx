@@ -3,13 +3,14 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type {
   Action,
   ActionContext,
-  SearchSpec,
   SearchSuggestion,
 } from '../actions/types';
 import type { PageContext } from '../context/types';
 import { log } from '../log';
 import { notifyError } from '../../site/toast';
+import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { focusNoScroll } from './focus';
+import { captureNav, type Level, takeRestore } from './nav';
 import { getRecency, recordRecency } from './recency';
 import { searchActions } from './search';
 import { WarningBanner } from './WarningBanner';
@@ -19,12 +20,6 @@ interface PaletteProps {
   page: PageContext;
   actions: Action[];
   onClose: () => void;
-}
-
-interface Level {
-  title?: string;
-  actions?: Action[];
-  search?: SearchSpec;
 }
 
 // What the list renders and Enter/Tab act on, unified across command levels and
@@ -67,7 +62,10 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   useEffect(() => {
     if (!open) return;
-    setStack([{ actions }]);
+    // Reopen where a dialog sent us back to, else at root. Keep a fresh root so
+    // its predicates re-evaluate; reuse the captured deeper levels as-is.
+    const restore = takeRestore();
+    setStack(restore ? [{ actions }, ...restore.slice(1)] : [{ actions }]);
     setFilter('');
     setRecency(getRecency());
     childCache.current.clear();
@@ -205,8 +203,22 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   if (!open) return null;
 
-  const runAction = (action: Action) => {
+  const runAction = (action: Action, viaGroup?: Action) => {
     setRecency(recordRecency(action.id));
+    // Record the path to this action so a dialog it opens shows the full trail
+    // and can navigate back. Reach-in (running a child without drilling) appends
+    // the group's level so the trail still reads root > group > child.
+    const navStack = viaGroup
+      ? [
+          ...stack,
+          {
+            title: viaGroup.title,
+            actions: childrenOf(viaGroup) ?? [],
+            placeholder: viaGroup.placeholder,
+          },
+        ]
+      : stack;
+    captureNav(navStack, action.title);
     // Safety net for active failures: a feature that can't function should log
     // the detail and toast generically, never throw into the palette. Actions
     // with their own try/catch return void here, so this won't double-report.
@@ -224,7 +236,10 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const drillInto = (action: Action, carryQuery: boolean) => {
     const children = childrenOf(action);
     if (!children) return;
-    setStack((s) => [...s, { title: action.title, actions: children }]);
+    setStack((s) => [
+      ...s,
+      { title: action.title, actions: children, placeholder: action.placeholder },
+    ]);
     if (!carryQuery) setFilter('');
   };
 
@@ -236,7 +251,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const activate = (action: Action) => {
     if (action.search) return enterSearch(action);
     const match = childMatchOf(action);
-    if (match) runAction(match);
+    if (match) runAction(match, action);
     else if (action.submenu) drillInto(action, false);
     else runAction(action);
   };
@@ -244,6 +259,12 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const popLevel = () => {
     setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
     setFilter('');
+  };
+
+  const goHome = () => {
+    setStack((s) => (s.length > 1 ? s.slice(0, 1) : s));
+    setFilter('');
+    requestAnimationFrame(() => focusNoScroll(inputRef.current));
   };
 
   const completeToken = (value: string) => {
@@ -327,22 +348,35 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     }
   };
 
-  const breadcrumb = stack
-    .slice(1)
-    .map((entry) => entry.title)
-    .filter(Boolean)
-    .join(' › ');
+  const drilled = stack.slice(1);
+  const crumbs: Crumb[] = drilled.map((level, i) => ({
+    label: level.title ?? '',
+    // Every crumb but the current (trailing) one jumps back to that level.
+    onClick:
+      i < drilled.length - 1
+        ? () => {
+            setStack((s) => s.slice(0, i + 2));
+            setFilter('');
+          }
+        : undefined,
+  }));
 
   return (
     <div class="sp-backdrop" onClick={onClose}>
       <div class="sp-panel" onClick={(e) => e.stopPropagation()}>
         <WarningBanner />
         <div class="sp-input-row">
-          {breadcrumb && <span class="sp-breadcrumb">{breadcrumb} ›</span>}
+          <Breadcrumb crumbs={crumbs} onHome={goHome} />
           <input
             ref={inputRef}
             class="sp-input"
-            placeholder={searchSpec?.placeholder ?? 'Type a command…'}
+            placeholder={
+              searchSpec
+                ? (searchSpec.placeholder ?? 'Type to search…')
+                : stack.length === 1
+                  ? 'Type a command…'
+                  : (level.placeholder ?? '')
+            }
             value={filter}
             onInput={(e) => setFilter(e.currentTarget.value)}
             onKeyDown={onKeyDown}
