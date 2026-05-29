@@ -1,0 +1,23 @@
+{
+  "name": "6pack",
+  "private": true,
+  "version": "4.0.0",
+  "description": "Portable Areal Combustion Kit for e6: A weapon to surpass metal gear.",
+  "author": "binaryfloof",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.14",
+    "vite-plugin-monkey": "^8.0.6"
+  },
+  "dependencies": {
+    "@leeoniya/ufuzzy": "^1.0.19",
+    "preact": "^10.29.2"
+  }
+}
