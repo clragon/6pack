@@ -1,6 +1,5 @@
 import type { Action } from '../../core/actions/types';
 import { openInNewTab, openResolvedInNewTab } from '../../core/navigate';
-import { resolveCommentUrl } from '../../site/comment';
 import { cachedForumPostUrl, resolveForumPostUrl } from '../../site/forum';
 import { readReportedContent, type ReportedContent } from '../../site/ticket';
 import { notifyError } from '../../site/toast';
@@ -18,18 +17,14 @@ export const viewCommentInContext: Action = {
   description: 'Open the reported comment on its post',
   keywords: ['comment', 'context', 'post', 'view', 'open', 'reported', 'ticket'],
   weight: 1,
-  when: (page) => page.kind === 'ticket' && reportedOfType('comment') !== null,
+  // The post id is rendered alongside the comment link, so a comment ticket
+  // always carries it; require it rather than carry a fallback fetch.
+  when: (page) => page.kind === 'ticket' && reportedOfType('comment')?.postId != null,
   run: () => {
     const content = reportedOfType('comment');
-    if (!content || content.id == null) return;
+    if (content?.postId == null) return;
     // Keep the ticket open: open the comment in its post in a new tab.
-    if (content.postId != null) {
-      openInNewTab(`/posts/${content.postId}#comment-${content.id}`);
-    } else {
-      openResolvedInNewTab(resolveCommentUrl(content.id), () =>
-        notifyError("Could not find the comment's post"),
-      );
-    }
+    openInNewTab(`/posts/${content.postId}#comment-${content.id}`);
   },
 };
 
