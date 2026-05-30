@@ -1,9 +1,13 @@
 import type { PageContext } from './types';
 
 const POST_SHOW = /^\/posts\/(\d+)/;
+const TICKET_SHOW = /^\/tickets\/(\d+)/;
 
 export function detectContext(): PageContext {
-  const match = window.location.pathname.match(POST_SHOW);
-  if (match) return { kind: 'post', id: Number(match[1]) };
+  const path = window.location.pathname;
+  const post = path.match(POST_SHOW);
+  if (post) return { kind: 'post', id: Number(post[1]) };
+  const ticket = path.match(TICKET_SHOW);
+  if (ticket) return { kind: 'ticket', id: Number(ticket[1]) };
   return { kind: 'unknown' };
 }
