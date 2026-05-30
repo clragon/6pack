@@ -1,5 +1,6 @@
 import { matchesTrigger, triggerIsModless } from './core/config';
 import { detectContext } from './core/context/detect';
+import { record } from './core/diag';
 import { ActionRegistry } from './core/actions/registry';
 import { mountPalette } from './core/palette/mount';
 import { isConfirmActive } from './core/palette/confirm';
@@ -11,12 +12,17 @@ import { loadCurrentUser } from './site/user';
 import { allActions } from './actions';
 
 const page = detectContext();
+record('page', page);
 
 const registry = new ActionRegistry();
 registry.register(...allActions);
 
-// Warm the permission cache so level-gated actions resolve on first open.
-void loadCurrentUser();
+// Warm the permission cache so level-gated actions resolve on first open, and
+// record the resolved user as clean diagnostic rows.
+void loadCurrentUser().then((user) => {
+  record('user', user ? `${user.name} #${user.id}` : 'anonymous');
+  if (user) record('level', `${user.levelString} (${user.level})`);
+});
 
 // On a ticket, resolve the reported content's destination ahead of the click so
 // the in-context command opens straight at it.

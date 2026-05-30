@@ -1,5 +1,6 @@
 // Readers for the post-show DOM. One concern per function so a single broken
 // selector is isolated and cheap to repair when e621 changes its markup.
+import { probe } from '../core/diag';
 
 interface RawPost {
   created_at?: string;
@@ -20,9 +21,9 @@ export function readPostData(): RawPost | null {
   }
 }
 
-export function isDeleted(): boolean {
+export const isDeleted = probe('deleted', (): boolean => {
   return readPostData()?.flags?.deleted === true;
-}
+});
 
 // A post listing context: the index (/posts) or a post show page (/posts/:id),
 // both of which search posts.
@@ -46,7 +47,7 @@ export interface ArtistTag {
 
 // Sidebar tag rows carry the canonical (URL-encoded) name in data-name and the
 // category in data-category.
-export function readArtistTags(): ArtistTag[] {
+export const readArtistTags = probe('artist tags', (): ArtistTag[] => {
   const items = document.querySelectorAll<HTMLElement>(
     'li.tag-list-item[data-category="artist"]',
   );
@@ -66,14 +67,14 @@ export function readArtistTags(): ArtistTag[] {
     tags.push({ name, label: name.replace(/_/g, ' ') });
   }
   return tags;
-}
+}, (tags) => (tags.length ? tags.map((t) => t.label).join(', ') : 'none'));
 
-export function readUploaderId(): number | null {
+export const readUploaderId = probe('uploader id', (): number | null => {
   const raw = document
     .getElementById('image-container')
     ?.getAttribute('data-uploader-id');
   return raw ? Number(raw) : null;
-}
+});
 
 // The "Uploader:" sidebar row links to /users/<id>; the link text is the name.
 // Matched against the known uploader id so the approver link can't be picked.
@@ -89,7 +90,7 @@ export function readUploaderName(): string | null {
 
 // The post's parent id, if any. The edit form keeps it in a hidden field; the
 // "has parent" notice (.notice-child) links to the parent as a fallback.
-export function readParentId(): number | null {
+export const readParentId = probe('parent id', (): number | null => {
   const field = document.querySelector<HTMLInputElement>('#post_old_parent_id');
   if (field?.value && /^\d+$/.test(field.value)) return Number(field.value);
   const link = document.querySelector<HTMLAnchorElement>(
@@ -97,7 +98,7 @@ export function readParentId(): number | null {
   );
   const match = link?.getAttribute('href')?.match(/\/posts\/(\d+)/);
   return match ? Number(match[1]) : null;
-}
+});
 
 // Child post ids, from the "has children" relationship notice (.notice-parent,
 // confusingly named). Excludes the current post.

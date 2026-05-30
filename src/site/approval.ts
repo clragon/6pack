@@ -1,17 +1,18 @@
 // Janitor-work signals that e621 persists in localStorage. One reader per
 // concern so a single moved key stays isolated.
+import { probe } from '../core/diag';
 
 // The "Approvals: On/Off" toolbar toggle (#janitor-toolbar-toggle) writes
 // LStorage.Posts.JanitorToolbar to the legacy key "jtb" (boolean; the key is
 // absent when off). It only exists for approvers, so it doubles as a clean
 // "I am doing janitor work right now" gate that stays hidden for everyone else.
-export function isApprovalsEnabled(): boolean {
+export const isApprovalsEnabled = probe('approvals enabled', (): boolean => {
   try {
     return localStorage.getItem('jtb') === 'true';
   } catch {
     return false;
   }
-}
+});
 
 // The post mode menu's current selection (legacy key "mode"; absent at the
 // default "view"), stored as a bare string.

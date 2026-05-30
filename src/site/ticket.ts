@@ -1,3 +1,4 @@
+import { probe } from '../core/diag';
 import { resolveForumPostUrl } from './forum';
 
 // Readers for the ticket show page (/tickets/<id>). e621's ticket JSON carries
@@ -66,23 +67,23 @@ function userInRow(label: string): TicketUser | null {
   return userFromAnchor(row?.querySelector<HTMLAnchorElement>('a[href^="/users/"]'));
 }
 
-export function readReporter(): TicketUser | null {
-  return userInRow('Requested by');
-}
+export const readReporter = probe('reporter', (): TicketUser | null =>
+  userInRow('Requested by'),
+);
 
-export function readAccused(): TicketUser | null {
-  return userInRow('Accused');
-}
+export const readAccused = probe('accused', (): TicketUser | null =>
+  userInRow('Accused'),
+);
 
 // Present only once the ticket has a response. Reads "Unknown" (no link) when the
 // handler id was lost, which yields null.
-export function readHandler(): TicketUser | null {
-  return userInRow('Handled by');
-}
+export const readHandler = probe('handler', (): TicketUser | null =>
+  userInRow('Handled by'),
+);
 
-export function readClaimant(): TicketUser | null {
-  return userInRow('Claimed by');
-}
+export const readClaimant = probe('claimant', (): TicketUser | null =>
+  userInRow('Claimed by'),
+);
 
 export interface TicketParties {
   reporter: TicketUser | null;
@@ -167,15 +168,18 @@ function classifyByLink(row: HTMLTableRowElement): ReportedContent | null {
 
 // The "Reported <X>" row, classified by its content link, falling back to the row
 // label for the type when the content was deleted.
-export function readReportedContent(): ReportedContent | null {
-  for (const row of rows()) {
-    const title = rowTitle(row);
-    const labelled = REPORTED_LABELS[title];
-    if (!labelled) continue;
-    return classifyByLink(row) ?? { type: labelled };
-  }
-  return null;
-}
+export const readReportedContent = probe(
+  'reported',
+  (): ReportedContent | null => {
+    for (const row of rows()) {
+      const title = rowTitle(row);
+      const labelled = REPORTED_LABELS[title];
+      if (!labelled) continue;
+      return classifyByLink(row) ?? { type: labelled };
+    }
+    return null;
+  },
+);
 
 export function readTicketType(): ReportedType | null {
   return readReportedContent()?.type ?? null;

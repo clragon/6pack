@@ -1,3 +1,5 @@
+import { probe } from '../core/diag';
+
 // The current user, from e621's <meta> tags plus a one-shot /users/<id>.json
 // fetch. The meta tags cover the cheap sync checks; level and role flags live
 // only in the JSON.
@@ -103,9 +105,9 @@ export function isJanitorPlus(): boolean {
   return atLeast(Level.Janitor);
 }
 
-export function isModeratorPlus(): boolean {
-  return atLeast(Level.Moderator);
-}
+export const isModeratorPlus = probe('moderator+', (): boolean =>
+  atLeast(Level.Moderator),
+);
 
 export function isAdmin(): boolean {
   return atLeast(Level.Admin);
