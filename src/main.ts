@@ -7,6 +7,7 @@ import { isConfirmActive } from './core/palette/confirm';
 import { deepActiveElement, isEditableElement } from './core/palette/focus';
 import { captureStore, paletteStore } from './core/palette/store';
 import { log } from './core/log';
+import { mountBurnControls } from './burn/mount';
 import { prefetchReportedDestination } from './site/ticket';
 import { loadCurrentUser } from './site/user';
 import { allActions } from './actions';
@@ -27,6 +28,9 @@ void loadCurrentUser().then((user) => {
 // On a ticket, resolve the reported content's destination ahead of the click so
 // the in-context command opens straight at it.
 if (page.kind === 'ticket') prefetchReportedDestination();
+
+// Inject the burn checkboxes + controls on pages with burnable items.
+mountBurnControls();
 
 mountPalette(page, () => registry.available(page));
 

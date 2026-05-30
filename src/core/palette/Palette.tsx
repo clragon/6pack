@@ -12,6 +12,8 @@ import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { focusNoScroll } from './focus';
 import { captureNav, type Level, takeRestore } from './nav';
 import { getFrecency, recordUse, scoreFor } from './frecency';
+import { takePaletteTarget } from './store';
+import { formatTrigger } from '../config';
 import { searchActions } from './search';
 import { WarningBanner } from './WarningBanner';
 
@@ -62,13 +64,36 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   useEffect(() => {
     if (!open) return;
+    childCache.current.clear();
     // Reopen where a dialog sent us back to, else at root. Keep a fresh root so
-    // its predicates re-evaluate; reuse the captured deeper levels as-is.
+    // its predicates re-evaluate; reuse the captured deeper levels as-is. An
+    // inline "open at" target instead drills straight into that group.
     const restore = takeRestore();
-    setStack(restore ? [{ actions }, ...restore.slice(1)] : [{ actions }]);
+    const target = takePaletteTarget();
+    let next: Level[] = restore
+      ? [{ actions }, ...restore.slice(1)]
+      : [{ actions }];
+    if (target && !restore) {
+      const group = actions.find((action) => action.id === target);
+      try {
+        const children = group?.submenu?.(ctx);
+        if (group && children && !(children instanceof Promise)) {
+          next = [
+            { actions },
+            {
+              title: group.title,
+              actions: children,
+              placeholder: group.placeholder,
+            },
+          ];
+        }
+      } catch {
+        // Fall back to root if the group's children can't resolve.
+      }
+    }
+    setStack(next);
     setFilter('');
     setFrecency(getFrecency());
-    childCache.current.clear();
     requestAnimationFrame(() => focusNoScroll(inputRef.current));
   }, [open, actions]);
 
@@ -443,7 +468,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
               searchSpec
                 ? (searchSpec.placeholder ?? 'Type to search…')
                 : stack.length === 1
-                  ? 'Type a command…'
+                  ? `Type a command…  ·  ${formatTrigger()}`
                   : (level.placeholder ?? '')
             }
             value={filter}
