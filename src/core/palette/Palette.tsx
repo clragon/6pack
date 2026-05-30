@@ -11,7 +11,7 @@ import { notifyError } from '../../site/toast';
 import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { focusNoScroll } from './focus';
 import { captureNav, type Level, takeRestore } from './nav';
-import { getRecency, recordRecency } from './recency';
+import { getFrecency, recordUse, scoreFor } from './frecency';
 import { searchActions } from './search';
 import { WarningBanner } from './WarningBanner';
 
@@ -46,7 +46,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const [stack, setStack] = useState<Level[]>([{ actions }]);
   const [filter, setFilter] = useState('');
   const [selected, setSelected] = useState(0);
-  const [recency, setRecency] = useState<Record<string, number>>(getRecency);
+  const [frecency, setFrecency] = useState(getFrecency);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedRef = useRef<HTMLLIElement>(null);
@@ -63,7 +63,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     const restore = takeRestore();
     setStack(restore ? [{ actions }, ...restore.slice(1)] : [{ actions }]);
     setFilter('');
-    setRecency(getRecency());
+    setFrecency(getFrecency());
     childCache.current.clear();
     requestAnimationFrame(() => focusNoScroll(inputRef.current));
   }, [open, actions]);
@@ -180,23 +180,24 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const filtered = useMemo(() => {
     const query = filter.trim();
     if (!query) {
+      const now = Date.now();
       return levelActions
         .filter((action) => !action.hidden)
         .sort(
           (a, b) =>
             (b.weight ?? 0) - (a.weight ?? 0) ||
-            (recency[b.id] ?? 0) - (recency[a.id] ?? 0),
+            scoreFor(frecency, b.id, now) - scoreFor(frecency, a.id, now),
         );
     }
     return searchActions(query, levelActions, childTerms).sort(
       (a, b) => (b.weight ?? 0) - (a.weight ?? 0),
     );
-  }, [level, filter, recency]);
+  }, [level, filter, frecency]);
 
   if (!open) return null;
 
   const runAction = (action: Action, viaGroup?: Action) => {
-    setRecency(recordRecency(action.id));
+    setFrecency(recordUse(action.id));
     const navStack = viaGroup
       ? [
           ...stack,
