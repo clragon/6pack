@@ -1,0 +1,98 @@
+import type { Action } from '../core/actions/types';
+import { burnPile, type BurnRef } from '../core/burn';
+import { resourceName } from '../core/resource';
+import { hide, markWarning } from '../core/api/burn';
+import { openConfirm } from '../core/palette/confirm';
+import { notify, progress } from '../site/toast';
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const THROTTLE_MS = 500;
+
+async function incinerate(items: BurnRef[], markType?: string): Promise<void> {
+  const total = items.length;
+  if (total === 0) return;
+  const marked = markType ? ` and mark for ${markType}` : '';
+  const confirmed = await openConfirm({
+    title: `Incinerate ${total} item${total === 1 ? '' : 's'}${marked}?`,
+    confirmLabel: 'Incinerate',
+  });
+  if (!confirmed) return;
+
+  const fire = progress(`Burning ${total} items...`);
+  let burnt = 0;
+  for (const item of items) {
+    try {
+      await hide(item.type, item.id);
+      if (markType) await markWarning(item.type, item.id, markType);
+      burnt += 1;
+    } catch {}
+    fire.update(`Burning ${burnt} of ${total}...`);
+    await delay(THROTTLE_MS);
+  }
+  fire.finish(`Turned ${burnt} item${burnt === 1 ? '' : 's'} to ash.`);
+  burnPile.clear();
+}
+
+function copyLinks(items: BurnRef[]): void {
+  const first = items[0];
+  if (!first) return;
+  const byType: Partial<Record<BurnRef['type'], string[]>> = {};
+  for (const item of items) (byType[item.type] ??= []).push(item.id);
+  const url = (type: BurnRef['type'], ids: string[]) =>
+    type === 'comment'
+      ? `https://e621.net/comments?group_by=comment&search[id]=${ids.join(',')}`
+      : `https://e621.net/forum_posts?search[id]=${ids.join(',')}`;
+  const text = Object.entries(byType)
+    .map(([type, ids]) => url(type as BurnRef['type'], ids ?? []))
+    .join('\n');
+  void navigator.clipboard.writeText(text);
+  const noun = resourceName(first.type, items.length);
+  notify(`Copied a link to ${items.length} ${noun}`);
+}
+
+export const burnable: Action = {
+  id: 'burnable',
+  title: 'Burnable',
+  description: 'Act on the burn pile',
+  keywords: [
+    'burnable',
+    'burn',
+    'incinerate',
+    'selected',
+    'selection',
+    'mass',
+    'bulk',
+    'pile',
+    'hide',
+  ],
+  weight: 2,
+  when: () => burnPile.count() > 0,
+  submenu: () => {
+    const items = burnPile.items();
+    const burn = (markType: string | undefined, title: string): Action => ({
+      id: `burnable.incinerate.${markType ?? 'plain'}`,
+      title,
+      keywords: ['incinerate', 'burn', 'hide', ...(markType ? [markType] : [])],
+      run: () => void incinerate(items, markType),
+    });
+    return [
+      burn(undefined, `Incinerate (${items.length})`),
+      burn('warning', 'Incinerate and mark for warning'),
+      burn('record', 'Incinerate and mark for record'),
+      burn('ban', 'Incinerate and mark for ban'),
+      {
+        id: 'burnable.copy',
+        title: 'Copy links',
+        keywords: ['copy', 'links', 'urls', 'clipboard'],
+        run: () => copyLinks(items),
+      },
+      {
+        id: 'burnable.clear',
+        title: 'Clear pile',
+        keywords: ['clear', 'deselect', 'reset', 'empty'],
+        run: () => burnPile.clear(),
+      },
+    ];
+  },
+};

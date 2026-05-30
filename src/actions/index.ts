@@ -1,5 +1,6 @@
 import type { Action } from '../core/actions/types';
 import { userActivity } from './activity';
+import { burnable } from './burnable';
 import { convertToBan, convertToFeedback } from './convert';
 import { copy } from './copy';
 import { createFeedback } from './feedback';
@@ -20,6 +21,7 @@ export const allActions: Action[] = [
   convertToFeedback,
   viewUser,
   userActivity,
+  burnable,
   ...settingsActions,
   mode,
   logs,

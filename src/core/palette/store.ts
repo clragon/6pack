@@ -23,3 +23,16 @@ function createToggle() {
 
 export const paletteStore = createToggle();
 export const captureStore = createToggle();
+
+let pendingTarget: string | null = null;
+
+export function openPaletteAt(actionId: string): void {
+  pendingTarget = actionId;
+  paletteStore.set(true);
+}
+
+export function takePaletteTarget(): string | null {
+  const target = pendingTarget;
+  pendingTarget = null;
+  return target;
+}
