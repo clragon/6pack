@@ -51,11 +51,11 @@ export const PALETTE_CSS = `
   background: none;
   border: none;
   padding: 0 2px;
-  color: #e8743b;
+  color: var(--palette-text-yellow, #ffd666);
   cursor: pointer;
 }
 .sp-home:hover {
-  color: #ff8c4a;
+  color: var(--palette-plain-yellow, #ecec26);
 }
 .sp-crumb-group {
   display: inline-flex;
