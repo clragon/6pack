@@ -1,6 +1,6 @@
 import type { Action } from '../../core/actions/types';
 import { openInNewTab } from '../../core/navigate';
-import { readAccused } from '../../site/ticket';
+import { readAccused, readReportedContent } from '../../site/ticket';
 
 interface Destination {
   id: string;
@@ -12,6 +12,13 @@ interface Destination {
 }
 
 const DESTINATIONS: Destination[] = [
+  {
+    id: 'profile',
+    title: 'Profile',
+    surfaceTitle: 'View accused profile',
+    keywords: ['profile', 'user', 'account', 'page'],
+    url: (id) => `/users/${id}`,
+  },
   {
     id: 'comments',
     title: 'Comments',
@@ -34,6 +41,13 @@ const DESTINATIONS: Destination[] = [
     url: (id) => `/forum_posts?search[creator_id]=${id}`,
   },
   {
+    id: 'blips',
+    title: 'Blips',
+    surfaceTitle: 'View accused blips',
+    keywords: ['blips', 'blip'],
+    url: (id) => `/blips?search[creator_id]=${id}`,
+  },
+  {
     id: 'feedback',
     title: 'Feedback',
     surfaceTitle: 'View accused feedback',
@@ -42,6 +56,13 @@ const DESTINATIONS: Destination[] = [
     url: (id) => `/user_feedbacks?search[user_id]=${id}`,
   },
 ];
+
+const TYPE_TO_DEST: Record<string, string> = {
+  comment: 'comments',
+  forum: 'forum-posts',
+  blip: 'blips',
+  user: 'profile',
+};
 
 export const accusedActivity: Action = {
   id: 'ticket.accused-activity',
@@ -63,12 +84,13 @@ export const accusedActivity: Action = {
   submenu: () => {
     const accused = readAccused();
     if (!accused) return [];
+    const matched = TYPE_TO_DEST[readReportedContent()?.type ?? ''];
     return DESTINATIONS.map((dest) => ({
       id: `ticket.accused-activity.${dest.id}`,
       title: dest.title,
       surfaceTitle: dest.surfaceTitle,
       keywords: dest.keywords,
-      surface: dest.surface,
+      surface: dest.surface || dest.id === matched,
       run: () => openInNewTab(dest.url(accused.id)),
     }));
   },
