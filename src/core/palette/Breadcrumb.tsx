@@ -21,11 +21,11 @@ export function Breadcrumb({
       <button
         class="sp-home"
         type="button"
-        title="Home"
-        aria-label="Home"
+        title="6 P.A.C.K."
+        aria-label="6 P.A.C.K."
         onClick={onHome}
       >
-        <Flame size={16} />
+        <Flame size={16} fill="currentColor" />
       </button>
       {crumbs.map((crumb, index) => (
         <span class="sp-crumb-group" key={index}>
