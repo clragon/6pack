@@ -1,6 +1,6 @@
 import type { Action } from '../../core/actions/types';
 import { openInNewTab } from '../../core/navigate';
-import { readAccused } from '../../site/ticket';
+import { readAccused, readReportedContent } from '../../site/ticket';
 
 // The accused user's records, each a filtered listing keyed on their id. New tab
 // throughout so the ticket stays open while you size the user up.
@@ -16,6 +16,13 @@ interface Destination {
 }
 
 const DESTINATIONS: Destination[] = [
+  {
+    id: 'profile',
+    title: 'Profile',
+    surfaceTitle: 'View accused profile',
+    keywords: ['profile', 'user', 'account', 'page'],
+    url: (id) => `/users/${id}`,
+  },
   {
     id: 'comments',
     title: 'Comments',
@@ -38,6 +45,13 @@ const DESTINATIONS: Destination[] = [
     url: (id) => `/forum_posts?search[creator_id]=${id}`,
   },
   {
+    id: 'blips',
+    title: 'Blips',
+    surfaceTitle: 'View accused blips',
+    keywords: ['blips', 'blip'],
+    url: (id) => `/blips?search[creator_id]=${id}`,
+  },
+  {
     id: 'feedback',
     title: 'Feedback',
     surfaceTitle: 'View accused feedback',
@@ -46,6 +60,15 @@ const DESTINATIONS: Destination[] = [
     url: (id) => `/user_feedbacks?search[user_id]=${id}`,
   },
 ];
+
+// Reported content type -> the activity destination that matches it. dmail has
+// no listing (dmails are private), so those tickets surface feedback only.
+const TYPE_TO_DEST: Record<string, string> = {
+  comment: 'comments',
+  forum: 'forum-posts',
+  blip: 'blips',
+  user: 'profile',
+};
 
 export const accusedActivity: Action = {
   id: 'ticket.accused-activity',
@@ -67,12 +90,15 @@ export const accusedActivity: Action = {
   submenu: () => {
     const accused = readAccused();
     if (!accused) return [];
+    // Promote the activity matching the reported content (a comment ticket leads
+    // with the accused's comments) to the ticket's top level.
+    const matched = TYPE_TO_DEST[readReportedContent()?.type ?? ''];
     return DESTINATIONS.map((dest) => ({
       id: `ticket.accused-activity.${dest.id}`,
       title: dest.title,
       surfaceTitle: dest.surfaceTitle,
       keywords: dest.keywords,
-      surface: dest.surface,
+      surface: dest.surface || dest.id === matched,
       run: () => openInNewTab(dest.url(accused.id)),
     }));
   },
