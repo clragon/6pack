@@ -16,6 +16,8 @@ export interface Action {
   hidden?: boolean;
   weight?: number;
   submenuOnly?: boolean;
+  surface?: boolean;
+  surfaceTitle?: string;
   run?: (ctx: ActionContext) => void | Promise<void>;
   submenu?: (ctx: ActionContext) => Action[] | Promise<Action[]>;
   placeholder?: string;

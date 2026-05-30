@@ -235,14 +235,6 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     setFilter('');
   };
 
-  const activate = (action: Action) => {
-    if (action.search) return enterSearch(action);
-    const surfaced = surfacedChild(action);
-    if (surfaced) runAction(surfaced, action);
-    else if (action.submenu) drillInto(action, false);
-    else runAction(action);
-  };
-
   const popLevel = () => {
     setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
     setFilter('');
@@ -282,22 +274,73 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
       onSelect: () => completeToken(suggestion.value),
     }));
   } else {
-    rows = filtered.map((action) => {
-      const surfaced = surfacedChild(action);
-      const isGroup = !!action.submenu;
-      return {
+    rows = filtered.flatMap((action): Row[] => {
+      if (action.search) {
+        return [
+          {
+            id: action.id,
+            title: action.title,
+            detail: action.description,
+            isGroup: false,
+            onSelect: () => enterSearch(action),
+          },
+        ];
+      }
+      if (!action.submenu) {
+        return [
+          {
+            id: action.id,
+            title: action.title,
+            detail: action.description,
+            isGroup: false,
+            onSelect: () => runAction(action),
+          },
+        ];
+      }
+      const drill = () => drillInto(action, !!childMatchOf(action));
+      const groupRow: Row = {
         id: action.id,
-        title:
-          isGroup && surfaced
-            ? `${action.title} → ${surfaced.title}`
-            : action.title,
+        title: action.title,
         detail: action.description,
-        isGroup,
-        onSelect: () => activate(action),
-        onDrill: isGroup
-          ? () => drillInto(action, !!childMatchOf(action))
-          : undefined,
+        isGroup: true,
+        onSelect: drill,
+        onDrill: drill,
       };
+      const childRow = (child: Action): Row => ({
+        id: `${action.id}::${child.id}`,
+        title: child.surfaceTitle ?? child.title,
+        detail: `from ${action.title}`,
+        isGroup: false,
+        onSelect: () => runAction(child, action),
+      });
+      const match = childMatchOf(action);
+      const shown = new Set<string>();
+      const childRows: Row[] = [];
+      if (match) {
+        childRows.push(childRow(match));
+        shown.add(match.id);
+      }
+      for (const child of reachableChildren(action) ?? []) {
+        if (child.surface && !shown.has(child.id)) {
+          childRows.push(childRow(child));
+          shown.add(child.id);
+        }
+      }
+      if (childRows.length > 0) return [...childRows, groupRow];
+      const single = surfacedChild(action);
+      if (single) {
+        return [
+          {
+            id: action.id,
+            title: `${action.title} → ${single.title}`,
+            detail: action.description,
+            isGroup: true,
+            onSelect: () => runAction(single, action),
+            onDrill: drill,
+          },
+        ];
+      }
+      return [groupRow];
     });
   }
 
