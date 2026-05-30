@@ -5,7 +5,7 @@
 // the pagination (which would need a record count the JSON API doesn't expose).
 // An original post redirects to its topic; that page carries the same
 // self-anchored link, so one selector covers both cases.
-export async function resolveForumPostUrl(id: number): Promise<string | null> {
+async function fetchForumPostUrl(id: number): Promise<string | null> {
   try {
     const res = await fetch(`/forum_posts/${id}`, { credentials: 'same-origin' });
     if (!res.ok) return null;
@@ -24,4 +24,30 @@ export async function resolveForumPostUrl(id: number): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+const pending = new Map<number, Promise<string | null>>();
+const resolved = new Map<number, string>();
+
+// Memoized: one fetch per id. Successes are cached so a warmed lookup is instant;
+// failures are not, so they stay retryable on the next call.
+export function resolveForumPostUrl(id: number): Promise<string | null> {
+  const done = resolved.get(id);
+  if (done !== undefined) return Promise.resolve(done);
+  const inFlight = pending.get(id);
+  if (inFlight) return inFlight;
+  const promise = fetchForumPostUrl(id).then((url) => {
+    if (url) resolved.set(id, url);
+    pending.delete(id);
+    return url;
+  });
+  pending.set(id, promise);
+  return promise;
+}
+
+// The resolved URL if a prior call already succeeded, else undefined. Lets a
+// command open a new tab pointed straight at the destination when the prefetch
+// has landed, skipping the blank-then-redirect dance.
+export function cachedForumPostUrl(id: number): string | undefined {
+  return resolved.get(id);
 }

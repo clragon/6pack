@@ -1,3 +1,5 @@
+import { resolveForumPostUrl } from './forum';
+
 // Readers for the ticket show page (/tickets/<id>). e621's ticket JSON carries
 // only ids, but the DOM renders each party as a link_to_user anchor (id in the
 // href, display name in the text), so the table is the richer source and needs no
@@ -177,4 +179,15 @@ export function readReportedContent(): ReportedContent | null {
 
 export function readTicketType(): ReportedType | null {
   return readReportedContent()?.type ?? null;
+}
+
+// Eagerly resolve where the reported content opens, so the in-context command can
+// point a new tab straight at the destination instead of redirecting a blank one.
+// Only forum posts need it: their URL takes a fetch, while comments already carry
+// their post id in the DOM.
+export function prefetchReportedDestination(): void {
+  const content = readReportedContent();
+  if (content?.type === 'forum' && content.id != null) {
+    void resolveForumPostUrl(content.id);
+  }
 }

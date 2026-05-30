@@ -1,7 +1,7 @@
 import type { Action } from '../../core/actions/types';
 import { openInNewTab, openResolvedInNewTab } from '../../core/navigate';
 import { resolveCommentUrl } from '../../site/comment';
-import { resolveForumPostUrl } from '../../site/forum';
+import { cachedForumPostUrl, resolveForumPostUrl } from '../../site/forum';
 import { readReportedContent, type ReportedContent } from '../../site/ticket';
 import { notifyError } from '../../site/toast';
 
@@ -43,9 +43,16 @@ export const viewForumPostInContext: Action = {
   run: () => {
     const content = reportedOfType('forum');
     if (!content || content.id == null) return;
-    // Keep the ticket open: open the forum post in its topic in a new tab.
-    openResolvedInNewTab(resolveForumPostUrl(content.id), () =>
-      notifyError('Could not locate the forum post in its topic'),
-    );
+    // Keep the ticket open: open the forum post in its topic in a new tab. The
+    // prefetch usually has the URL ready, so open straight at it; otherwise open
+    // blank now and redirect once the resolve lands.
+    const ready = cachedForumPostUrl(content.id);
+    if (ready) {
+      openInNewTab(ready);
+    } else {
+      openResolvedInNewTab(resolveForumPostUrl(content.id), () =>
+        notifyError('Could not locate the forum post in its topic'),
+      );
+    }
   },
 };
