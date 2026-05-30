@@ -19,6 +19,14 @@ export interface Action {
   // Excluded from the parent group's reach-in: reachable only by drilling into
   // the submenu, never surfaced or pre-selected from the parent level.
   submenuOnly?: boolean;
+  // A submenu child that also appears at the parent level (run directly), while
+  // still living in the submenu. The parent-level row is deduped against a query
+  // reach-in for the same child.
+  surface?: boolean;
+  // The explicit title used when this child is shown at the parent level
+  // (surfaced or reached into via search), where the submenu's context is absent.
+  // The short `title` still applies inside the submenu. Falls back to `title`.
+  surfaceTitle?: string;
   // Leaf behaviour. A group (one with `submenu`) may omit this.
   run?: (ctx: ActionContext) => void | Promise<void>;
   // Makes this a group: resolves child actions lazily when needed. Children may

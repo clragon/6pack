@@ -7,7 +7,11 @@ import { readAccused } from '../../site/ticket';
 interface Destination {
   id: string;
   title: string;
+  // Explicit title for the top level; the submenu uses the short title.
+  surfaceTitle: string;
   keywords: string[];
+  // Promote to the ticket's top level (still inside the submenu too).
+  surface?: boolean;
   url: (userId: number) => string;
 }
 
@@ -15,25 +19,30 @@ const DESTINATIONS: Destination[] = [
   {
     id: 'comments',
     title: 'Comments',
+    surfaceTitle: 'View accused comments',
     keywords: ['comments', 'comment'],
     url: (id) => `/comments?group_by=comment&search[creator_id]=${id}`,
   },
   {
     id: 'post-versions',
     title: 'Post versions',
+    surfaceTitle: 'View accused post versions',
     keywords: ['post', 'versions', 'changes', 'edits', 'tag', 'history'],
     url: (id) => `/post_versions?search[updater_id]=${id}`,
   },
   {
     id: 'forum-posts',
     title: 'Forum posts',
+    surfaceTitle: 'View accused forum posts',
     keywords: ['forum', 'posts'],
     url: (id) => `/forum_posts?search[creator_id]=${id}`,
   },
   {
     id: 'feedback',
     title: 'Feedback',
+    surfaceTitle: 'View accused feedback',
     keywords: ['feedback', 'record'],
+    surface: true,
     url: (id) => `/user_feedbacks?search[user_id]=${id}`,
   },
 ];
@@ -61,7 +70,9 @@ export const accusedActivity: Action = {
     return DESTINATIONS.map((dest) => ({
       id: `ticket.accused-activity.${dest.id}`,
       title: dest.title,
+      surfaceTitle: dest.surfaceTitle,
       keywords: dest.keywords,
+      surface: dest.surface,
       run: () => openInNewTab(dest.url(accused.id)),
     }));
   },
