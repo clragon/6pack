@@ -1,4 +1,5 @@
 import type { Action } from '../core/actions/types';
+import { convertToBan, convertToFeedback } from './convert';
 import { copy } from './copy';
 import { createFeedback } from './feedback';
 import { diagnostics } from './diagnostics';
@@ -7,12 +8,16 @@ import { mode } from './mode';
 import { postActions } from './post';
 import { settingsActions } from './settings';
 import { ticketActions } from './ticket';
+import { viewUser } from './viewUser';
 
 export const allActions: Action[] = [
   copy,
   ...postActions,
   ...ticketActions,
   createFeedback,
+  convertToBan,
+  convertToFeedback,
+  viewUser,
   ...settingsActions,
   mode,
   logs,
