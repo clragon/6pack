@@ -1,5 +1,6 @@
 import { matchesTrigger, triggerIsModless } from './core/config';
 import { detectContext } from './core/context/detect';
+import { record } from './core/diag';
 import { ActionRegistry } from './core/actions/registry';
 import { mountPalette } from './core/palette/mount';
 import { isConfirmActive } from './core/palette/confirm';
@@ -11,11 +12,15 @@ import { loadCurrentUser } from './site/user';
 import { allActions } from './actions';
 
 const page = detectContext();
+record('page', page);
 
 const registry = new ActionRegistry();
 registry.register(...allActions);
 
-void loadCurrentUser();
+void loadCurrentUser().then((user) => {
+  record('user', user ? `${user.name} #${user.id}` : 'anonymous');
+  if (user) record('level', `${user.levelString} (${user.level})`);
+});
 
 if (page.kind === 'ticket') prefetchReportedDestination();
 

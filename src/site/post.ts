@@ -1,3 +1,5 @@
+import { probe } from '../core/diag';
+
 interface RawPost {
   created_at?: string;
   flags?: Record<string, boolean>;
@@ -15,9 +17,9 @@ export function readPostData(): RawPost | null {
   }
 }
 
-export function isDeleted(): boolean {
+export const isDeleted = probe('deleted', (): boolean => {
   return readPostData()?.flags?.deleted === true;
-}
+});
 
 export function isPostListing(): boolean {
   return /^\/posts(\/\d+)?\/?$/.test(location.pathname);
@@ -35,7 +37,7 @@ export interface ArtistTag {
   label: string;
 }
 
-export function readArtistTags(): ArtistTag[] {
+export const readArtistTags = probe('artist tags', (): ArtistTag[] => {
   const items = document.querySelectorAll<HTMLElement>(
     'li.tag-list-item[data-category="artist"]',
   );
@@ -55,14 +57,14 @@ export function readArtistTags(): ArtistTag[] {
     tags.push({ name, label: name.replace(/_/g, ' ') });
   }
   return tags;
-}
+}, (tags) => (tags.length ? tags.map((t) => t.label).join(', ') : 'none'));
 
-export function readUploaderId(): number | null {
+export const readUploaderId = probe('uploader id', (): number | null => {
   const raw = document
     .getElementById('image-container')
     ?.getAttribute('data-uploader-id');
   return raw ? Number(raw) : null;
-}
+});
 
 export function readUploaderName(): string | null {
   const id = readUploaderId();
@@ -74,7 +76,7 @@ export function readUploaderName(): string | null {
   return name || null;
 }
 
-export function readParentId(): number | null {
+export const readParentId = probe('parent id', (): number | null => {
   const field = document.querySelector<HTMLInputElement>('#post_old_parent_id');
   if (field?.value && /^\d+$/.test(field.value)) return Number(field.value);
   const link = document.querySelector<HTMLAnchorElement>(
@@ -82,7 +84,7 @@ export function readParentId(): number | null {
   );
   const match = link?.getAttribute('href')?.match(/\/posts\/(\d+)/);
   return match ? Number(match[1]) : null;
-}
+});
 
 export function readChildIds(): number[] {
   const notice = document.querySelector('.notice-parent');

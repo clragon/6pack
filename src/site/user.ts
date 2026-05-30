@@ -1,3 +1,5 @@
+import { probe } from '../core/diag';
+
 function meta(name: string): string | null {
   return (
     document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`)?.content ??
@@ -90,9 +92,9 @@ export function isJanitorPlus(): boolean {
   return atLeast(Level.Janitor);
 }
 
-export function isModeratorPlus(): boolean {
-  return atLeast(Level.Moderator);
-}
+export const isModeratorPlus = probe('moderator+', (): boolean =>
+  atLeast(Level.Moderator),
+);
 
 export function isAdmin(): boolean {
   return atLeast(Level.Admin);

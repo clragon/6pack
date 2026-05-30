@@ -1,10 +1,12 @@
-export function isApprovalsEnabled(): boolean {
+import { probe } from '../core/diag';
+
+export const isApprovalsEnabled = probe('approvals enabled', (): boolean => {
   try {
     return localStorage.getItem('jtb') === 'true';
   } catch {
     return false;
   }
-}
+});
 
 export function readRawMode(): string | null {
   try {
