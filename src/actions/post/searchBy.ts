@@ -1,12 +1,14 @@
 import type { Action } from '../../core/actions/types';
+import { openInNewTab } from '../../core/navigate';
 import { isApprovalsEnabled } from '../../site/approval';
 import { readArtistTags, readUploaderId, readUploaderName } from '../../site/post';
 
 function searchChildren(pending: boolean): Action[] {
   const suffix = pending ? '.pending' : '';
+  // New tab so the post you're filtering from stays open.
   const go = (tags: string) => () => {
     const full = pending ? `${tags} status:pending` : tags;
-    window.location.href = `/posts?tags=${encodeURIComponent(full)}`;
+    openInNewTab(`/posts?tags=${encodeURIComponent(full)}`);
   };
 
   const children: Action[] = [];
