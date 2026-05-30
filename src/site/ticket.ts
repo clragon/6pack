@@ -1,3 +1,5 @@
+import { resolveForumPostUrl } from './forum';
+
 export interface TicketUser {
   id: number;
   name: string;
@@ -157,4 +159,11 @@ export function readReportedContent(): ReportedContent | null {
 
 export function readTicketType(): ReportedType | null {
   return readReportedContent()?.type ?? null;
+}
+
+export function prefetchReportedDestination(): void {
+  const content = readReportedContent();
+  if (content?.type === 'forum' && content.id != null) {
+    void resolveForumPostUrl(content.id);
+  }
 }

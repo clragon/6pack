@@ -1,7 +1,7 @@
 import type { Action } from '../../core/actions/types';
 import { openInNewTab, openResolvedInNewTab } from '../../core/navigate';
 import { resolveCommentUrl } from '../../site/comment';
-import { resolveForumPostUrl } from '../../site/forum';
+import { cachedForumPostUrl, resolveForumPostUrl } from '../../site/forum';
 import { readReportedContent, type ReportedContent } from '../../site/ticket';
 import { notifyError } from '../../site/toast';
 
@@ -40,8 +40,13 @@ export const viewForumPostInContext: Action = {
   run: () => {
     const content = reportedOfType('forum');
     if (!content || content.id == null) return;
-    openResolvedInNewTab(resolveForumPostUrl(content.id), () =>
-      notifyError('Could not locate the forum post in its topic'),
-    );
+    const ready = cachedForumPostUrl(content.id);
+    if (ready) {
+      openInNewTab(ready);
+    } else {
+      openResolvedInNewTab(resolveForumPostUrl(content.id), () =>
+        notifyError('Could not locate the forum post in its topic'),
+      );
+    }
   },
 };

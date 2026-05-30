@@ -1,4 +1,4 @@
-export async function resolveForumPostUrl(id: number): Promise<string | null> {
+async function fetchForumPostUrl(id: number): Promise<string | null> {
   try {
     const res = await fetch(`/forum_posts/${id}`, { credentials: 'same-origin' });
     if (!res.ok) return null;
@@ -16,4 +16,25 @@ export async function resolveForumPostUrl(id: number): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+const pending = new Map<number, Promise<string | null>>();
+const resolved = new Map<number, string>();
+
+export function resolveForumPostUrl(id: number): Promise<string | null> {
+  const done = resolved.get(id);
+  if (done !== undefined) return Promise.resolve(done);
+  const inFlight = pending.get(id);
+  if (inFlight) return inFlight;
+  const promise = fetchForumPostUrl(id).then((url) => {
+    if (url) resolved.set(id, url);
+    pending.delete(id);
+    return url;
+  });
+  pending.set(id, promise);
+  return promise;
+}
+
+export function cachedForumPostUrl(id: number): string | undefined {
+  return resolved.get(id);
 }

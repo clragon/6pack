@@ -6,6 +6,7 @@ import { isConfirmActive } from './core/palette/confirm';
 import { deepActiveElement, isEditableElement } from './core/palette/focus';
 import { captureStore, paletteStore } from './core/palette/store';
 import { log } from './core/log';
+import { prefetchReportedDestination } from './site/ticket';
 import { loadCurrentUser } from './site/user';
 import { allActions } from './actions';
 
@@ -15,6 +16,8 @@ const registry = new ActionRegistry();
 registry.register(...allActions);
 
 void loadCurrentUser();
+
+if (page.kind === 'ticket') prefetchReportedDestination();
 
 mountPalette(page, () => registry.available(page));
 
