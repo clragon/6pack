@@ -1,5 +1,23 @@
 import type { Action } from '../core/actions/types';
+import type { PageContext } from '../core/context/types';
 import { notify } from '../site/toast';
+
+// The DText shortlink for the current resource (e.g. "post #123"), for pasting
+// into markup. Tokens match the dtext gem's grammar.
+function dtextRef(page: PageContext): string | null {
+  switch (page.kind) {
+    case 'post':
+      return `post #${page.id}`;
+    case 'ticket':
+      return `ticket #${page.id}`;
+    case 'user':
+      return `user #${page.id}`;
+    case 'userFeedbacks':
+      return page.userId != null ? `user #${page.userId}` : null;
+    default:
+      return null;
+  }
+}
 
 export const copy: Action = {
   id: 'copy',
@@ -17,6 +35,18 @@ export const copy: Action = {
         run: () => {
           void navigator.clipboard.writeText(String(id));
           notify(`Copied #${id}`);
+        },
+      });
+    }
+    const ref = dtextRef(page);
+    if (ref) {
+      children.push({
+        id: 'copy.dtext',
+        title: ref,
+        keywords: ['dtext', 'reference', 'ref', 'link', 'markup'],
+        run: () => {
+          void navigator.clipboard.writeText(ref);
+          notify(`Copied ${ref}`);
         },
       });
     }
