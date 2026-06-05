@@ -185,6 +185,18 @@ export function readTicketType(): ReportedType | null {
   return readReportedContent()?.type ?? null;
 }
 
+// pending and partial are open; approved is closed. The status row's value cell
+// carries a `<status>-ticket` class, which is the stable machine-readable source
+// (the visible text is prettified).
+export type TicketStatus = 'pending' | 'partial' | 'approved';
+const TICKET_STATUSES: TicketStatus[] = ['pending', 'partial', 'approved'];
+
+export const readTicketStatus = probe('status', (): TicketStatus | null => {
+  const row = rows().find((r) => rowTitle(r) === 'Status');
+  const cell = row?.querySelector('td:last-child');
+  return TICKET_STATUSES.find((status) => cell?.classList.contains(`${status}-ticket`)) ?? null;
+});
+
 // Eagerly resolve where the reported content opens, so the in-context command can
 // point a new tab straight at the destination instead of redirecting a blank one.
 // Only forum posts need it: their URL takes a fetch, while comments already carry

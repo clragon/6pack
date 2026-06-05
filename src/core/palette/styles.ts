@@ -17,9 +17,16 @@ export const PALETTE_CSS = `
 .sp-backdrop * {
   box-sizing: border-box;
 }
-.sp-panel {
+.sp-shell {
+  position: relative;
   margin-top: 12vh;
   width: min(560px, 92vw);
+  display: flex;
+  flex-direction: column;
+  /* The chips are absolutely placed above the panel (see .sp-chips), so the panel
+     and its input bar hold a fixed position whether or not chips are showing. */
+}
+.sp-panel {
   max-height: 60vh;
   display: flex;
   flex-direction: column;
@@ -40,6 +47,66 @@ export const PALETTE_CSS = `
   padding: 0 10px;
   background: var(--color-section-darken-5, transparent);
   border-bottom: 1px solid var(--color-table-border, #313d52);
+}
+.sp-chips {
+  /* Anchored directly above the panel and out of flow, so showing or hiding the
+     tabs never moves the bar. They grow upward into the space over the dialog. */
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 0 8px;
+  /* Overlap the panel's top border so the tabs' open bottoms merge into it. */
+  margin-bottom: -1px;
+  z-index: 1;
+}
+.sp-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 4px 12px;
+  /* Open at the bottom into the panel; rounded only at the top, like a browser
+     tab above a window. */
+  border: 1px solid var(--color-table-border, #313d52);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  /* Filled with the panel's surface so each tab reads as the dialog growing
+     upward; the row around the chips stays transparent. */
+  background-color: var(--color-section, #1b2433);
+  background-image: var(--image-foreground, none);
+  color: var(--color-text-muted, #9aa6bd);
+  cursor: pointer;
+}
+.sp-chip:hover {
+  border-color: var(--palette-text-yellow, #ffd666);
+  color: var(--palette-text-yellow, #ffd666);
+}
+.sp-chip-active {
+  color: var(--color-text, #e6e9ef);
+  /* Accent the active tab without shifting layout. */
+  box-shadow: inset 0 2px 0 var(--palette-text-yellow, #ffd666);
+}
+.sp-chip-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--color-text, #e6e9ef);
+  background: var(--color-section-darken-5, transparent);
+  border-bottom: 1px solid var(--color-table-border, #313d52);
+}
+.sp-chip-fact-label {
+  color: var(--color-text-muted, #9aa6bd);
+  margin-right: 5px;
 }
 .sp-crumbs {
   display: flex;
@@ -203,19 +270,23 @@ button.sp-crumb:hover {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 6px 8px;
   font-size: 13px;
+  border: 1px solid transparent;
+  border-radius: 4px;
   cursor: pointer;
 }
 .sp-confirm-actions {
   display: flex;
-  justify-content: flex-end;
   gap: 8px;
   margin-top: 4px;
 }
 .sp-btn {
-  padding: 6px 14px;
+  flex: 1;
+  padding: 9px 14px;
   font: inherit;
   font-size: 13px;
+  text-align: center;
   color: inherit;
   background: var(--color-section-lighten-10, #2a3852);
   border: 1px solid var(--color-table-border, #313d52);
@@ -230,6 +301,14 @@ button.sp-crumb:hover {
   background: #7a2227;
   border-color: #b3343a;
   color: #fff;
+}
+/* The cursor: whichever control the keyboard is on gets a clear accent ring,
+   matching the command list's selected row. */
+.sp-confirm-sel,
+.sp-confirm-field.sp-confirm-sel .sp-confirm-input {
+  outline: none;
+  border-color: var(--palette-text-yellow, #ffd666);
+  box-shadow: 0 0 0 1px var(--palette-text-yellow, #ffd666);
 }
 .sp-banner {
   padding: 12px 14px;

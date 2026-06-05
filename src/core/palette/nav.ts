@@ -10,6 +10,9 @@ export interface Level {
   actions?: Action[];
   search?: SearchSpec;
   placeholder?: string;
+  // Set when this level is a chip's menu, so the palette can keep that chip shown
+  // and marked active while you're inside it.
+  chipId?: string;
 }
 
 export interface Nav {
