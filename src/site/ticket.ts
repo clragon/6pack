@@ -165,6 +165,15 @@ export function readTicketType(): ReportedType | null {
   return readReportedContent()?.type ?? null;
 }
 
+export type TicketStatus = 'pending' | 'partial' | 'approved';
+const TICKET_STATUSES: TicketStatus[] = ['pending', 'partial', 'approved'];
+
+export const readTicketStatus = probe('status', (): TicketStatus | null => {
+  const row = rows().find((r) => rowTitle(r) === 'Status');
+  const cell = row?.querySelector('td:last-child');
+  return TICKET_STATUSES.find((status) => cell?.classList.contains(`${status}-ticket`)) ?? null;
+});
+
 export function prefetchReportedDestination(): void {
   const content = readReportedContent();
   if (content?.type === 'forum' && content.id != null) {

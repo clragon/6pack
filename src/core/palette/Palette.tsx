@@ -8,6 +8,7 @@ import type {
 import type { PageContext } from '../context/types';
 import { log } from '../log';
 import { notifyError } from '../../site/toast';
+import { allChips, refreshChips, subscribeChips, type Chip } from './chips';
 import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { focusNoScroll } from './focus';
 import { captureNav, type Level, takeRestore } from './nav';
@@ -50,6 +51,8 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const [selected, setSelected] = useState(0);
   const [frecency, setFrecency] = useState(getFrecency);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [, forceChips] = useState(0);
+  const activeChipRef = useRef<Chip | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedRef = useRef<HTMLLIElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -59,6 +62,14 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const level = stack[stack.length - 1];
   const searchSpec = level.search;
   const levelActions = level.actions ?? [];
+  const chips = open ? allChips() : [];
+  const activeChipId = stack.find((l) => l.chipId)?.chipId ?? null;
+  const displayChips =
+    activeChipId && !chips.some((c) => c.id === activeChipId) && activeChipRef.current
+      ? [...chips, activeChipRef.current]
+      : chips;
+  const activeChip = displayChips.find((c) => c.id === activeChipId) ?? null;
+  const showChips = displayChips.length > 0 && (stack.length === 1 || activeChipId != null);
 
   useEffect(() => {
     if (!open) return;
@@ -89,6 +100,12 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     setFrecency(getFrecency());
     requestAnimationFrame(() => focusNoScroll(inputRef.current));
   }, [open, actions]);
+
+  useEffect(() => {
+    if (!open) return;
+    refreshChips();
+    return subscribeChips(() => forceChips((n) => n + 1));
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -257,6 +274,12 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     setFilter('');
   };
 
+  const openChip = (chip: Chip) => {
+    activeChipRef.current = chip;
+    setStack((s) => [s[0], { title: chip.label, actions: chip.open(ctx), chipId: chip.id }]);
+    setFilter('');
+  };
+
   const popLevel = () => {
     setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
     setFilter('');
@@ -419,9 +442,23 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   return (
     <div class="sp-backdrop" onClick={onClose}>
-      <div class="sp-panel" onClick={(e) => e.stopPropagation()}>
-        <WarningBanner />
-        <div class="sp-input-row">
+      <div class="sp-shell" onClick={(e) => e.stopPropagation()}>
+        {showChips && (
+          <div class="sp-chips">
+            {displayChips.map((chip) => (
+              <button
+                key={chip.id}
+                class={`sp-chip${chip.id === activeChipId ? ' sp-chip-active' : ''}`}
+                onClick={() => openChip(chip)}
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+        )}
+        <div class="sp-panel">
+          <WarningBanner />
+          <div class="sp-input-row">
           <Breadcrumb crumbs={crumbs} onHome={goHome} />
           <input
             ref={inputRef}
@@ -450,6 +487,16 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
             </button>
           )}
         </div>
+        {activeChip?.info && activeChip.info.length > 0 && (
+          <div class="sp-chip-info">
+            {activeChip.info.map((fact) => (
+              <span key={fact.label} class="sp-chip-fact">
+                <span class="sp-chip-fact-label">{fact.label}</span>
+                {fact.value}
+              </span>
+            ))}
+          </div>
+        )}
         <ul ref={listRef} class="sp-list">
           {rows.map((row, index) => (
             <li
@@ -477,6 +524,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
             </li>
           )}
         </ul>
+        </div>
       </div>
     </div>
   );

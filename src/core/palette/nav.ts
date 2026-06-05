@@ -8,6 +8,7 @@ export interface Level {
   actions?: Action[];
   search?: SearchSpec;
   placeholder?: string;
+  chipId?: string;
 }
 
 export interface Nav {
