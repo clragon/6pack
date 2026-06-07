@@ -16,5 +16,6 @@ export function detectContext(): PageContext {
     const raw = new URLSearchParams(window.location.search).get('search[user_id]');
     return { kind: 'userFeedbacks', userId: raw && /^\d+$/.test(raw) ? Number(raw) : null };
   }
+  if (path === '/uploads/new') return { kind: 'upload' };
   return { kind: 'unknown' };
 }
