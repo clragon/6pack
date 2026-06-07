@@ -24,6 +24,7 @@ export const copy: Action = {
   title: 'Copy',
   description: 'Copy a reference to the clipboard',
   keywords: ['copy', 'clipboard'],
+  weight: -5,
   submenu: ({ page }) => {
     const children: Action[] = [];
     if (page.kind === 'post') {
