@@ -54,21 +54,6 @@ export function ConfirmPrompt() {
     );
   }, [request, values]);
 
-  useEffect(() => {
-    if (!request) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        event.stopPropagation();
-        resolveConfirm(null);
-      }
-    };
-    window.addEventListener('keydown', onKey, true);
-    return () => window.removeEventListener('keydown', onKey, true);
-  }, [request]);
-
-  if (!request) return null;
-
   const submit = () => {
     if (canConfirm) {
       resolveConfirm({ fields: { ...values }, options: { ...checked } });
@@ -90,20 +75,47 @@ export function ConfirmPrompt() {
     }
   };
 
-  const onKeyDown = (event: KeyboardEvent) => {
-    event.stopPropagation();
-    const item = items[selected];
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      setSelected((s) => Math.min(s + 1, items.length - 1));
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      setSelected((s) => Math.max(s - 1, 0));
-    } else if (event.key === 'Enter') {
-      event.preventDefault();
-      if (item) activate(item);
-    }
-  };
+  useEffect(() => {
+    if (!request) return;
+    const onKey = (event: KeyboardEvent) => {
+      const item = items[selected];
+      const inField = item?.kind === 'field';
+      const own = () => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      };
+      switch (event.key) {
+        case 'Escape':
+          own();
+          resolveConfirm(null);
+          return;
+        case 'ArrowDown':
+          own();
+          setSelected((s) => Math.min(s + 1, items.length - 1));
+          return;
+        case 'ArrowUp':
+          own();
+          setSelected((s) => Math.max(s - 1, 0));
+          return;
+        case 'Enter':
+          own();
+          if (item) activate(item);
+          return;
+        case ' ':
+          if (!inField && item) {
+            own();
+            activate(item);
+          }
+          return;
+        default:
+          if (!inField) event.stopImmediatePropagation();
+      }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [request, items, selected, canConfirm, values, checked]);
+
+  if (!request) return null;
 
   const crumbs: Crumb[] = nav
     ? [
@@ -125,99 +137,92 @@ export function ConfirmPrompt() {
 
   return (
     <div class="sp-backdrop" onClick={() => resolveConfirm(null)}>
-      <div
-        ref={panelRef}
-        class="sp-panel"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={onKeyDown}
-      >
-        <div class="sp-input-row">
-          <Breadcrumb
-            crumbs={crumbs}
-            onHome={() => {
-              resolveConfirm(null);
-              if (nav) returnTo(0);
-            }}
-          />
-          <input class="sp-input" disabled aria-hidden="true" tabIndex={-1} />
-        </div>
-        <div class="sp-confirm">
-          <div class="sp-confirm-title">{request.title}</div>
-          {request.detail && (
-            <div class="sp-confirm-detail">{request.detail}</div>
-          )}
+      <div class="sp-shell">
+        <div ref={panelRef} class="sp-panel" onClick={(e) => e.stopPropagation()}>
+          <div class="sp-input-row">
+            <Breadcrumb
+              crumbs={crumbs}
+              onHome={() => {
+                resolveConfirm(null);
+                if (nav) returnTo(0);
+              }}
+            />
+            <input class="sp-input" disabled aria-hidden="true" tabIndex={-1} />
+          </div>
+          <div class="sp-confirm">
+            <div class="sp-confirm-title">{request.title}</div>
+            {request.detail && (
+              <div class="sp-confirm-detail">{request.detail}</div>
+            )}
 
-          {fields.map((field, i) => (
-            <label
-              class={`sp-confirm-field${selected === i ? ' sp-confirm-sel' : ''}`}
-              key={field.key}
-            >
-              <span>{field.label}</span>
-              <input
-                ref={(el) => {
-                  itemEls.current[i] = el;
-                }}
-                class="sp-confirm-input"
-                type="text"
-                inputMode={field.numeric ? 'numeric' : undefined}
-                placeholder={field.placeholder}
-                value={values[field.key] ?? ''}
-                onFocus={() => setSelected(i)}
-                onInput={(e) =>
-                  setValues((v) => ({ ...v, [field.key]: e.currentTarget.value }))
-                }
-              />
-            </label>
-          ))}
-
-          {options.map((option, j) => {
-            const index = fields.length + j;
-            return (
+            {fields.map((field, i) => (
               <label
-                class={`sp-confirm-option${selected === index ? ' sp-confirm-sel' : ''}`}
-                key={option.key}
+                class={`sp-confirm-field${selected === i ? ' sp-confirm-sel' : ''}`}
+                key={field.key}
               >
+                <span>{field.label}</span>
                 <input
                   ref={(el) => {
-                    itemEls.current[index] = el;
+                    itemEls.current[i] = el;
                   }}
-                  type="checkbox"
-                  checked={checked[option.key] ?? false}
-                  onFocus={() => setSelected(index)}
-                  onChange={(e) =>
-                    setChecked((c) => ({
-                      ...c,
-                      [option.key]: e.currentTarget.checked,
-                    }))
+                  class="sp-confirm-input"
+                  type="text"
+                  inputMode={field.numeric ? 'numeric' : undefined}
+                  placeholder={field.placeholder}
+                  value={values[field.key] ?? ''}
+                  onInput={(e) =>
+                    setValues((v) => ({ ...v, [field.key]: e.currentTarget.value }))
                   }
                 />
-                {option.label}
               </label>
-            );
-          })}
+            ))}
 
-          <div class="sp-confirm-actions">
-            <button
-              ref={(el) => {
-                itemEls.current[cancelIndex] = el;
-              }}
-              class={`sp-btn${selected === cancelIndex ? ' sp-confirm-sel' : ''}`}
-              onFocus={() => setSelected(cancelIndex)}
-              onClick={() => resolveConfirm(null)}
-            >
-              Cancel
-            </button>
-            <button
-              ref={(el) => {
-                itemEls.current[confirmIndex] = el;
-              }}
-              class={`sp-btn sp-btn-danger${selected === confirmIndex ? ' sp-confirm-sel' : ''}`}
-              disabled={!canConfirm}
-              onFocus={() => setSelected(confirmIndex)}
-              onClick={submit}
-            >
-              {request.confirmLabel ?? 'Confirm'}
-            </button>
+            {options.map((option, j) => {
+              const index = fields.length + j;
+              return (
+                <label
+                  class={`sp-confirm-option${selected === index ? ' sp-confirm-sel' : ''}`}
+                  key={option.key}
+                >
+                  <input
+                    ref={(el) => {
+                      itemEls.current[index] = el;
+                    }}
+                    type="checkbox"
+                    checked={checked[option.key] ?? false}
+                    onChange={(e) =>
+                      setChecked((c) => ({
+                        ...c,
+                        [option.key]: e.currentTarget.checked,
+                      }))
+                    }
+                  />
+                  {option.label}
+                </label>
+              );
+            })}
+
+            <div class="sp-confirm-actions">
+              <button
+                ref={(el) => {
+                  itemEls.current[cancelIndex] = el;
+                }}
+                class={`sp-btn${selected === cancelIndex ? ' sp-confirm-sel' : ''}`}
+                onClick={() => resolveConfirm(null)}
+              >
+                Cancel
+              </button>
+              <button
+                ref={(el) => {
+                  itemEls.current[confirmIndex] = el;
+                }}
+                class={`sp-btn sp-btn-danger${selected === confirmIndex ? ' sp-confirm-sel' : ''}`}
+                disabled={!canConfirm}
+                onClick={submit}
+              >
+                {request.confirmLabel ?? 'Confirm'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
