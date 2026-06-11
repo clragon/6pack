@@ -85,45 +85,50 @@ export function ConfirmPrompt() {
   // beats e621's own document-level hotkeys. e621 ignores keys aimed at inputs, so
   // while a field holds the cursor we let typing through; while a button or
   // checkbox does, we swallow every key so its hotkeys can't fire behind the modal.
+  // A ref carries the fresh closure so the listener subscribes once per dialog,
+  // not once per keystroke.
+  const onKeyRef = useRef<(event: KeyboardEvent) => void>(() => {});
+  onKeyRef.current = (event) => {
+    const item = items[selected];
+    const inField = item?.kind === 'field';
+    const own = () => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    };
+    switch (event.key) {
+      case 'Escape':
+        own();
+        resolveConfirm(null);
+        return;
+      case 'ArrowDown':
+        own();
+        setSelected((s) => Math.min(s + 1, items.length - 1));
+        return;
+      case 'ArrowUp':
+        own();
+        setSelected((s) => Math.max(s - 1, 0));
+        return;
+      case 'Enter':
+        own();
+        if (item) activate(item);
+        return;
+      case ' ':
+        if (!inField && item) {
+          own();
+          activate(item);
+        }
+        return;
+      default:
+        if (!inField) event.stopImmediatePropagation();
+    }
+  };
+
   useEffect(() => {
     if (!request) return;
-    const onKey = (event: KeyboardEvent) => {
-      const item = items[selected];
-      const inField = item?.kind === 'field';
-      const own = () => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-      };
-      switch (event.key) {
-        case 'Escape':
-          own();
-          resolveConfirm(null);
-          return;
-        case 'ArrowDown':
-          own();
-          setSelected((s) => Math.min(s + 1, items.length - 1));
-          return;
-        case 'ArrowUp':
-          own();
-          setSelected((s) => Math.max(s - 1, 0));
-          return;
-        case 'Enter':
-          own();
-          if (item) activate(item);
-          return;
-        case ' ':
-          if (!inField && item) {
-            own();
-            activate(item);
-          }
-          return;
-        default:
-          if (!inField) event.stopImmediatePropagation();
-      }
-    };
+    const onKey = (event: KeyboardEvent) => onKeyRef.current(event);
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [request, items, selected, canConfirm, values, checked]);
+  }, [request]);
 
   if (!request) return null;
 
