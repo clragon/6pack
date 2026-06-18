@@ -37,27 +37,31 @@ export interface ArtistTag {
   label: string;
 }
 
-export const readArtistTags = probe('artist tags', (): ArtistTag[] => {
-  const items = document.querySelectorAll<HTMLElement>(
-    'li.tag-list-item[data-category="artist"]',
-  );
-  const seen = new Set<string>();
-  const tags: ArtistTag[] = [];
-  for (const item of items) {
-    const raw = item.getAttribute('data-name');
-    if (!raw) continue;
-    let name: string;
-    try {
-      name = decodeURIComponent(raw);
-    } catch {
-      name = raw;
+export const readArtistTags = probe(
+  'artist tags',
+  (): ArtistTag[] => {
+    const items = document.querySelectorAll<HTMLElement>(
+      'li.tag-list-item[data-category="artist"]',
+    );
+    const seen = new Set<string>();
+    const tags: ArtistTag[] = [];
+    for (const item of items) {
+      const raw = item.getAttribute('data-name');
+      if (!raw) continue;
+      let name: string;
+      try {
+        name = decodeURIComponent(raw);
+      } catch {
+        name = raw;
+      }
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      tags.push({ name, label: name.replace(/_/g, ' ') });
     }
-    if (!name || seen.has(name)) continue;
-    seen.add(name);
-    tags.push({ name, label: name.replace(/_/g, ' ') });
-  }
-  return tags;
-}, (tags) => (tags.length ? tags.map((t) => t.label).join(', ') : 'none'));
+    return tags;
+  },
+  (tags) => (tags.length ? tags.map((t) => t.label).join(', ') : 'none'),
+);
 
 export const readUploaderId = probe('uploader id', (): number | null => {
   const raw = document

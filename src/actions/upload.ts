@@ -1,6 +1,16 @@
 import type { Action } from '../core/actions/types';
-import { downloadFile, downloadHost, isDownloadable, looksLikeFile } from '../core/download';
-import { addSource, clearDirectUrl, readDirectUrl, setUploadFile } from '../site/upload';
+import {
+  downloadFile,
+  downloadHost,
+  isDownloadable,
+  looksLikeFile,
+} from '../core/download';
+import {
+  addSource,
+  clearDirectUrl,
+  readDirectUrl,
+  setUploadFile,
+} from '../site/upload';
 import { notifyError, progress } from '../site/toast';
 
 function message(error: unknown): string {
@@ -40,7 +50,17 @@ export const fixUpload: Action = {
   id: 'upload.fix-file',
   title: 'Convert direct source link to file upload',
   description: "Upload a link e621 can't fetch on its own",
-  keywords: ['upload', 'file', 'fix', 'download', 'source', 'direct', 'url', 'convert', 'link'],
+  keywords: [
+    'upload',
+    'file',
+    'fix',
+    'download',
+    'source',
+    'direct',
+    'url',
+    'convert',
+    'link',
+  ],
   weight: 2,
   when: (page) => {
     if (page.kind !== 'upload') return false;

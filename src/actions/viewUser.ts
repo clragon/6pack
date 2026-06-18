@@ -5,7 +5,8 @@ import { readBanForm, readBanSubjectUser } from '../site/ban';
 import { readFeedbackForm } from '../site/feedback';
 
 function profileRef(page: PageContext): string | null {
-  if (page.kind === 'userFeedbacks' && page.userId != null) return String(page.userId);
+  if (page.kind === 'userFeedbacks' && page.userId != null)
+    return String(page.userId);
   const banSubject = readBanSubjectUser();
   if (banSubject) return String(banSubject.id);
   const feedbackForm = readFeedbackForm();

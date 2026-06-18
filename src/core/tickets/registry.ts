@@ -73,7 +73,9 @@ export function refreshOpenTickets(): void {
 
 export function openTickets(): OpenTicket[] {
   const byTicket = new Map<number, OpenTicket>();
-  const all = localTicket ? [localTicket, ...known.values()] : [...known.values()];
+  const all = localTicket
+    ? [localTicket, ...known.values()]
+    : [...known.values()];
   for (const ticket of all) {
     const existing = byTicket.get(ticket.ticketId);
     if (!existing || (ticket.canHandle && !existing.canHandle)) {

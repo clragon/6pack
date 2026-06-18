@@ -13,7 +13,8 @@ const MAX = 200;
 const RETENTION_MS = 60 * 60 * 1000;
 
 function trim(now: number): void {
-  while (entries.length && now - entries[0].time > RETENTION_MS) entries.shift();
+  while (entries.length && now - entries[0].time > RETENTION_MS)
+    entries.shift();
   while (entries.length > MAX) entries.shift();
 }
 

@@ -3,7 +3,10 @@ const FILE_INPUT = '#file-input';
 const SOURCE_ROW = '.upload-source-row input[type="text"]';
 const ADD_SOURCE = '.upload-source-add';
 
-function waitFor<T extends Element>(selector: string, timeoutMs = 1000): Promise<T | null> {
+function waitFor<T extends Element>(
+  selector: string,
+  timeoutMs = 1000,
+): Promise<T | null> {
   const existing = document.querySelector<T>(selector);
   if (existing) return Promise.resolve(existing);
   return new Promise((resolve) => {
@@ -36,7 +39,8 @@ export function clearDirectUrl(): void {
 }
 
 export async function addSource(url: string): Promise<boolean> {
-  const rows = () => Array.from(document.querySelectorAll<HTMLInputElement>(SOURCE_ROW));
+  const rows = () =>
+    Array.from(document.querySelectorAll<HTMLInputElement>(SOURCE_ROW));
   let target = rows().find((row) => row.value.trim().length === 0);
   if (!target) {
     const add = document.querySelector<HTMLButtonElement>(ADD_SOURCE);

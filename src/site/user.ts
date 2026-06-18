@@ -60,7 +60,11 @@ export function loadCurrentUser(): Promise<CurrentUser | null> {
     .then((res) => (res.ok ? (res.json() as Promise<unknown>) : null))
     .then((data) => {
       const user = data as Partial<RawUser> | null;
-      if (!user || typeof user.id !== 'number' || typeof user.level !== 'number') {
+      if (
+        !user ||
+        typeof user.id !== 'number' ||
+        typeof user.level !== 'number'
+      ) {
         return null;
       }
       cached = {

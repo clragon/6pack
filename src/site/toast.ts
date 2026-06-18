@@ -15,7 +15,10 @@ interface E621Toast {
 }
 
 function toast(): E621Toast | undefined {
-  return (unsafeWindow as unknown as { E621?: { Toast?: E621Toast } }).E621?.Toast;
+  // e621ng's interfaces/E621.ts puts the ToastManager on window.E621, which the
+  // userscript sandbox reaches only through unsafeWindow.
+  return (unsafeWindow as unknown as { E621?: { Toast?: E621Toast } }).E621
+    ?.Toast;
 }
 
 export function notify(message: string): void {

@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
-import type {
-  Action,
-  ActionContext,
-  SearchSuggestion,
-} from '../actions/types';
+import type { Action, ActionContext, SearchSuggestion } from '../actions/types';
 import type { PageContext } from '../context/types';
 import { log } from '../log';
 import { notifyError } from '../../site/toast';
@@ -38,7 +34,9 @@ interface Row {
 }
 
 function describeError(error: unknown): string {
-  return error instanceof Error ? (error.stack ?? error.message) : String(error);
+  return error instanceof Error
+    ? (error.stack ?? error.message)
+    : String(error);
 }
 
 function reportRunFailure(action: Action, error: unknown): void {
@@ -67,11 +65,14 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const chips = open ? allChips() : [];
   const activeChipId = stack.find((l) => l.chipId)?.chipId ?? null;
   const displayChips =
-    activeChipId && !chips.some((c) => c.id === activeChipId) && activeChipRef.current
+    activeChipId &&
+    !chips.some((c) => c.id === activeChipId) &&
+    activeChipRef.current
       ? [...chips, activeChipRef.current]
       : chips;
   const activeChip = displayChips.find((c) => c.id === activeChipId) ?? null;
-  const showChips = displayChips.length > 0 && (stack.length === 1 || activeChipId != null);
+  const showChips =
+    displayChips.length > 0 && (stack.length === 1 || activeChipId != null);
 
   useEffect(() => {
     if (!open) return;
@@ -199,7 +200,9 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   const childTerms = (action: Action): string[] => {
     const children = reachableChildren(action);
-    return children ? children.flatMap((c) => [c.title, ...(c.keywords ?? [])]) : [];
+    return children
+      ? children.flatMap((c) => [c.title, ...(c.keywords ?? [])])
+      : [];
   };
 
   const childMatchOf = (action: Action): Action | undefined => {
@@ -280,7 +283,11 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     if (!children) return;
     setStack((s) => [
       ...s,
-      { title: action.title, actions: children, placeholder: action.placeholder },
+      {
+        title: action.title,
+        actions: children,
+        placeholder: action.placeholder,
+      },
     ]);
     if (!carryQuery) setFilter('');
   };
@@ -292,7 +299,10 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   const openChip = (chip: Chip) => {
     activeChipRef.current = chip;
-    setStack((s) => [s[0], { title: chip.label, actions: chip.open(ctx), chipId: chip.id }]);
+    setStack((s) => [
+      s[0],
+      { title: chip.label, actions: chip.open(ctx), chipId: chip.id },
+    ]);
     setFilter('');
   };
 
@@ -477,77 +487,77 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
         <div class="sp-panel">
           <WarningBanner />
           <div class="sp-input-row">
-          <Breadcrumb crumbs={crumbs} onHome={goHome} />
-          <input
-            ref={inputRef}
-            class="sp-input"
-            placeholder={
-              searchSpec
-                ? (searchSpec.placeholder ?? 'Type to search…')
-                : stack.length === 1
-                  ? `Type a command…  ·  ${formatTrigger()}`
-                  : (level.placeholder ?? '')
-            }
-            value={filter}
-            onInput={(e) => setFilter(e.currentTarget.value)}
-            onKeyDown={onKeyDown}
-          />
-          {searchSpec && (
-            <button
-              class="sp-go"
-              title="Search"
-              onClick={() => {
-                searchSpec.onSubmit(filter);
-                onClose();
-              }}
-            >
-              ›
-            </button>
-          )}
-        </div>
-        {activeChip?.info && activeChip.info.length > 0 && (
-          <div class="sp-chip-info">
-            {activeChip.info.map((fact) => (
-              <span key={fact.label} class="sp-chip-fact">
-                <span class="sp-chip-fact-label">{fact.label}</span>
-                {fact.value}
-              </span>
-            ))}
-          </div>
-        )}
-        <ul ref={listRef} class="sp-list">
-          {rows.map((row, index) => (
-            <li
-              key={row.id}
-              ref={index === selected ? selectedRef : undefined}
-              class={`sp-item${row.inline ? ' sp-suggestion' : ''}${row.toggle !== undefined ? ' sp-item-toggle' : ''}${index === selected ? ' sp-selected' : ''}`}
-              onMouseMove={() => {
-                if (selected !== index) setSelected(index);
-              }}
-              onClick={row.onSelect}
-            >
-              <span
-                class="sp-title"
-                style={row.color ? `color: ${row.color}` : undefined}
+            <Breadcrumb crumbs={crumbs} onHome={goHome} />
+            <input
+              ref={inputRef}
+              class="sp-input"
+              placeholder={
+                searchSpec
+                  ? (searchSpec.placeholder ?? 'Type to search…')
+                  : stack.length === 1
+                    ? `Type a command…  ·  ${formatTrigger()}`
+                    : (level.placeholder ?? '')
+              }
+              value={filter}
+              onInput={(e) => setFilter(e.currentTarget.value)}
+              onKeyDown={onKeyDown}
+            />
+            {searchSpec && (
+              <button
+                class="sp-go"
+                title="Search"
+                onClick={() => {
+                  searchSpec.onSubmit(filter);
+                  onClose();
+                }}
               >
-                {row.title}
-                {row.isGroup && <span class="sp-group-arrow"> ›</span>}
-              </span>
-              {row.detail && <span class="sp-desc">{row.detail}</span>}
-              {row.toggle !== undefined && (
-                <span
-                  class={`sp-switch${row.toggle ? ' sp-switch-on' : ''}`}
-                  aria-hidden="true"
-                />
-              )}
-            </li>
-          ))}
-          {rows.length === 0 && (
-            <li class="sp-empty">
-              {searchSpec ? 'Type to search…' : 'No matching commands'}
-            </li>
+                ›
+              </button>
+            )}
+          </div>
+          {activeChip?.info && activeChip.info.length > 0 && (
+            <div class="sp-chip-info">
+              {activeChip.info.map((fact) => (
+                <span key={fact.label} class="sp-chip-fact">
+                  <span class="sp-chip-fact-label">{fact.label}</span>
+                  {fact.value}
+                </span>
+              ))}
+            </div>
           )}
-        </ul>
+          <ul ref={listRef} class="sp-list">
+            {rows.map((row, index) => (
+              <li
+                key={row.id}
+                ref={index === selected ? selectedRef : undefined}
+                class={`sp-item${row.inline ? ' sp-suggestion' : ''}${row.toggle !== undefined ? ' sp-item-toggle' : ''}${index === selected ? ' sp-selected' : ''}`}
+                onMouseMove={() => {
+                  if (selected !== index) setSelected(index);
+                }}
+                onClick={row.onSelect}
+              >
+                <span
+                  class="sp-title"
+                  style={row.color ? `color: ${row.color}` : undefined}
+                >
+                  {row.title}
+                  {row.isGroup && <span class="sp-group-arrow"> ›</span>}
+                </span>
+                {row.detail && <span class="sp-desc">{row.detail}</span>}
+                {row.toggle !== undefined && (
+                  <span
+                    class={`sp-switch${row.toggle ? ' sp-switch-on' : ''}`}
+                    aria-hidden="true"
+                  />
+                )}
+              </li>
+            ))}
+            {rows.length === 0 && (
+              <li class="sp-empty">
+                {searchSpec ? 'Type to search…' : 'No matching commands'}
+              </li>
+            )}
+          </ul>
         </div>
       </div>
     </div>

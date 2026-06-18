@@ -26,7 +26,16 @@ export const createFeedback: Action = {
   id: 'feedback.create',
   title: 'Create feedback',
   description: 'Create a user feedback record',
-  keywords: ['feedback', 'create', 'record', 'add', 'user', 'positive', 'negative', 'neutral'],
+  keywords: [
+    'feedback',
+    'create',
+    'record',
+    'add',
+    'user',
+    'positive',
+    'negative',
+    'neutral',
+  ],
   weight: 1,
   // UserFeedbacksController is moderator_only except for index and show.
   when: (page) => isModeratorPlus() && hasSubject(page),

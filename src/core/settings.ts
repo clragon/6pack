@@ -10,7 +10,10 @@ const DEFAULTS: Settings = {
   shortenSources: false,
 };
 
-let current: Settings = { ...DEFAULTS, ...readJson<Partial<Settings>>(KEY, {}) };
+let current: Settings = {
+  ...DEFAULTS,
+  ...readJson<Partial<Settings>>(KEY, {}),
+};
 const listeners = new Set<() => void>();
 
 export const settings = {

@@ -6,14 +6,17 @@ export interface TicketTemplate {
 }
 
 const RESPONSE_FIELD = "textarea[name='ticket[response]']";
-const TEMPLATE_CHIP = '.template-builder-chip:not(.template-builder-chip--icon-only)';
+const TEMPLATE_CHIP =
+  '.template-builder-chip:not(.template-builder-chip--icon-only)';
 
 function responseField(): HTMLTextAreaElement | null {
   return document.querySelector<HTMLTextAreaElement>(RESPONSE_FIELD);
 }
 
 function templateChips(): HTMLButtonElement[] {
-  return Array.from(document.querySelectorAll<HTMLButtonElement>(TEMPLATE_CHIP));
+  return Array.from(
+    document.querySelectorAll<HTMLButtonElement>(TEMPLATE_CHIP),
+  );
 }
 
 export function canComposeResponse(): boolean {

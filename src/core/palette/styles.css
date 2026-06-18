@@ -231,11 +231,13 @@ button.sp-crumb:hover {
   border-radius: 9px;
   background: var(--color-section-darken-5, rgba(0, 0, 0, 0.3));
   border: 1px solid var(--color-table-border, #313d52);
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .sp-switch::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 1px;
   left: 1px;
@@ -243,7 +245,9 @@ button.sp-crumb:hover {
   height: 14px;
   border-radius: 50%;
   background: var(--color-text-muted, #9aa6bd);
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .sp-switch-on {

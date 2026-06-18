@@ -7,7 +7,10 @@ export interface DeleteOptions {
   copySources?: boolean;
 }
 
-export function deletePost(id: number, options: DeleteOptions): Promise<unknown> {
+export function deletePost(
+  id: number,
+  options: DeleteOptions,
+): Promise<unknown> {
   return transport.post(`/moderator/post/posts/${id}/delete.json`, {
     // Staff::Post::PostsController#delete in e621ng acts only when commit
     // equals Delete.

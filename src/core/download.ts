@@ -29,7 +29,9 @@ export function downloadHost(url: string): string | null {
 export function isDownloadable(url: string): boolean {
   const host = downloadHost(url);
   if (!host) return false;
-  return ALLOWED_HOSTS.some((base) => host === base || host.endsWith(`.${base}`));
+  return ALLOWED_HOSTS.some(
+    (base) => host === base || host.endsWith(`.${base}`),
+  );
 }
 
 const FILE_PATH = /\.(png|apng|jpe?g|gif|webp|webm|mp4)$/i;
@@ -48,7 +50,10 @@ export function looksLikeFile(url: string): boolean {
 
 function contentType(blob: Blob, headers: string): string {
   if (blob.type) return blob.type;
-  return headers.match(/content-type:\s*([^\s;]+)/i)?.[1] ?? 'application/octet-stream';
+  return (
+    headers.match(/content-type:\s*([^\s;]+)/i)?.[1] ??
+    'application/octet-stream'
+  );
 }
 
 function fileName(url: string, type: string): string {
@@ -81,7 +86,9 @@ export function downloadFile(url: string): Promise<File> {
         }
         const blob = res.response;
         const type = contentType(blob, res.responseHeaders);
-        resolve(new File([blob], fileName(res.finalUrl || url, type), { type }));
+        resolve(
+          new File([blob], fileName(res.finalUrl || url, type), { type }),
+        );
       },
       onerror: () => reject(new Error('network error')),
       ontimeout: () => reject(new Error('timed out')),

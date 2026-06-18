@@ -38,7 +38,9 @@ function emit(): void {
   for (const listener of listeners) listener();
 }
 
-export function openConfirm(request: ConfirmRequest): Promise<ConfirmResult | null> {
+export function openConfirm(
+  request: ConfirmRequest,
+): Promise<ConfirmResult | null> {
   active?.resolve(null);
   return new Promise((resolve) => {
     active = { ...request, resolve };

@@ -22,8 +22,12 @@ export function ConfirmPrompt() {
   const items = useMemo<Item[]>(() => {
     if (!request) return [];
     return [
-      ...(request.fields ?? []).map((f): Item => ({ kind: 'field', key: f.key })),
-      ...(request.options ?? []).map((o): Item => ({ kind: 'option', key: o.key })),
+      ...(request.fields ?? []).map(
+        (f): Item => ({ kind: 'field', key: f.key }),
+      ),
+      ...(request.options ?? []).map(
+        (o): Item => ({ kind: 'option', key: o.key }),
+      ),
       { kind: 'button', role: 'cancel' },
       { kind: 'button', role: 'confirm' },
     ];
@@ -32,9 +36,11 @@ export function ConfirmPrompt() {
   useEffect(() => {
     if (!request) return;
     const initialValues: Record<string, string> = {};
-    for (const field of request.fields ?? []) initialValues[field.key] = field.value ?? '';
+    for (const field of request.fields ?? [])
+      initialValues[field.key] = field.value ?? '';
     const initialChecked: Record<string, boolean> = {};
-    for (const option of request.options ?? []) initialChecked[option.key] = option.default ?? false;
+    for (const option of request.options ?? [])
+      initialChecked[option.key] = option.default ?? false;
     setValues(initialValues);
     setChecked(initialChecked);
     const fieldCount = request.fields?.length ?? 0;
@@ -44,13 +50,16 @@ export function ConfirmPrompt() {
 
   useEffect(() => {
     if (!request) return;
-    requestAnimationFrame(() => focusNoScroll(itemEls.current[selected] ?? null));
+    requestAnimationFrame(() =>
+      focusNoScroll(itemEls.current[selected] ?? null),
+    );
   }, [selected, request]);
 
   const canConfirm = useMemo(() => {
     if (!request) return false;
     return (request.fields ?? []).every(
-      (field) => !field.numeric || /^\d+$/.test((values[field.key] ?? '').trim()),
+      (field) =>
+        !field.numeric || /^\d+$/.test((values[field.key] ?? '').trim()),
     );
   }, [request, values]);
 
@@ -141,7 +150,11 @@ export function ConfirmPrompt() {
   return (
     <div class="sp-backdrop" onClick={() => resolveConfirm(null)}>
       <div class="sp-shell">
-        <div ref={panelRef} class="sp-panel" onClick={(e) => e.stopPropagation()}>
+        <div
+          ref={panelRef}
+          class="sp-panel"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div class="sp-input-row">
             <Breadcrumb
               crumbs={crumbs}
@@ -174,7 +187,10 @@ export function ConfirmPrompt() {
                   placeholder={field.placeholder}
                   value={values[field.key] ?? ''}
                   onInput={(e) =>
-                    setValues((v) => ({ ...v, [field.key]: e.currentTarget.value }))
+                    setValues((v) => ({
+                      ...v,
+                      [field.key]: e.currentTarget.value,
+                    }))
                   }
                 />
               </label>

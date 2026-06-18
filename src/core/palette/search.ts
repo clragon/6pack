@@ -21,9 +21,11 @@ export function searchActions(
   if (!needle) return actions.slice();
 
   const haystack = actions.map((action) =>
-    [action.title, ...(action.keywords ?? []), ...(extraTerms?.(action) ?? [])].join(
-      ' ',
-    ),
+    [
+      action.title,
+      ...(action.keywords ?? []),
+      ...(extraTerms?.(action) ?? []),
+    ].join(' '),
   );
   const [idxs, info, order] = uf.search(haystack, needle, 1);
   if (!idxs || idxs.length === 0) return [];

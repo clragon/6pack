@@ -29,7 +29,10 @@ export function recordUse(id: string): Frecency {
   const now = Date.now();
   const prior = frecency[id];
   const decayed = prior ? prior.score * decay(prior.seen, now) : 0;
-  const next: Frecency = { ...frecency, [id]: { score: decayed + 1, seen: now } };
+  const next: Frecency = {
+    ...frecency,
+    [id]: { score: decayed + 1, seen: now },
+  };
   writeJson(KEY, next);
   return next;
 }
