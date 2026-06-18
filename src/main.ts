@@ -9,8 +9,15 @@ import { captureStore, paletteStore } from './core/palette/store';
 import { log } from './core/log';
 import { mountBurnControls } from './burn/mount';
 import { mountSourceShortening } from './site/sources';
-import { prefetchReportedDestination, readAccused, readTicketStatus } from './site/ticket';
-import { canComposeResponse, readTicketTemplates } from './site/ticketTemplates';
+import {
+  prefetchReportedDestination,
+  readAccused,
+  readTicketStatus,
+} from './site/ticket';
+import {
+  canComposeResponse,
+  readTicketTemplates,
+} from './site/ticketTemplates';
 import { publishOpenTicket } from './core/tickets/registry';
 import { installTicketCommandHandler } from './core/tickets/commands';
 import { installTicketChips } from './core/tickets/chipSource';
@@ -63,7 +70,9 @@ if (page.kind === 'post') mountSourceShortening();
 
 mountPalette(page, () => registry.available(page));
 
-log.info(page.kind === 'post' ? `ready on post #${page.id}` : `ready on ${page.kind}`);
+log.info(
+  page.kind === 'post' ? `ready on post #${page.id}` : `ready on ${page.kind}`,
+);
 
 // Capture phase so the trigger wins over e621's own document-level key handler.
 window.addEventListener(

@@ -32,7 +32,10 @@ async function runDelete(id: number, choice: DeleteReason): Promise<void> {
             default: choice.needsId,
           },
           { key: 'copyTags', label: `Merge tags into parent #${parentId}` },
-          { key: 'copySources', label: `Merge sources into parent #${parentId}` },
+          {
+            key: 'copySources',
+            label: `Merge sources into parent #${parentId}`,
+          },
         ]
       : [];
 
@@ -71,8 +74,7 @@ export const deletePostGroup: Action = {
   description: 'Delete this post with a reason',
   keywords: ['delete', 'remove', 'reject', 'dnmqs'],
   weight: 1,
-  when: (page) =>
-    page.kind === 'post' && isApprovalsEnabled() && !isDeleted(),
+  when: (page) => page.kind === 'post' && isApprovalsEnabled() && !isDeleted(),
   submenu: ({ page }) => {
     if (page.kind !== 'post') return [];
     const id = page.id;

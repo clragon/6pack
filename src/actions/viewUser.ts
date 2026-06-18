@@ -9,7 +9,8 @@ import { readFeedbackForm } from '../site/feedback';
 // feedback/ban listings contribute an id while the new forms contribute the name
 // from their user field. All these screens lack a convenient profile link.
 function profileRef(page: PageContext): string | null {
-  if (page.kind === 'userFeedbacks' && page.userId != null) return String(page.userId);
+  if (page.kind === 'userFeedbacks' && page.userId != null)
+    return String(page.userId);
   const banSubject = readBanSubjectUser();
   if (banSubject) return String(banSubject.id);
   const feedbackForm = readFeedbackForm();

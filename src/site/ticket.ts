@@ -49,12 +49,17 @@ function rowTitle(row: HTMLTableRowElement): string {
   return row.querySelector<HTMLElement>('.title')?.textContent?.trim() ?? '';
 }
 
-function idFromHref(href: string | null | undefined, prefix: string): number | undefined {
+function idFromHref(
+  href: string | null | undefined,
+  prefix: string,
+): number | undefined {
   const id = Number(href?.match(new RegExp(`^/${prefix}/(\\d+)`))?.[1]);
   return Number.isFinite(id) ? id : undefined;
 }
 
-function userFromAnchor(anchor: HTMLAnchorElement | null | undefined): TicketUser | null {
+function userFromAnchor(
+  anchor: HTMLAnchorElement | null | undefined,
+): TicketUser | null {
   if (!anchor) return null;
   const id = idFromHref(anchor.getAttribute('href'), 'users');
   if (id === undefined) return null;
@@ -64,7 +69,9 @@ function userFromAnchor(anchor: HTMLAnchorElement | null | undefined): TicketUse
 // The first /users/ link inside the row whose title cell reads exactly `label`.
 function userInRow(label: string): TicketUser | null {
   const row = rows().find((r) => rowTitle(r) === label);
-  return userFromAnchor(row?.querySelector<HTMLAnchorElement>('a[href^="/users/"]'));
+  return userFromAnchor(
+    row?.querySelector<HTMLAnchorElement>('a[href^="/users/"]'),
+  );
 }
 
 export const readReporter = probe('reporter', (): TicketUser | null =>
@@ -126,12 +133,16 @@ function classifyByLink(row: HTMLTableRowElement): ReportedContent | null {
       id: idFromHref(comment.getAttribute('href'), 'comments'),
       href: comment.getAttribute('href') ?? undefined,
       postId: idFromHref(
-        row.querySelector<HTMLAnchorElement>('a[href^="/posts/"]')?.getAttribute('href'),
+        row
+          .querySelector<HTMLAnchorElement>('a[href^="/posts/"]')
+          ?.getAttribute('href'),
         'posts',
       ),
     };
   }
-  const forum = row.querySelector<HTMLAnchorElement>('a[href^="/forum_posts/"]');
+  const forum = row.querySelector<HTMLAnchorElement>(
+    'a[href^="/forum_posts/"]',
+  );
   if (forum) {
     return {
       type: 'forum',
@@ -194,7 +205,11 @@ const TICKET_STATUSES: TicketStatus[] = ['pending', 'partial', 'approved'];
 export const readTicketStatus = probe('status', (): TicketStatus | null => {
   const row = rows().find((r) => rowTitle(r) === 'Status');
   const cell = row?.querySelector('td:last-child');
-  return TICKET_STATUSES.find((status) => cell?.classList.contains(`${status}-ticket`)) ?? null;
+  return (
+    TICKET_STATUSES.find((status) =>
+      cell?.classList.contains(`${status}-ticket`),
+    ) ?? null
+  );
 });
 
 // Eagerly resolve where the reported content opens, so the in-context command can

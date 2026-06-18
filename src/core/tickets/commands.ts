@@ -33,7 +33,8 @@ export function installTicketCommandHandler(): void {
   if (handlerInstalled) return;
   handlerInstalled = true;
   channel.subscribe((message) => {
-    if (message.kind === 'request' && message.target === localTabId) void serve(message);
+    if (message.kind === 'request' && message.target === localTabId)
+      void serve(message);
   });
 }
 
@@ -45,15 +46,23 @@ async function performClose(
   forceClaim: boolean,
 ): Promise<void> {
   const response = composeResponse(templateIndex);
-  if (response == null) throw new Error('Templates are no longer available on the ticket tab');
-  if (response.trim().length < 2) throw new Error('The composed response is empty');
+  if (response == null)
+    throw new Error('Templates are no longer available on the ticket tab');
+  if (response.trim().length < 2)
+    throw new Error('The composed response is empty');
   const result = (await closeTicket(ticketId, response, { forceClaim })) as {
     status?: string;
   } | null;
   // A claim held by another handler makes e621 redirect instead of updating, so a
   // bare 200 is not proof. Trust it only when the status actually moved.
-  if (result && typeof result.status === 'string' && result.status !== 'approved') {
-    throw new Error('Ticket was not closed, it may be claimed by another handler');
+  if (
+    result &&
+    typeof result.status === 'string' &&
+    result.status !== 'approved'
+  ) {
+    throw new Error(
+      'Ticket was not closed, it may be claimed by another handler',
+    );
   }
 }
 
@@ -64,9 +73,15 @@ function reloadAfterClose(): void {
   setTimeout(() => window.location.reload(), 100);
 }
 
-async function serve(request: Extract<Message, { kind: 'request' }>): Promise<void> {
+async function serve(
+  request: Extract<Message, { kind: 'request' }>,
+): Promise<void> {
   try {
-    await performClose(request.ticketId, request.templateIndex, request.forceClaim);
+    await performClose(
+      request.ticketId,
+      request.templateIndex,
+      request.forceClaim,
+    );
     channel.post({ kind: 'reply', id: request.id, ok: true });
     reloadAfterClose();
   } catch (error) {
@@ -90,7 +105,9 @@ export function requestClose(
   // The ticket is open in this very tab: close it directly, since BroadcastChannel
   // does not deliver a tab's own messages and a self-addressed request would hang.
   if (targetTabId === localTabId) {
-    return performClose(ticketId, templateIndex, !!options.forceClaim).then(reloadAfterClose);
+    return performClose(ticketId, templateIndex, !!options.forceClaim).then(
+      reloadAfterClose,
+    );
   }
   return new Promise((resolve, reject) => {
     const id = crypto.randomUUID();

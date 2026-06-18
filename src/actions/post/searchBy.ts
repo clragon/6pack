@@ -1,7 +1,11 @@
 import type { Action } from '../../core/actions/types';
 import { openInNewTab } from '../../core/navigate';
 import { isApprovalsEnabled } from '../../site/approval';
-import { readArtistTags, readUploaderId, readUploaderName } from '../../site/post';
+import {
+  readArtistTags,
+  readUploaderId,
+  readUploaderName,
+} from '../../site/post';
 
 function searchChildren(pending: boolean): Action[] {
   const suffix = pending ? '.pending' : '';

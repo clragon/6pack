@@ -20,7 +20,8 @@ interface E621Toast {
 }
 
 function toast(): E621Toast | undefined {
-  return (unsafeWindow as unknown as { E621?: { Toast?: E621Toast } }).E621?.Toast;
+  return (unsafeWindow as unknown as { E621?: { Toast?: E621Toast } }).E621
+    ?.Toast;
 }
 
 export function notify(message: string): void {

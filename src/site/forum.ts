@@ -7,12 +7,16 @@
 // self-anchored link, so one selector covers both cases.
 async function fetchForumPostUrl(id: number): Promise<string | null> {
   try {
-    const res = await fetch(`/forum_posts/${id}`, { credentials: 'same-origin' });
+    const res = await fetch(`/forum_posts/${id}`, {
+      credentials: 'same-origin',
+    });
     if (!res.ok) return null;
     const html = await res.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     // Ends-with, not contains: #forum_post_49 must not match #forum_post_493.
-    const link = doc.querySelector<HTMLAnchorElement>(`a[href$="#forum_post_${id}"]`);
+    const link = doc.querySelector<HTMLAnchorElement>(
+      `a[href$="#forum_post_${id}"]`,
+    );
     const href = link?.getAttribute('href');
     if (href) return href;
     // No self-anchored link (unexpected): fall back to the resolved topic URL.

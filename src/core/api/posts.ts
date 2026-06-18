@@ -10,7 +10,10 @@ export interface DeleteOptions {
 
 // Janitor reject / moderator delete. e621 wants commit="Delete" alongside the
 // free-text reason.
-export function deletePost(id: number, options: DeleteOptions): Promise<unknown> {
+export function deletePost(
+  id: number,
+  options: DeleteOptions,
+): Promise<unknown> {
   return transport.post(`/moderator/post/posts/${id}/delete.json`, {
     commit: 'Delete',
     reason: options.reason,

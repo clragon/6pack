@@ -40,7 +40,9 @@ function emit(): void {
 
 // Opens the confirm overlay and resolves with the user's input, or null if they
 // cancel. Any in-flight request is cancelled first.
-export function openConfirm(request: ConfirmRequest): Promise<ConfirmResult | null> {
+export function openConfirm(
+  request: ConfirmRequest,
+): Promise<ConfirmResult | null> {
   active?.resolve(null);
   return new Promise((resolve) => {
     active = { ...request, resolve };

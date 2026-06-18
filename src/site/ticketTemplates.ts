@@ -13,14 +13,17 @@ export interface TicketTemplate {
 
 const RESPONSE_FIELD = "textarea[name='ticket[response]']";
 // RE621's chips; the trailing settings chip is icon-only and carries no template.
-const TEMPLATE_CHIP = '.template-builder-chip:not(.template-builder-chip--icon-only)';
+const TEMPLATE_CHIP =
+  '.template-builder-chip:not(.template-builder-chip--icon-only)';
 
 function responseField(): HTMLTextAreaElement | null {
   return document.querySelector<HTMLTextAreaElement>(RESPONSE_FIELD);
 }
 
 function templateChips(): HTMLButtonElement[] {
-  return Array.from(document.querySelectorAll<HTMLButtonElement>(TEMPLATE_CHIP));
+  return Array.from(
+    document.querySelectorAll<HTMLButtonElement>(TEMPLATE_CHIP),
+  );
 }
 
 // Whether this page can actually be handled here: only a ticket page with the

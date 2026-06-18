@@ -99,7 +99,9 @@ export function refreshOpenTickets(): void {
 // it can close in-process without a cross-tab round trip.
 export function openTickets(): OpenTicket[] {
   const byTicket = new Map<number, OpenTicket>();
-  const all = localTicket ? [localTicket, ...known.values()] : [...known.values()];
+  const all = localTicket
+    ? [localTicket, ...known.values()]
+    : [...known.values()];
   for (const ticket of all) {
     const existing = byTicket.get(ticket.ticketId);
     if (!existing || (ticket.canHandle && !existing.canHandle)) {

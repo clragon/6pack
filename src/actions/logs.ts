@@ -26,19 +26,17 @@ export const logs: Action = {
         },
       ];
     }
-    return entries
-      .reverse()
-      .map((entry, index) => {
-        const text = format(entry);
-        return {
-          id: `logs.row.${index}`,
-          title: text,
-          keywords: [text, entry.level],
-          submenuOnly: true,
-          run: () => {
-            void navigator.clipboard.writeText(text);
-          },
-        };
-      });
+    return entries.reverse().map((entry, index) => {
+      const text = format(entry);
+      return {
+        id: `logs.row.${index}`,
+        title: text,
+        keywords: [text, entry.level],
+        submenuOnly: true,
+        run: () => {
+          void navigator.clipboard.writeText(text);
+        },
+      };
+    });
   },
 };

@@ -19,7 +19,8 @@ const RETENTION_MS = 60 * 60 * 1000; // 1 hour
 // Entries are appended in time order, so the oldest sit at the front: drop them
 // while they're past the retention window, then cap the count.
 function trim(now: number): void {
-  while (entries.length && now - entries[0].time > RETENTION_MS) entries.shift();
+  while (entries.length && now - entries[0].time > RETENTION_MS)
+    entries.shift();
   while (entries.length > MAX) entries.shift();
 }
 

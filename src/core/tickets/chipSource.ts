@@ -52,7 +52,9 @@ function toChip(ticket: OpenTicket): Chip {
     id: `chip.ticket.${ticket.ticketId}`,
     label: `Ticket #${ticket.ticketId}`,
     info: [
-      ...(ticket.accused ? [{ label: 'Accused', value: ticket.accused.name }] : []),
+      ...(ticket.accused
+        ? [{ label: 'Accused', value: ticket.accused.name }]
+        : []),
       { label: 'Status', value: ticket.status },
     ],
     open: () => closeActions(ticket),

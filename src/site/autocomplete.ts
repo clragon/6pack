@@ -34,8 +34,17 @@ function staticMetatags(): Record<string, string[]> {
 }
 
 const USER_METATAGS = new Set([
-  'user', 'approver', 'commenter', 'comm', 'noter', 'noteupdater', 'fav',
-  'favoritedby', 'flagger', 'upvote', 'downvote',
+  'user',
+  'approver',
+  'commenter',
+  'comm',
+  'noter',
+  'noteupdater',
+  'fav',
+  'favoritedby',
+  'flagger',
+  'upvote',
+  'downvote',
 ]);
 
 const CATEGORY_NAMES: Record<number, string> = {
@@ -52,7 +61,10 @@ const CATEGORY_NAMES: Record<number, string> = {
 
 const humanize = (name: string) => name.replace(/_/g, ' ');
 const compact = (n: number) =>
-  new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short' })
+  new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    compactDisplay: 'short',
+  })
     .format(n)
     .toLowerCase();
 
@@ -110,25 +122,34 @@ async function getTags(term: string): Promise<SearchSuggestion[]> {
   return data.map((tag) => ({
     value: tag.name,
     label: humanize(tag.name),
-    detail: typeof tag.post_count === 'number' ? compact(tag.post_count) : undefined,
+    detail:
+      typeof tag.post_count === 'number' ? compact(tag.post_count) : undefined,
     category: tag.category != null ? CATEGORY_NAMES[tag.category] : undefined,
   }));
 }
 
-async function getUsers(metatag: string, term: string): Promise<SearchSuggestion[]> {
+async function getUsers(
+  metatag: string,
+  term: string,
+): Promise<SearchSuggestion[]> {
   const params = new URLSearchParams({
     'search[order]': 'post_upload_count',
     'search[name_matches]': term + '*',
     limit: '10',
   });
-  const data = (await fetchJson(`/users.json?${params}`)) as Array<{ name: string }>;
+  const data = (await fetchJson(`/users.json?${params}`)) as Array<{
+    name: string;
+  }>;
   return data.map((user) => ({
     value: `${metatag}:${user.name}`,
     label: `${metatag}:${humanize(user.name)}`,
   }));
 }
 
-async function getPools(metatag: string, term: string): Promise<SearchSuggestion[]> {
+async function getPools(
+  metatag: string,
+  term: string,
+): Promise<SearchSuggestion[]> {
   const params = new URLSearchParams({
     'search[order]': 'post_count',
     'search[name_matches]': term,
@@ -141,7 +162,10 @@ async function getPools(metatag: string, term: string): Promise<SearchSuggestion
   return data.map((pool) => ({
     value: `${metatag}:${pool.name}`,
     label: `${metatag}:${humanize(pool.name)}`,
-    detail: typeof pool.post_count === 'number' ? compact(pool.post_count) : undefined,
+    detail:
+      typeof pool.post_count === 'number'
+        ? compact(pool.post_count)
+        : undefined,
     category: 'pool',
   }));
 }
@@ -158,7 +182,10 @@ function getStaticMetatag(metatag: string, term: string): SearchSuggestion[] {
     }));
 }
 
-async function getMetatags(metatag: string, term: string): Promise<SearchSuggestion[]> {
+async function getMetatags(
+  metatag: string,
+  term: string,
+): Promise<SearchSuggestion[]> {
   if (staticMetatags()[metatag]) return getStaticMetatag(metatag, term);
   if (USER_METATAGS.has(metatag)) return getUsers(metatag, term);
   if (metatag === 'pool') return getPools(metatag, term);
@@ -167,14 +194,18 @@ async function getMetatags(metatag: string, term: string): Promise<SearchSuggest
   return [];
 }
 
-export async function suggestTagQuery(query: string): Promise<SearchSuggestion[]> {
+export async function suggestTagQuery(
+  query: string,
+): Promise<SearchSuggestion[]> {
   const parsed = parseActiveToken(query);
   if (!parsed) return [];
   const { metatag, term, prefix } = parsed;
   // Plain tags need a few characters; metatag values can show immediately.
   if (!metatag && term.length < 3) return [];
 
-  let results = metatag ? await getMetatags(metatag, term) : await getTags(term);
+  let results = metatag
+    ? await getMetatags(metatag, term)
+    : await getTags(term);
   if (prefix) {
     results = results.map((item) => ({ ...item, value: prefix + item.value }));
   }

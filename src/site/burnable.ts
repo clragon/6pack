@@ -34,7 +34,10 @@ const CONFIGS: BurnableConfig[] = [
     selector: 'article.forum-post[data-forum-post-id]',
     type: 'forum_post',
     idAttr: 'data-forum-post-id',
-    controls: { selector: '#c-forum-topics #a-show > p.info', position: 'afterend' },
+    controls: {
+      selector: '#c-forum-topics #a-show > p.info',
+      position: 'afterend',
+    },
   },
 ];
 
@@ -51,9 +54,7 @@ export interface Burnable {
   burnt: boolean;
 }
 
-export function readBurnables(
-  config = currentBurnableConfig(),
-): Burnable[] {
+export function readBurnables(config = currentBurnableConfig()): Burnable[] {
   if (!config) return [];
   const items: Burnable[] = [];
   document.querySelectorAll<HTMLElement>(config.selector).forEach((el) => {

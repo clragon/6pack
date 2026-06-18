@@ -26,7 +26,9 @@ export function record<T>(
 ): T {
   const shown = format ? format(value) : value;
   if (shown !== null && typeof shown === 'object' && !Array.isArray(shown)) {
-    for (const [key, field] of Object.entries(shown as Record<string, unknown>)) {
+    for (const [key, field] of Object.entries(
+      shown as Record<string, unknown>,
+    )) {
       if (field !== undefined) readings.set(`${label} ${key}`, scalar(field));
     }
   } else {

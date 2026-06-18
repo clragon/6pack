@@ -29,7 +29,10 @@ function Root({
         actions={actions}
         onClose={() => paletteStore.set(false)}
       />
-      <RebindPrompt active={capturing} onClose={() => captureStore.set(false)} />
+      <RebindPrompt
+        active={capturing}
+        onClose={() => captureStore.set(false)}
+      />
       <ConfirmPrompt />
     </>
   );

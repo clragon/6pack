@@ -13,8 +13,13 @@ export function detectContext(): PageContext {
   const user = path.match(USER_SHOW);
   if (user) return { kind: 'user', id: Number(user[1]) };
   if (path === '/user_feedbacks') {
-    const raw = new URLSearchParams(window.location.search).get('search[user_id]');
-    return { kind: 'userFeedbacks', userId: raw && /^\d+$/.test(raw) ? Number(raw) : null };
+    const raw = new URLSearchParams(window.location.search).get(
+      'search[user_id]',
+    );
+    return {
+      kind: 'userFeedbacks',
+      userId: raw && /^\d+$/.test(raw) ? Number(raw) : null,
+    };
   }
   if (path === '/uploads/new') return { kind: 'upload' };
   return { kind: 'unknown' };
