@@ -1,7 +1,9 @@
-// Thin wrapper over e621's global Toast (window.E621.Toast). We run in the page
-// context, so the global is directly reachable. Its absence means we can't give
-// the user feedback at all, so we treat it as a fatal condition (alarm in the
-// palette) and still log the message that couldn't be shown.
+// Thin wrapper over e621's global Toast (E621.Toast). Our GM_* grants put the
+// script in the manager's sandbox, where `window` is not the page's, so we reach
+// the page global through unsafeWindow. Its absence means we can't give the user
+// feedback at all, so we treat it as a fatal condition (alarm in the palette)
+// and still log the message that couldn't be shown.
+import { unsafeWindow } from 'vite-plugin-monkey/dist/client';
 import { log } from '../core/log';
 import { reportFatal } from '../core/palette/banner';
 
@@ -18,7 +20,7 @@ interface E621Toast {
 }
 
 function toast(): E621Toast | undefined {
-  return (window as unknown as { E621?: { Toast?: E621Toast } }).E621?.Toast;
+  return (unsafeWindow as unknown as { E621?: { Toast?: E621Toast } }).E621?.Toast;
 }
 
 export function notify(message: string): void {
