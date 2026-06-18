@@ -23,17 +23,18 @@ export function canApprovePosts(): boolean {
   return meta('current-user-can-approve-posts') === 'true';
 }
 
-// e621 user levels (config/danbooru_default_config.rb). Menu entries gate on a
+// e621 user levels (app/logical/user_level.rb). Menu entries gate on a
 // numeric threshold rather than the canonical `is_<role>?` (which also requires
 // is_verified): for UI visibility the level alone is enough and is robust to the
 // flag's shape drifting.
 export const Level = {
   Member: 20,
   Privileged: 30,
-  FormerStaff: 34,
-  Janitor: 35,
-  Moderator: 40,
-  Admin: 50,
+  FormerStaff: 40,
+  Staff: 50,
+  Janitor: 60,
+  Moderator: 70,
+  Admin: 80,
 } as const;
 
 export interface CurrentUser {
