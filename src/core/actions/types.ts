@@ -19,6 +19,7 @@ export interface Action {
   surface?: boolean;
   surfaceTitle?: string;
   run?: (ctx: ActionContext) => void | Promise<void>;
+  checked?: () => boolean;
   submenu?: (ctx: ActionContext) => Action[] | Promise<Action[]>;
   placeholder?: string;
   prefix?: string;

@@ -8,6 +8,7 @@ import { deepActiveElement, isEditableElement } from './core/palette/focus';
 import { captureStore, paletteStore } from './core/palette/store';
 import { log } from './core/log';
 import { mountBurnControls } from './burn/mount';
+import { mountSourceShortening } from './site/sources';
 import { prefetchReportedDestination, readAccused, readTicketStatus } from './site/ticket';
 import { canComposeResponse, readTicketTemplates } from './site/ticketTemplates';
 import { publishOpenTicket } from './core/tickets/registry';
@@ -46,6 +47,8 @@ if (page.kind === 'ticket' && canComposeResponse()) {
 }
 
 mountBurnControls();
+
+if (page.kind === 'post') mountSourceShortening();
 
 mountPalette(page, () => registry.available(page));
 

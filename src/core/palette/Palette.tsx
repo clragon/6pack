@@ -32,6 +32,7 @@ interface Row {
   isGroup: boolean;
   inline?: boolean;
   color?: string;
+  toggle?: boolean;
   onSelect: () => void;
   onDrill?: () => void;
 }
@@ -52,6 +53,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const [frecency, setFrecency] = useState(getFrecency);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [, forceChips] = useState(0);
+  const [, forceRender] = useState(0);
   const activeChipRef = useRef<Chip | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedRef = useRef<HTMLLIElement>(null);
@@ -259,6 +261,20 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     onClose();
   };
 
+  const toggleAction = (action: Action) => {
+    try {
+      action.run?.(ctx);
+    } catch (error) {
+      reportRunFailure(action, error);
+    }
+    forceRender((n) => n + 1);
+  };
+
+  const activateLeaf = (action: Action, viaGroup?: Action) => {
+    if (action.checked) toggleAction(action);
+    else runAction(action, viaGroup);
+  };
+
   const drillInto = (action: Action, carryQuery: boolean) => {
     const children = childrenOf(action);
     if (!children) return;
@@ -338,7 +354,8 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
             title: action.title,
             detail: action.description,
             isGroup: false,
-            onSelect: () => runAction(action),
+            toggle: action.checked?.(),
+            onSelect: () => activateLeaf(action),
           },
         ];
       }
@@ -356,7 +373,8 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
         title: child.surfaceTitle ?? child.title,
         detail: `from ${action.title}`,
         isGroup: false,
-        onSelect: () => runAction(child, action),
+        toggle: child.checked?.(),
+        onSelect: () => activateLeaf(child, action),
       });
       const match = childMatchOf(action);
       const shown = new Set<string>();
@@ -502,7 +520,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
             <li
               key={row.id}
               ref={index === selected ? selectedRef : undefined}
-              class={`sp-item${row.inline ? ' sp-suggestion' : ''}${index === selected ? ' sp-selected' : ''}`}
+              class={`sp-item${row.inline ? ' sp-suggestion' : ''}${row.toggle !== undefined ? ' sp-item-toggle' : ''}${index === selected ? ' sp-selected' : ''}`}
               onMouseMove={() => {
                 if (selected !== index) setSelected(index);
               }}
@@ -516,6 +534,12 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
                 {row.isGroup && <span class="sp-group-arrow"> ›</span>}
               </span>
               {row.detail && <span class="sp-desc">{row.detail}</span>}
+              {row.toggle !== undefined && (
+                <span
+                  class={`sp-switch${row.toggle ? ' sp-switch-on' : ''}`}
+                  aria-hidden="true"
+                />
+              )}
             </li>
           ))}
           {rows.length === 0 && (
