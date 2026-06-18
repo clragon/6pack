@@ -1,3 +1,4 @@
+import { unsafeWindow } from 'vite-plugin-monkey/dist/client';
 import { log } from '../core/log';
 import { reportFatal } from '../core/palette/banner';
 
@@ -14,7 +15,7 @@ interface E621Toast {
 }
 
 function toast(): E621Toast | undefined {
-  return (window as unknown as { E621?: { Toast?: E621Toast } }).E621?.Toast;
+  return (unsafeWindow as unknown as { E621?: { Toast?: E621Toast } }).E621?.Toast;
 }
 
 export function notify(message: string): void {
