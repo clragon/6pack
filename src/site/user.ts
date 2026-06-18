@@ -24,10 +24,11 @@ export function canApprovePosts(): boolean {
 export const Level = {
   Member: 20,
   Privileged: 30,
-  FormerStaff: 34,
-  Janitor: 35,
-  Moderator: 40,
-  Admin: 50,
+  FormerStaff: 40,
+  Staff: 50,
+  Janitor: 60,
+  Moderator: 70,
+  Admin: 80,
 } as const;
 
 export interface CurrentUser {
