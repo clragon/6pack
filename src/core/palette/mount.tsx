@@ -7,7 +7,7 @@ import { ConfirmPrompt } from './ConfirmPrompt';
 import { Palette } from './Palette';
 import { RebindPrompt } from './RebindPrompt';
 import { captureStore, paletteStore } from './store';
-import { PALETTE_CSS } from './styles';
+import PALETTE_CSS from './styles.css?inline';
 import { useToggle } from './useToggle';
 
 function Root({

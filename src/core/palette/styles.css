@@ -1,4 +1,5 @@
-export const PALETTE_CSS = `
+/* e621 sets its --color-* theme properties on body and --palette-* on :root,
+   and custom properties inherit into this shadow root. */
 .sp-backdrop {
   position: fixed;
   inset: 0;
@@ -10,18 +11,19 @@ export const PALETTE_CSS = `
   backdrop-filter: blur(2px);
   font-family: Verdana, Helvetica, Arial, sans-serif;
 }
+
 .sp-backdrop * {
   box-sizing: border-box;
 }
+
 .sp-shell {
   position: relative;
   margin-top: 12vh;
   width: min(560px, 92vw);
   display: flex;
   flex-direction: column;
-  /* The chips are absolutely placed above the panel (see .sp-chips), so the panel
-     and its input bar hold a fixed position whether or not chips are showing. */
 }
+
 .sp-panel {
   max-height: 60vh;
   display: flex;
@@ -36,6 +38,7 @@ export const PALETTE_CSS = `
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
+
 .sp-input-row {
   display: flex;
   align-items: center;
@@ -44,9 +47,8 @@ export const PALETTE_CSS = `
   background: var(--color-section-darken-5, transparent);
   border-bottom: 1px solid var(--color-table-border, #313d52);
 }
+
 .sp-chips {
-  /* Anchored directly above the panel and out of flow, so showing or hiding the
-     tabs never moves the bar. They grow upward into the space over the dialog. */
   position: absolute;
   bottom: 100%;
   left: 0;
@@ -57,10 +59,10 @@ export const PALETTE_CSS = `
   justify-content: flex-end;
   gap: 4px;
   padding: 0 8px;
-  /* Overlap the panel's top border so the tabs' open bottoms merge into it. */
   margin-bottom: -1px;
   z-index: 1;
 }
+
 .sp-chip {
   display: inline-flex;
   align-items: baseline;
@@ -69,27 +71,25 @@ export const PALETTE_CSS = `
   font-size: 12px;
   line-height: 1.4;
   padding: 4px 12px;
-  /* Open at the bottom into the panel; rounded only at the top, like a browser
-     tab above a window. */
   border: 1px solid var(--color-table-border, #313d52);
   border-bottom: none;
   border-radius: 6px 6px 0 0;
-  /* Filled with the panel's surface so each tab reads as the dialog growing
-     upward; the row around the chips stays transparent. */
   background-color: var(--color-section, #1b2433);
   background-image: var(--image-foreground, none);
   color: var(--color-text-muted, #9aa6bd);
   cursor: pointer;
 }
+
 .sp-chip:hover {
   border-color: var(--palette-text-yellow, #ffd666);
   color: var(--palette-text-yellow, #ffd666);
 }
+
 .sp-chip-active {
   color: var(--color-text, #e6e9ef);
-  /* Accent the active tab without shifting layout. */
   box-shadow: inset 0 2px 0 var(--palette-text-yellow, #ffd666);
 }
+
 .sp-chip-info {
   display: flex;
   flex-wrap: wrap;
@@ -100,10 +100,12 @@ export const PALETTE_CSS = `
   background: var(--color-section-darken-5, transparent);
   border-bottom: 1px solid var(--color-table-border, #313d52);
 }
+
 .sp-chip-fact-label {
   color: var(--color-text-muted, #9aa6bd);
   margin-right: 5px;
 }
+
 .sp-crumbs {
   display: flex;
   align-items: center;
@@ -111,6 +113,7 @@ export const PALETTE_CSS = `
   min-width: 0;
   overflow: hidden;
 }
+
 .sp-home {
   flex-shrink: 0;
   display: flex;
@@ -121,20 +124,24 @@ export const PALETTE_CSS = `
   color: var(--palette-text-yellow, #ffd666);
   cursor: pointer;
 }
+
 .sp-home:hover {
   color: var(--palette-plain-yellow, #ecec26);
 }
+
 .sp-crumb-group {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   min-width: 0;
 }
+
 .sp-crumb-arrow {
   flex-shrink: 0;
   font-size: 13px;
   color: var(--color-text-muted, #9aa6bd);
 }
+
 .sp-crumb {
   background: none;
   border: none;
@@ -145,12 +152,15 @@ export const PALETTE_CSS = `
   white-space: nowrap;
   cursor: pointer;
 }
+
 button.sp-crumb:hover {
   color: var(--color-text, #e6e9ef);
 }
+
 .sp-crumb-current {
   cursor: default;
 }
+
 .sp-go {
   flex-shrink: 0;
   background: none;
@@ -162,18 +172,22 @@ button.sp-crumb:hover {
   padding: 0 4px;
   cursor: pointer;
 }
+
 .sp-go:hover {
   color: var(--color-text, #e6e9ef);
 }
+
 .sp-item.sp-suggestion {
   flex-direction: row;
   align-items: baseline;
   gap: 6px;
 }
+
 .sp-item.sp-suggestion .sp-desc {
   margin-left: auto;
   padding-left: 12px;
 }
+
 .sp-input {
   flex: 1;
   padding: 12px 0;
@@ -184,13 +198,16 @@ button.sp-crumb:hover {
   border: none;
   outline: none;
 }
+
 .sp-list {
   list-style: none;
   margin: 0;
   padding: 6px;
   overflow-y: auto;
 }
+
 .sp-item {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -199,59 +216,111 @@ button.sp-crumb:hover {
   cursor: pointer;
   color: var(--color-text, #e6e9ef);
 }
+
+.sp-item-toggle {
+  padding-right: 58px;
+}
+
+.sp-switch {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--color-section-darken-5, rgba(0, 0, 0, 0.3));
+  border: 1px solid var(--color-table-border, #313d52);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.sp-switch::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-text-muted, #9aa6bd);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.sp-switch-on {
+  background: var(--palette-text-yellow, #ffd666);
+  border-color: var(--palette-text-yellow, #ffd666);
+}
+
+.sp-switch-on::after {
+  transform: translateX(16px);
+  background: var(--color-section, #1b2433);
+}
+
 .sp-selected {
   background: var(--color-section-lighten-10, #2a3852);
 }
+
 .sp-title {
   font-size: 14px;
 }
+
 .sp-group-arrow {
   color: var(--color-text-muted, #9aa6bd);
 }
+
 .sp-desc {
   font-size: 12px;
   color: var(--color-text-muted, #9aa6bd);
 }
+
 .sp-empty {
   padding: 16px;
   text-align: center;
   color: var(--color-text-muted, #9aa6bd);
   font-size: 13px;
 }
+
 .sp-capture {
   display: flex;
   flex-direction: column;
   padding: 20px;
   gap: 8px;
 }
+
 .sp-capture-title {
   font-size: 15px;
 }
+
 .sp-capture-hint {
   font-size: 12px;
   color: var(--color-text-muted, #9aa6bd);
 }
+
 .sp-confirm {
   display: flex;
   flex-direction: column;
   padding: 18px;
   gap: 12px;
 }
+
 .sp-confirm-title {
   font-size: 15px;
   font-weight: bold;
 }
+
 .sp-confirm-detail {
   font-size: 13px;
   color: var(--color-text-muted, #9aa6bd);
   white-space: pre-wrap;
 }
+
 .sp-confirm-field {
   display: flex;
   flex-direction: column;
   gap: 4px;
   font-size: 13px;
 }
+
 .sp-confirm-input {
   padding: 8px 10px;
   font: inherit;
@@ -262,6 +331,7 @@ button.sp-crumb:hover {
   border-radius: 4px;
   outline: none;
 }
+
 .sp-confirm-option {
   display: flex;
   align-items: center;
@@ -272,11 +342,13 @@ button.sp-crumb:hover {
   border-radius: 4px;
   cursor: pointer;
 }
+
 .sp-confirm-actions {
   display: flex;
   gap: 8px;
   margin-top: 4px;
 }
+
 .sp-btn {
   flex: 1;
   padding: 9px 14px;
@@ -289,36 +361,39 @@ button.sp-crumb:hover {
   border-radius: 4px;
   cursor: pointer;
 }
+
 .sp-btn:disabled {
   opacity: 0.5;
   cursor: default;
 }
+
 .sp-btn-danger {
   background: #7a2227;
   border-color: #b3343a;
   color: #fff;
 }
-/* The cursor: whichever control the keyboard is on gets a clear accent ring,
-   matching the command list's selected row. */
+
 .sp-confirm-sel,
 .sp-confirm-field.sp-confirm-sel .sp-confirm-input {
   outline: none;
   border-color: var(--palette-text-yellow, #ffd666);
   box-shadow: 0 0 0 1px var(--palette-text-yellow, #ffd666);
 }
+
 .sp-banner {
   padding: 12px 14px;
   background: #8a1a1f;
   border-bottom: 2px solid #e0454c;
   color: #fff;
 }
+
 .sp-banner-title {
   font-size: 14px;
   font-weight: bold;
 }
+
 .sp-banner-detail {
   margin-top: 3px;
   font-size: 12px;
   color: #ffd9db;
 }
-`;
