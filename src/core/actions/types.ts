@@ -29,6 +29,10 @@ export interface Action {
   surfaceTitle?: string;
   // Leaf behaviour. A group (one with `submenu`) may omit this.
   run?: (ctx: ActionContext) => void | Promise<void>;
+  // Marks a toggle: its current on/off state. When present the row shows a switch
+  // reflecting this, and activating runs `run` in place (the palette stays open
+  // and the switch flips) instead of closing like a normal command.
+  checked?: () => boolean;
   // Makes this a group: resolves child actions lazily when needed. Children may
   // be a Promise (e.g. an API call); sync children additionally enable query
   // reach-in, matching and pre-selecting a child from the parent list.

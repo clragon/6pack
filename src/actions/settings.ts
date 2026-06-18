@@ -1,17 +1,28 @@
 import type { Action } from '../core/actions/types';
+import { settings } from '../core/settings';
 import { captureStore } from '../core/palette/store';
 
-// Hidden until searched ("settings"/"hotkey"). With a single entry it surfaces
-// as "Settings → Change palette hotkey"; more settings turn it into a real menu.
+// Hidden until searched ("settings"/"hotkey"/"source"). Each entry toggles or
+// opens a preference; a toggle shows a switch and flips in place.
 export const settingsActions: Action[] = [
   {
     id: 'settings',
     title: 'Settings',
-    description: 'Configure the palette',
+    description: 'Configure 6pack',
     keywords: ['settings', 'preferences', 'config', 'options'],
     hidden: true,
     weight: -1,
     submenu: () => [
+      {
+        id: 'settings.shortenSources',
+        title: 'Shorten source links',
+        description: 'Collapse known platform source links to their key detail',
+        keywords: ['source', 'sources', 'link', 'links', 'shorten', 'short'],
+        checked: () => settings.get('shortenSources'),
+        run: () => {
+          settings.toggle('shortenSources');
+        },
+      },
       {
         id: 'palette.rebind',
         title: 'Change palette hotkey',
