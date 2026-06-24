@@ -21,6 +21,21 @@ const CHECKBOX_CLASS = 'sixpack-burner';
 const ALL_CLASS = 'sixpack-burner-all';
 const COUNT_CLASS = 'sixpack-burner-count';
 const REGION_ID = 'sixpack-burner-controls';
+const ICON_BTN_CLASS = 'sixpack-icon-btn';
+const STYLE_ID = 'sixpack-burner-style';
+
+// A menu-style hover highlight for the inline icon buttons. This region is page
+// DOM, so :hover needs a real rule, not inline styles; the colour matches the
+// palette's selected row.
+function ensureStyles(): void {
+  if (document.getElementById(STYLE_ID)) return;
+  const style = document.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent =
+    `.${ICON_BTN_CLASS} { background: none; padding: 4px; border-radius: 4px; transition: background-color 0.15s ease; }` +
+    `.${ICON_BTN_CLASS}:hover { background: var(--color-section-lighten-10, #2a3852); }`;
+  document.head.appendChild(style);
+}
 
 // lucide's flame, filled, matching the palette home button.
 const FLAME_SVG =
@@ -80,6 +95,8 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
   const anchor = document.querySelector(config.controls.selector);
   if (!anchor) return null;
 
+  ensureStyles();
+
   const region = document.createElement('div');
   region.id = REGION_ID;
   region.style.cssText =
@@ -90,8 +107,9 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
   const burn = document.createElement('button');
   burn.type = 'button';
   burn.title = 'Incinerate selection';
+  burn.className = ICON_BTN_CLASS;
   burn.style.cssText =
-    'display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; color: var(--palette-text-yellow, #ffd666); font-weight: 700;';
+    'display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; color: var(--palette-text-yellow, #ffd666); font-weight: 700;';
   burn.innerHTML = FLAME_SVG;
   const count = document.createElement('span');
   count.className = COUNT_CLASS;
@@ -116,8 +134,9 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
   if (hasBurntComments()) {
     const toggle = document.createElement('button');
     toggle.type = 'button';
+    toggle.className = ICON_BTN_CLASS;
     toggle.style.cssText =
-      'display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-weight: 700;';
+      'display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; font-weight: 700;';
     const burntLabel = document.createElement('span');
     burntLabel.style.cssText = 'font-size: 13px; line-height: 16px;';
     burntLabel.textContent = String(burntCount());
