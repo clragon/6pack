@@ -21,6 +21,9 @@ import {
 import { publishOpenTicket } from './core/tickets/registry';
 import { installTicketCommandHandler } from './core/tickets/commands';
 import { installTicketChips } from './core/tickets/chipSource';
+import { installMassBanChip } from './core/bans/chip';
+import { captureBanForm } from './site/banCapture';
+import { mountBanHint } from './site/banHint';
 import { loadCurrentUser } from './site/user';
 import { allActions } from './actions';
 
@@ -33,6 +36,10 @@ registry.register(...allActions);
 addons.init(registry, page);
 
 installTicketChips();
+installMassBanChip();
+
+if (location.pathname === '/bans/new') captureBanForm();
+if (/^\/bans\//.test(location.pathname)) mountBanHint();
 
 void loadCurrentUser().then((user) => {
   record('user', user ? `${user.name} #${user.id}` : 'anonymous');

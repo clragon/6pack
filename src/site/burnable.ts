@@ -1,10 +1,11 @@
-export type BurnableType = 'comment' | 'forum_post';
+export type BurnableType = 'comment' | 'forum_post' | 'user';
 
 export interface BurnableConfig {
   match: RegExp;
   selector: string;
   type: BurnableType;
-  idAttr: string;
+  idAttr?: string;
+  id?: (el: HTMLElement) => string | null;
   controls: { selector: string; position: InsertPosition };
 }
 
@@ -33,6 +34,17 @@ const CONFIGS: BurnableConfig[] = [
       position: 'afterend',
     },
   },
+  {
+    match: /^\/users(?:[?.]|\/(?!\d)|$)/,
+    selector: '#c-users tbody tr',
+    type: 'user',
+    id: (el) =>
+      el
+        .querySelector('a[href^="/users/"]')
+        ?.getAttribute('href')
+        ?.match(/\/users\/(\d+)/)?.[1] ?? null,
+    controls: { selector: '#c-users #searchform', position: 'afterend' },
+  },
 ];
 
 export function currentBurnableConfig(): BurnableConfig | null {
@@ -51,7 +63,11 @@ export function readBurnables(config = currentBurnableConfig()): Burnable[] {
   if (!config) return [];
   const items: Burnable[] = [];
   document.querySelectorAll<HTMLElement>(config.selector).forEach((el) => {
-    const id = el.getAttribute(config.idAttr);
+    const id = config.id
+      ? config.id(el)
+      : config.idAttr
+        ? el.getAttribute(config.idAttr)
+        : null;
     if (!id) return;
     items.push({
       type: config.type,

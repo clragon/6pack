@@ -14,6 +14,7 @@ import {
   subscribeBurntComments,
   toggleBurntComments,
 } from '../site/burntComments';
+import { isModeratorPlus, loadCurrentUser } from '../site/user';
 
 const CHECKBOX_CLASS = 'sixpack-burner';
 const ALL_CLASS = 'sixpack-burner-all';
@@ -52,13 +53,16 @@ function injectCheckbox(item: Burnable): void {
     burnPile.toggle(ref, checkbox.checked),
   );
 
-  const cell = document.createElement('div');
-  cell.style.cssText = [
-    'padding: 0.25rem 0.5rem;',
-    'cursor: pointer;',
-    'background-color: var(--color-section-lighten-5);',
-    'grid-column: 3;',
-  ].join(' ');
+  const isRow = item.el.tagName === 'TR';
+  const cell = document.createElement(isRow ? 'td' : 'div');
+  cell.style.cssText = isRow
+    ? 'padding: 0.25rem 0.5rem; cursor: pointer; text-align: right;'
+    : [
+        'padding: 0.25rem 0.5rem;',
+        'cursor: pointer;',
+        'background-color: var(--color-section-lighten-5);',
+        'grid-column: 3;',
+      ].join(' ');
   cell.appendChild(checkbox);
   cell.addEventListener('click', (event) => {
     if (event.target === checkbox) return;
@@ -146,6 +150,18 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
 }
 
 export function mountBurnControls(): void {
+  const config = currentBurnableConfig();
+  if (!config) return;
+  if (config.type === 'user') {
+    void loadCurrentUser().then(() => {
+      if (isModeratorPlus()) mountControls();
+    });
+    return;
+  }
+  mountControls();
+}
+
+function mountControls(): void {
   const config = currentBurnableConfig();
   if (!config) return;
   const items = readBurnables(config);
