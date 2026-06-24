@@ -10,7 +10,7 @@ export default defineConfig({
       userscript: {
         name: '6 P.A.C.K.',
         namespace: 'https://clynamic.net',
-        icon: '🛠️',
+        icon: 'https://em-content.zobj.net/source/microsoft-3D-fluent/433/fire-extinguisher_1f9ef.png',
         match: ['https://e621.net/*', 'https://e926.net/*'],
         connect: [
           'twimg.com',

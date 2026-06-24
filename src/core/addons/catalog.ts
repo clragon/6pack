@@ -12,7 +12,6 @@ interface ManifestAddon {
   id: string;
   name: string;
   description: string;
-  summary?: string;
   file: string;
 }
 
@@ -20,9 +19,7 @@ export const CATALOG: CatalogEntry[] = (manifest.addons as ManifestAddon[]).map(
   (addon) => ({
     id: addon.id,
     name: addon.name,
-    description: addon.summary
-      ? `${addon.description}. ${addon.summary}`
-      : addon.description,
+    description: addon.description,
     file: addon.file,
   }),
 );
