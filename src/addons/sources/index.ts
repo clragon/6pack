@@ -1,5 +1,6 @@
-import { settings } from '../core/settings';
-import { getSourceDisplayLabel } from '../core/sources/url';
+import type { SixpackAddon } from '../../core/addons/types';
+import { settings } from '../../core/settings';
+import { getSourceDisplayLabel } from '../../core/sources/url';
 
 // Shortens the source links in the post sidebar to their salient token, in place.
 // Native e621 renders `.source-link > a.decorated` as `<img><span>host/path</span>`;
@@ -10,6 +11,8 @@ import { getSourceDisplayLabel } from '../core/sources/url';
 // selector skips them. The verifier's replacement anchor does carry an http href
 // (an e621 post_replacements/new URL) but wraps only an icon, so shortening would
 // overwrite that icon with the replacement URL; exclude it explicitly.
+
+const SETTING = 'sources.shorten';
 
 // dataset key (data-sixpack-source); its presence marks an already-shortened node
 // and stashes the original text for restore.
@@ -60,13 +63,13 @@ function applyAll(on: boolean): void {
   }
 }
 
-export function mountSourceShortening(): void {
-  applyAll(settings.get('shortenSources'));
+function mount(): () => void {
+  applyAll(settings.get(SETTING));
 
   // The verifier adds its source lists asynchronously and may re-render them, so
   // catch new `.source-link` nodes as they arrive while the setting is on.
   const observer = new MutationObserver((mutations) => {
-    if (!settings.get('shortenSources')) return;
+    if (!settings.get(SETTING)) return;
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes) {
         if (node instanceof HTMLElement) shortenWithin(node);
@@ -75,5 +78,27 @@ export function mountSourceShortening(): void {
   });
   observer.observe(document.body, { childList: true, subtree: true });
 
-  settings.subscribe(() => applyAll(settings.get('shortenSources')));
+  const unsubscribe = settings.subscribe(() => applyAll(settings.get(SETTING)));
+
+  return () => {
+    observer.disconnect();
+    unsubscribe();
+    applyAll(false);
+  };
 }
+
+export const sourcesAddon: SixpackAddon = {
+  id: 'sources',
+  name: 'Source shortener',
+  settings: [
+    {
+      key: SETTING,
+      label: 'Shorten source links',
+      description: 'Collapse known platform source links to their key detail',
+      keywords: ['source', 'sources', 'link', 'links', 'shorten', 'short'],
+      default: false,
+    },
+  ],
+  when: (page) => page.kind === 'post',
+  setup: () => mount(),
+};

@@ -2,13 +2,14 @@ import { matchesTrigger, triggerIsModless } from './core/config';
 import { detectContext } from './core/context/detect';
 import { record } from './core/diag';
 import { ActionRegistry } from './core/actions/registry';
+import { AddonHost } from './core/addons/host';
+import { sourcesAddon } from './addons/sources';
 import { mountPalette } from './core/palette/mount';
 import { isConfirmActive } from './core/palette/confirm';
 import { deepActiveElement, isEditableElement } from './core/palette/focus';
 import { captureStore, paletteStore } from './core/palette/store';
 import { log } from './core/log';
 import { mountBurnControls } from './burn/mount';
-import { mountSourceShortening } from './site/sources';
 import {
   prefetchReportedDestination,
   readAccused,
@@ -29,6 +30,12 @@ record('page', page);
 
 const registry = new ActionRegistry();
 registry.register(...allActions);
+
+// Load the built-in add-ons through the public contract (no privileged path),
+// then expose the bridge so third-party hooks can register too.
+const addons = new AddonHost(registry, page);
+addons.register(sourcesAddon);
+addons.publish();
 
 // Every tab can show chips for tickets open in other tabs, so register the source
 // regardless of the current page.
@@ -64,9 +71,6 @@ if (page.kind === 'ticket' && canComposeResponse()) {
 
 // Inject the burn checkboxes + controls on pages with burnable items.
 mountBurnControls();
-
-// Shorten the post's source links (and any the source-verifier injects).
-if (page.kind === 'post') mountSourceShortening();
 
 mountPalette(page, () => registry.available(page));
 

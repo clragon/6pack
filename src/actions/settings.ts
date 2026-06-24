@@ -2,8 +2,9 @@ import type { Action } from '../core/actions/types';
 import { settings } from '../core/settings';
 import { captureStore } from '../core/palette/store';
 
-// Hidden until searched ("settings"/"hotkey"/"source"). Each entry toggles or
-// opens a preference; a toggle shows a switch and flips in place.
+// Hidden until searched ("settings"/"hotkey"/"source"). One switch per registered
+// setting spec (core or add-on), so a new add-on's preference surfaces here just
+// by registering; a toggle flips in place. The hotkey rebind always trails.
 export const settingsActions: Action[] = [
   {
     id: 'settings',
@@ -13,16 +14,18 @@ export const settingsActions: Action[] = [
     hidden: true,
     weight: -1,
     submenu: () => [
-      {
-        id: 'settings.shortenSources',
-        title: 'Shorten source links',
-        description: 'Collapse known platform source links to their key detail',
-        keywords: ['source', 'sources', 'link', 'links', 'shorten', 'short'],
-        checked: () => settings.get('shortenSources'),
-        run: () => {
-          settings.toggle('shortenSources');
-        },
-      },
+      ...settings.specs().map(
+        (spec): Action => ({
+          id: `settings.${spec.key}`,
+          title: spec.label,
+          description: spec.description,
+          keywords: spec.keywords,
+          checked: () => settings.get(spec.key),
+          run: () => {
+            settings.toggle(spec.key);
+          },
+        }),
+      ),
       {
         id: 'palette.rebind',
         title: 'Change palette hotkey',
