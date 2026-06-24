@@ -1,0 +1,17 @@
+.ob-tail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  padding: 2em 0;
+}
+.ob-tail button {
+  font: inherit;
+  cursor: pointer;
+}
+.ob-tail:not([state='error']):not([state='ready']) button {
+  display: none;
+}
+.ob-status {
+  opacity: 0.7;
+}

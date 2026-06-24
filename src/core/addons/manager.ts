@@ -1,5 +1,6 @@
 import { AddonHost } from './host';
 import { loadAddon } from './loader';
+import { EMBEDDED } from './embedded';
 import { CATALOG, isEnabled, setEnabled } from './catalog';
 import type { CatalogEntry } from './catalog';
 import type { ActionRegistry } from '../actions/registry';
@@ -33,6 +34,15 @@ class AddonManager {
   }
 
   private load(entry: CatalogEntry): void {
+    // Fat build: the add-on is compiled in, so register its object straight
+    // through the host with no fetch. The branch is dropped from a thin build,
+    // which tree-shakes the embedded add-on code out with it.
+    if (__FAT__) {
+      const addon = EMBEDDED[entry.id];
+      if (addon) this.host?.register(addon);
+      else log.error(`addon ${entry.id} missing from fat bundle`);
+      return;
+    }
     // Relies on publish() having run so the artifact finds unsafeWindow.sixpack.
     loadAddon(entry.file).catch((error) =>
       log.error(`addon ${entry.id} failed to load: ${describe(error)}`),

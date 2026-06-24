@@ -3,8 +3,8 @@ import { addons } from '../core/addons/manager';
 import { CATALOG } from '../core/addons/catalog';
 
 // Hidden until searched. Lists known add-ons as switches; flipping one installs
-// it (fetch + load now) or removes it (tear down now). State persists, so an
-// enabled add-on loads on its own next visit.
+// it (load now) or removes it (tear down now). State persists, so an enabled
+// add-on loads on its own next visit.
 export const addonsActions: Action[] = [
   {
     id: 'addons',
