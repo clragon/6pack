@@ -1,5 +1,5 @@
 import type { SixpackAddon } from '../../core/addons/types';
-import { settings } from '../../core/settings';
+import type { SettingsApi } from '../../core/settings';
 import { getSourceDisplayLabel } from '../../core/sources/url';
 
 // Shortens the source links in the post sidebar to their salient token, in place.
@@ -63,7 +63,7 @@ function applyAll(on: boolean): void {
   }
 }
 
-function mount(): () => void {
+function mount(settings: SettingsApi): () => void {
   applyAll(settings.get(SETTING));
 
   // The verifier adds its source lists asynchronously and may re-render them, so
@@ -100,5 +100,5 @@ export const sourcesAddon: SixpackAddon = {
     },
   ],
   when: (page) => page.kind === 'post',
-  setup: () => mount(),
+  setup: (ctx) => mount(ctx.settings),
 };

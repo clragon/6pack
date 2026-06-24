@@ -11,6 +11,18 @@ export interface SettingSpec {
   default: boolean;
 }
 
+// The settings surface handed to add-ons (via their setup context), so a managed
+// add-on reads and reacts to its own preferences without importing core, which
+// would bundle a second, disconnected store.
+export interface SettingsApi {
+  define(spec: SettingSpec): void;
+  specs(): SettingSpec[];
+  get(key: string): boolean;
+  set(key: string, value: boolean): void;
+  toggle(key: string): boolean;
+  subscribe(listener: () => void): () => void;
+}
+
 // Persisted user preferences, shared across all e621 pages via localStorage, and
 // reactive so a toggle from the palette reflects on the page live. Specs are
 // registered at boot (by core and add-ons); values are stored under their keys.
@@ -28,7 +40,7 @@ function notify(): void {
   for (const listener of listeners) listener();
 }
 
-export const settings = {
+export const settings: SettingsApi = {
   // Register a spec. Re-registering the same key keeps the first definition (the
   // owner won the race); the stored value is untouched either way.
   define(spec: SettingSpec): void {

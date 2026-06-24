@@ -30,6 +30,10 @@ export default defineConfig({
           'bsky.app',
           'e621.net',
           'e926.net',
+          // Dev: the vite server that serves managed add-on artifacts from
+          // public/addons (see src/core/addons/loader.ts).
+          '127.0.0.1',
+          'localhost',
         ],
       },
     }),

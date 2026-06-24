@@ -1,22 +1,20 @@
 import { unsafeWindow } from 'vite-plugin-monkey/dist/client';
-import type { SixpackAddon } from './types';
+import type { SixpackAddon, SixpackApi } from './types';
 import type { ActionRegistry } from '../actions/registry';
 import type { PageContext } from '../context/types';
 import { settings } from '../settings';
 import { log } from '../log';
 
-// The shape a third-party userscript pokes onto the page window. Before 6pack
-// boots, `register` is a stub that queues; 6pack swaps in the live one and
-// drains. Either load order works: 6pack-first means the queue is empty.
-export interface SixpackBridge {
-  version: number;
-  register(addon: SixpackAddon): void;
-  queue?: SixpackAddon[];
-}
-
 export class AddonHost {
   private readonly loaded = new Set<string>();
   private readonly teardowns = new Map<string, () => void>();
+
+  // The single entry point: handed to managed add-ons as `sixpack` and published
+  // on the page window for third-party hooks. Same contract, no privileged path.
+  readonly api: SixpackApi = {
+    version: 1,
+    register: (addon) => this.register(addon),
+  };
 
   constructor(
     private readonly registry: ActionRegistry,
@@ -44,7 +42,7 @@ export class AddonHost {
       }
 
       if (addon.setup && (!addon.when || addon.when(this.page))) {
-        const teardown = addon.setup({ page: this.page });
+        const teardown = addon.setup({ page: this.page, settings });
         if (teardown) this.teardowns.set(addon.id, teardown);
       }
 
@@ -54,13 +52,29 @@ export class AddonHost {
     }
   }
 
-  // Publish the live bridge on the page window (the only object isolated
-  // userscript worlds share) and drain anything a third-party hook queued while
-  // waiting for us.
+  // Tear down an add-on's DOM lifecycle so a disable takes effect now. Its
+  // actions linger in the registry until the next page load; settings stay
+  // defined (a harmless dormant switch) which keeps the contract simple.
+  unload(id: string): void {
+    const teardown = this.teardowns.get(id);
+    if (!teardown) return;
+    try {
+      teardown();
+    } catch (error) {
+      log.error(`addon ${id} failed to unload: ${describe(error)}`);
+    }
+    this.teardowns.delete(id);
+    this.loaded.delete(id);
+  }
+
+  // Publish the live api on the page window (the only object isolated userscript
+  // worlds share) and drain anything a third-party hook queued while waiting.
   publish(): void {
-    const host = unsafeWindow as unknown as { sixpack?: SixpackBridge };
+    const host = unsafeWindow as unknown as {
+      sixpack?: SixpackApi & { queue?: SixpackAddon[] };
+    };
     const queued = host.sixpack?.queue ?? [];
-    host.sixpack = { version: 1, register: (addon) => this.register(addon) };
+    host.sixpack = this.api;
     for (const addon of queued) this.register(addon);
   }
 }
