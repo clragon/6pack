@@ -2,6 +2,8 @@ import type { Action } from '../core/actions/types';
 import { burnPile, type BurnRef } from '../core/burn';
 import { resourceName } from '../core/resource';
 import { hide, markWarning } from '../core/api/burn';
+import { massBan } from '../core/bans/massBan';
+import { navigateTo } from '../core/navigate';
 import { openConfirm } from '../core/palette/confirm';
 import { notify, progress } from '../site/toast';
 
@@ -74,6 +76,31 @@ export const burnable: Action = {
   when: () => burnPile.count() > 0,
   submenu: () => {
     const items = burnPile.items();
+    // Users don't incinerate: selecting them starts a ban template, which the
+    // ban form captures and the chip replays for the rest.
+    if (items.every((item) => item.type === 'user')) {
+      return [
+        {
+          id: 'burnable.ban',
+          title: `Ban ${items.length} selected user${items.length === 1 ? '' : 's'}`,
+          keywords: ['ban', 'mass', 'users', 'bulk', 'template'],
+          run: () => {
+            const ids = items
+              .map((item) => Number(item.id))
+              .filter(Number.isFinite);
+            if (ids.length === 0) return;
+            massBan.start(ids);
+            navigateTo(`/bans/new?ban[user_id]=${ids[0]}`);
+          },
+        },
+        {
+          id: 'burnable.clear',
+          title: 'Clear pile',
+          keywords: ['clear', 'deselect', 'reset', 'empty'],
+          run: () => burnPile.clear(),
+        },
+      ];
+    }
     const burn = (markType: string | undefined, title: string): Action => ({
       id: `burnable.incinerate.${markType ?? 'plain'}`,
       title,

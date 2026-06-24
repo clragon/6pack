@@ -21,6 +21,9 @@ import {
 import { publishOpenTicket } from './core/tickets/registry';
 import { installTicketCommandHandler } from './core/tickets/commands';
 import { installTicketChips } from './core/tickets/chipSource';
+import { installMassBanChip } from './core/bans/chip';
+import { captureBanForm } from './site/banCapture';
+import { mountBanHint } from './site/banHint';
 import { loadCurrentUser } from './site/user';
 import { allActions } from './actions';
 
@@ -35,8 +38,15 @@ registry.register(...allActions);
 addons.init(registry, page);
 
 // Every tab can show chips for tickets open in other tabs, so register the source
-// regardless of the current page.
+// regardless of the current page. The mass-ban chip likewise surfaces a pending
+// ban template on any page.
 installTicketChips();
+installMassBanChip();
+
+// On the new-ban form, capture the submitted ban fields for the pending template.
+if (location.pathname === '/bans/new') captureBanForm();
+// On any ban page, hint at the pending template with a flame by the heading.
+if (/^\/bans\//.test(location.pathname)) mountBanHint();
 
 // Warm the permission cache so level-gated actions resolve on first open, and
 // record the resolved user as clean diagnostic rows.

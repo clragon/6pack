@@ -14,6 +14,7 @@ import {
   subscribeBurntComments,
   toggleBurntComments,
 } from '../site/burntComments';
+import { isModeratorPlus, loadCurrentUser } from '../site/user';
 
 // Page-DOM injection (not the shadow root): a checkbox per burnable item plus a
 // control region, both styled with e621's own classes/vars so they sit native.
@@ -58,15 +59,18 @@ function injectCheckbox(item: Burnable): void {
     burnPile.toggle(ref, checkbox.checked),
   );
 
-  const cell = document.createElement('div');
-  // Legacy placement: drop the box into the article grid's 3rd column, no
-  // centering of its own.
-  cell.style.cssText = [
-    'padding: 0.25rem 0.5rem;',
-    'cursor: pointer;',
-    'background-color: var(--color-section-lighten-5);',
-    'grid-column: 3;',
-  ].join(' ');
+  // A user row is a table row, so the box rides in its own cell; comments and
+  // forum posts are article grids, where it drops into the 3rd column.
+  const isRow = item.el.tagName === 'TR';
+  const cell = document.createElement(isRow ? 'td' : 'div');
+  cell.style.cssText = isRow
+    ? 'padding: 0.25rem 0.5rem; cursor: pointer; text-align: right;'
+    : [
+        'padding: 0.25rem 0.5rem;',
+        'cursor: pointer;',
+        'background-color: var(--color-section-lighten-5);',
+        'grid-column: 3;',
+      ].join(' ');
   cell.appendChild(checkbox);
   // Clicking anywhere in the cell toggles, not just the box.
   cell.addEventListener('click', (event) => {
@@ -161,6 +165,21 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
 }
 
 export function mountBurnControls(): void {
+  const config = currentBurnableConfig();
+  if (!config) return;
+  // Banning users is moderator+, and the level only lands after the async user
+  // fetch, so gate the user-row controls on it. Other burnables follow e621's own
+  // visibility (the server rejects what the viewer can't do).
+  if (config.type === 'user') {
+    void loadCurrentUser().then(() => {
+      if (isModeratorPlus()) mountControls();
+    });
+    return;
+  }
+  mountControls();
+}
+
+function mountControls(): void {
   const config = currentBurnableConfig();
   if (!config) return;
   const items = readBurnables(config);
