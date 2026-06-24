@@ -33,7 +33,6 @@ for (const [index, addon] of addons.entries()) {
           name: `6pack add-on: ${addon.name}`,
           description: addon.description,
           namespace: NAMESPACE,
-          icon: addon.icon,
           match: MATCH,
         },
       }),

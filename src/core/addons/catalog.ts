@@ -12,9 +12,6 @@ interface ManifestAddon {
   id: string;
   name: string;
   description: string;
-  // The functional one-liner shown only in the install catalog, appended after
-  // the canonical description (which is also the userscript's @description).
-  summary?: string;
   file: string;
 }
 
@@ -25,9 +22,7 @@ export const CATALOG: CatalogEntry[] = (manifest.addons as ManifestAddon[]).map(
   (addon) => ({
     id: addon.id,
     name: addon.name,
-    description: addon.summary
-      ? `${addon.description}. ${addon.summary}`
-      : addon.description,
+    description: addon.description,
     file: addon.file,
   }),
 );

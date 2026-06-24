@@ -3,25 +3,21 @@
     {
       "id": "sources",
       "name": "Source shortener",
-      "description": "Collapse known platform source links to their key detail",
-      "icon": "🔗",
+      "description": "Source links you can read at a glance",
       "entry": "src/addons/sources/entry.ts",
       "file": "source-shortener.user.js"
     },
     {
       "id": "ouroboru",
       "name": "Ouroboru",
-      "description": "The snakes never stop",
-      "summary": "Infinite pages for posts",
-      "icon": "🐍",
+      "description": "The snakes never stop. Infinite pages for posts",
       "entry": "src/addons/ouroboru/entry.ts",
       "file": "ouroboru.user.js"
     },
     {
       "id": "better-edits",
       "name": "Better Edits",
-      "description": "Parks the edit form beside the image on wide screens, like the upload screen, and lets you scroll to zoom the image.",
-      "icon": "✏️",
+      "description": "Roomier post editing",
       "entry": "src/addons/better-edits/entry.ts",
       "file": "better-edits.user.js"
     }

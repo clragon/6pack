@@ -1,18 +1,12 @@
 import type { SixpackAddon } from '../../core/addons/types';
 import { getSourceDisplayLabel } from '../../core/sources/url';
 
-// Shortens the source links in the post sidebar to their salient token, in place.
-// Native e621 renders `.source-link > a.decorated` as `<img><span>host/path</span>`;
-// the source-verifier injects its own `.source-link` anchors (text set directly,
-// no span) into extra lists. We rewrite only the label, never the href, so the
-// verifier's href-based matching is untouched. The janitor "»" link (relative
-// href) and the verifier's add-source icon (no href) lack an http href, so the
-// selector skips them. The verifier's replacement anchor does carry an http href
-// (an e621 post_replacements/new URL) but wraps only an icon, so shortening would
-// overwrite that icon with the replacement URL; exclude it explicitly.
+// Shortens source links in the post sidebar to their salient token by rewriting
+// the visible label. The selector takes only http anchors (skipping the janitor
+// "»" and the add-source icon link) and excludes the verifier's replacement
+// anchor, which wraps an icon rather than text.
 
-// dataset key (data-sixpack-source); its presence marks an already-shortened node
-// and stashes the original text for restore.
+// Marks an already-shortened node and stashes its original text for restore.
 const STASH = 'sixpackSource';
 
 const ANCHOR_SELECTOR =
@@ -63,8 +57,7 @@ function applyAll(on: boolean): void {
 function mount(): () => void {
   applyAll(true);
 
-  // The verifier adds its source lists asynchronously and may re-render them, so
-  // catch new `.source-link` nodes as they arrive and shorten those too.
+  // The verifier injects its source lists asynchronously; shorten new nodes too.
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes) {
