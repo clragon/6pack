@@ -19,6 +19,18 @@ const CHECKBOX_CLASS = 'sixpack-burner';
 const ALL_CLASS = 'sixpack-burner-all';
 const COUNT_CLASS = 'sixpack-burner-count';
 const REGION_ID = 'sixpack-burner-controls';
+const ICON_BTN_CLASS = 'sixpack-icon-btn';
+const STYLE_ID = 'sixpack-burner-style';
+
+function ensureStyles(): void {
+  if (document.getElementById(STYLE_ID)) return;
+  const style = document.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent =
+    `.${ICON_BTN_CLASS} { background: none; padding: 4px; border-radius: 4px; transition: background-color 0.15s ease; }` +
+    `.${ICON_BTN_CLASS}:hover { background: var(--color-section-lighten-10, #2a3852); }`;
+  document.head.appendChild(style);
+}
 
 const FLAME_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
@@ -74,6 +86,8 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
   const anchor = document.querySelector(config.controls.selector);
   if (!anchor) return null;
 
+  ensureStyles();
+
   const region = document.createElement('div');
   region.id = REGION_ID;
   region.style.cssText =
@@ -82,8 +96,9 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
   const burn = document.createElement('button');
   burn.type = 'button';
   burn.title = 'Incinerate selection';
+  burn.className = ICON_BTN_CLASS;
   burn.style.cssText =
-    'display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; color: var(--palette-text-yellow, #ffd666); font-weight: 700;';
+    'display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; color: var(--palette-text-yellow, #ffd666); font-weight: 700;';
   burn.innerHTML = FLAME_SVG;
   const count = document.createElement('span');
   count.className = COUNT_CLASS;
@@ -104,8 +119,9 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
   if (hasBurntComments()) {
     const toggle = document.createElement('button');
     toggle.type = 'button';
+    toggle.className = ICON_BTN_CLASS;
     toggle.style.cssText =
-      'display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-weight: 700;';
+      'display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; font-weight: 700;';
     const burntLabel = document.createElement('span');
     burntLabel.style.cssText = 'font-size: 13px; line-height: 16px;';
     burntLabel.textContent = String(burntCount());
