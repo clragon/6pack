@@ -1,3 +1,5 @@
+import { h, render } from 'preact';
+import { Shield, ShieldOff } from 'lucide-preact';
 import { burnPile, type BurnRef } from '../core/burn';
 import { openPaletteAt } from '../core/palette/store';
 import {
@@ -5,6 +7,13 @@ import {
   readBurnables,
   type Burnable,
 } from '../site/burnable';
+import {
+  burntCommentsShown,
+  burntCount,
+  hasBurntComments,
+  subscribeBurntComments,
+  toggleBurntComments,
+} from '../site/burntComments';
 
 // Page-DOM injection (not the shadow root): a checkbox per burnable item plus a
 // control region, both styled with e621's own classes/vars so they sit native.
@@ -101,6 +110,31 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
     if (all.checked) burnPile.set(items.map(refOf));
     else burnPile.clear();
   });
+
+  // When burnt items are present, a tiny eye toggle (with their count) collapses
+  // them out of the list and back, mirroring legacy's "Burnt (N)" control.
+  if (hasBurntComments()) {
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.style.cssText =
+      'display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-weight: 700;';
+    const burntLabel = document.createElement('span');
+    burntLabel.style.cssText = 'font-size: 13px; line-height: 16px;';
+    burntLabel.textContent = String(burntCount());
+    const icon = document.createElement('span');
+    icon.style.display = 'inline-flex';
+    const paint = () => {
+      render(h(burntCommentsShown() ? ShieldOff : Shield, { size: 16 }), icon);
+      toggle.title = burntCommentsShown()
+        ? 'Hide burnt comments'
+        : 'Show burnt comments';
+    };
+    paint();
+    toggle.append(burntLabel, icon);
+    toggle.addEventListener('click', () => toggleBurntComments());
+    subscribeBurntComments(paint);
+    region.append(toggle);
+  }
 
   region.append(burn, all);
   anchor.insertAdjacentElement(config.controls.position, region);
