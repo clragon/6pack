@@ -1,4 +1,5 @@
 import { readJson, writeJson } from '../storage';
+import manifest from '../../addons/manifest.json';
 
 export interface CatalogEntry {
   id: string;
@@ -7,14 +8,24 @@ export interface CatalogEntry {
   file: string;
 }
 
-export const CATALOG: CatalogEntry[] = [
-  {
-    id: 'sources',
-    name: 'Source shortener',
-    description: 'Collapse known platform source links to their key detail',
-    file: 'source-shortener.user.js',
-  },
-];
+interface ManifestAddon {
+  id: string;
+  name: string;
+  description: string;
+  summary?: string;
+  file: string;
+}
+
+export const CATALOG: CatalogEntry[] = (manifest.addons as ManifestAddon[]).map(
+  (addon) => ({
+    id: addon.id,
+    name: addon.name,
+    description: addon.summary
+      ? `${addon.description}. ${addon.summary}`
+      : addon.description,
+    file: addon.file,
+  }),
+);
 
 const KEY = 'addons.enabled';
 
