@@ -1,5 +1,6 @@
 import { unsafeWindow } from 'vite-plugin-monkey/dist/client';
 import type { SixpackAddon } from '../../core/addons/types';
+import OUROBORU_CSS from './styles.css?inline';
 
 interface Blacklist {
   add_posts: (posts: unknown) => void;
@@ -42,12 +43,7 @@ function mount(): () => void {
   if (firstHere) firstHere.dataset.obPage = pageOf(location.href);
 
   const style = document.createElement('style');
-  style.textContent = `
-    .ob-tail { display:flex; align-items:center; justify-content:center; gap:1em; padding:2em 0; }
-    .ob-tail button { font:inherit; cursor:pointer; }
-    .ob-tail:not([state="error"]):not([state="ready"]) button { display:none; }
-    .ob-status { opacity:0.7; }
-  `;
+  style.textContent = OUROBORU_CSS;
   document.head.appendChild(style);
 
   const tail = document.createElement('div');

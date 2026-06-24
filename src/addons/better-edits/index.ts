@@ -1,12 +1,10 @@
 import type { SixpackAddon } from '../../core/addons/types';
+import BETTER_EDITS_CSS from './styles.css?inline';
 
 // Matches the media query width in styles.css.
 const BREAKPOINT = '80rem';
-const EDIT_COLUMN = '1fr';
 const MAX_ZOOM = 12;
 const ZOOM_STEP = 1.2;
-
-const editShown = '#edit:not([style*="display: none"])';
 
 function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
@@ -15,55 +13,7 @@ function clamp(v: number, lo: number, hi: number): number {
 function mount(): () => void {
   const style = document.createElement('style');
   style.id = 'better-edits';
-  style.textContent = `
-    @media (min-width: ${BREAKPOINT}) {
-      .post-display > .content:has(> ${editShown}) {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, ${EDIT_COLUMN});
-        align-items: start;
-        column-gap: 1rem;
-      }
-
-      .post-display > .content:has(> ${editShown}) > * {
-        grid-column: 1;
-        min-width: 0;
-      }
-
-      .post-display > .content > ${editShown} {
-        grid-column: 2;
-        grid-row: 1 / span 99;
-        align-self: start;
-        position: sticky;
-        top: 0.5rem;
-        margin: 0;
-      }
-
-      .post-display > .content:has(> ${editShown}) > #image-and-nav {
-        display: flex;
-        flex-direction: column;
-        height: calc(100vh - 2rem);
-      }
-
-      /* e621 ships #image-container as fit-content; override so there's room to
-         center and zoom into. */
-      .post-display > .content:has(> ${editShown}) #image-container {
-        flex: 1;
-        min-height: 0;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
-
-      .post-display > .content:has(> ${editShown}) #image {
-        max-width: 100%;
-        max-height: 100%;
-        margin: auto;
-        cursor: zoom-in;
-      }
-    }
-  `;
+  style.textContent = BETTER_EDITS_CSS;
   document.head.appendChild(style);
 
   const frame = document.querySelector<HTMLElement>('#image-and-nav');

@@ -1,5 +1,6 @@
 import { AddonHost } from './host';
 import { loadAddon } from './loader';
+import { EMBEDDED } from './embedded';
 import { CATALOG, isEnabled, setEnabled } from './catalog';
 import type { CatalogEntry } from './catalog';
 import type { ActionRegistry } from '../actions/registry';
@@ -30,6 +31,12 @@ class AddonManager {
   }
 
   private load(entry: CatalogEntry): void {
+    if (__FAT__) {
+      const addon = EMBEDDED[entry.id];
+      if (addon) this.host?.register(addon);
+      else log.error(`addon ${entry.id} missing from fat bundle`);
+      return;
+    }
     loadAddon(entry.file).catch((error) =>
       log.error(`addon ${entry.id} failed to load: ${describe(error)}`),
     );
