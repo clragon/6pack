@@ -1,5 +1,8 @@
-import { settings } from '../core/settings';
-import { getSourceDisplayLabel } from '../core/sources/url';
+import type { SixpackAddon } from '../../core/addons/types';
+import { settings } from '../../core/settings';
+import { getSourceDisplayLabel } from '../../core/sources/url';
+
+const SETTING = 'sources.shorten';
 
 const STASH = 'sixpackSource';
 
@@ -48,11 +51,11 @@ function applyAll(on: boolean): void {
   }
 }
 
-export function mountSourceShortening(): void {
-  applyAll(settings.get('shortenSources'));
+function mount(): () => void {
+  applyAll(settings.get(SETTING));
 
   const observer = new MutationObserver((mutations) => {
-    if (!settings.get('shortenSources')) return;
+    if (!settings.get(SETTING)) return;
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes) {
         if (node instanceof HTMLElement) shortenWithin(node);
@@ -61,5 +64,27 @@ export function mountSourceShortening(): void {
   });
   observer.observe(document.body, { childList: true, subtree: true });
 
-  settings.subscribe(() => applyAll(settings.get('shortenSources')));
+  const unsubscribe = settings.subscribe(() => applyAll(settings.get(SETTING)));
+
+  return () => {
+    observer.disconnect();
+    unsubscribe();
+    applyAll(false);
+  };
 }
+
+export const sourcesAddon: SixpackAddon = {
+  id: 'sources',
+  name: 'Source shortener',
+  settings: [
+    {
+      key: SETTING,
+      label: 'Shorten source links',
+      description: 'Collapse known platform source links to their key detail',
+      keywords: ['source', 'sources', 'link', 'links', 'shorten', 'short'],
+      default: false,
+    },
+  ],
+  when: (page) => page.kind === 'post',
+  setup: () => mount(),
+};

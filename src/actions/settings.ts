@@ -11,16 +11,18 @@ export const settingsActions: Action[] = [
     hidden: true,
     weight: -1,
     submenu: () => [
-      {
-        id: 'settings.shortenSources',
-        title: 'Shorten source links',
-        description: 'Collapse known platform source links to their key detail',
-        keywords: ['source', 'sources', 'link', 'links', 'shorten', 'short'],
-        checked: () => settings.get('shortenSources'),
-        run: () => {
-          settings.toggle('shortenSources');
-        },
-      },
+      ...settings.specs().map(
+        (spec): Action => ({
+          id: `settings.${spec.key}`,
+          title: spec.label,
+          description: spec.description,
+          keywords: spec.keywords,
+          checked: () => settings.get(spec.key),
+          run: () => {
+            settings.toggle(spec.key);
+          },
+        }),
+      ),
       {
         id: 'palette.rebind',
         title: 'Change palette hotkey',

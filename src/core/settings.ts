@@ -1,33 +1,47 @@
 import { readJson, writeJson } from './storage';
 
-export interface Settings {
-  shortenSources: boolean;
+export interface SettingSpec {
+  key: string;
+  label: string;
+  description?: string;
+  keywords?: string[];
+  default: boolean;
 }
 
 const KEY = 'settings';
 
-const DEFAULTS: Settings = {
-  shortenSources: false,
-};
-
-let current: Settings = {
-  ...DEFAULTS,
-  ...readJson<Partial<Settings>>(KEY, {}),
-};
+const specs = new Map<string, SettingSpec>();
+let values: Record<string, boolean> = readJson<Record<string, boolean>>(
+  KEY,
+  {},
+);
 const listeners = new Set<() => void>();
 
+function notify(): void {
+  for (const listener of listeners) listener();
+}
+
 export const settings = {
-  get<K extends keyof Settings>(key: K): Settings[K] {
-    return current[key];
+  define(spec: SettingSpec): void {
+    if (specs.has(spec.key)) return;
+    specs.set(spec.key, spec);
+    notify();
   },
-  set<K extends keyof Settings>(key: K, value: Settings[K]): void {
-    if (current[key] === value) return;
-    current = { ...current, [key]: value };
-    writeJson(KEY, current);
-    for (const listener of listeners) listener();
+  specs(): SettingSpec[] {
+    return [...specs.values()];
   },
-  toggle(key: keyof Settings): boolean {
-    const next = !current[key];
+  get(key: string): boolean {
+    if (key in values) return values[key];
+    return specs.get(key)?.default ?? false;
+  },
+  set(key: string, value: boolean): void {
+    if (settings.get(key) === value) return;
+    values = { ...values, [key]: value };
+    writeJson(KEY, values);
+    notify();
+  },
+  toggle(key: string): boolean {
+    const next = !settings.get(key);
     settings.set(key, next);
     return next;
   },
