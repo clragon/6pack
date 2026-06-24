@@ -8,6 +8,15 @@ export interface SettingSpec {
   default: boolean;
 }
 
+export interface SettingsApi {
+  define(spec: SettingSpec): void;
+  specs(): SettingSpec[];
+  get(key: string): boolean;
+  set(key: string, value: boolean): void;
+  toggle(key: string): boolean;
+  subscribe(listener: () => void): () => void;
+}
+
 const KEY = 'settings';
 
 const specs = new Map<string, SettingSpec>();
@@ -21,7 +30,7 @@ function notify(): void {
   for (const listener of listeners) listener();
 }
 
-export const settings = {
+export const settings: SettingsApi = {
   define(spec: SettingSpec): void {
     if (specs.has(spec.key)) return;
     specs.set(spec.key, spec);

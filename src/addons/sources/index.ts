@@ -1,5 +1,5 @@
 import type { SixpackAddon } from '../../core/addons/types';
-import { settings } from '../../core/settings';
+import type { SettingsApi } from '../../core/settings';
 import { getSourceDisplayLabel } from '../../core/sources/url';
 
 const SETTING = 'sources.shorten';
@@ -51,7 +51,7 @@ function applyAll(on: boolean): void {
   }
 }
 
-function mount(): () => void {
+function mount(settings: SettingsApi): () => void {
   applyAll(settings.get(SETTING));
 
   const observer = new MutationObserver((mutations) => {
@@ -86,5 +86,5 @@ export const sourcesAddon: SixpackAddon = {
     },
   ],
   when: (page) => page.kind === 'post',
-  setup: () => mount(),
+  setup: (ctx) => mount(ctx.settings),
 };

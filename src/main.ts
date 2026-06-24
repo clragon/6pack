@@ -2,8 +2,7 @@ import { matchesTrigger, triggerIsModless } from './core/config';
 import { detectContext } from './core/context/detect';
 import { record } from './core/diag';
 import { ActionRegistry } from './core/actions/registry';
-import { AddonHost } from './core/addons/host';
-import { sourcesAddon } from './addons/sources';
+import { addons } from './core/addons/manager';
 import { mountPalette } from './core/palette/mount';
 import { isConfirmActive } from './core/palette/confirm';
 import { deepActiveElement, isEditableElement } from './core/palette/focus';
@@ -31,9 +30,7 @@ record('page', page);
 const registry = new ActionRegistry();
 registry.register(...allActions);
 
-const addons = new AddonHost(registry, page);
-addons.register(sourcesAddon);
-addons.publish();
+addons.init(registry, page);
 
 installTicketChips();
 

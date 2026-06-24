@@ -28,6 +28,8 @@ export default defineConfig({
           'bsky.app',
           'e621.net',
           'e926.net',
+          '127.0.0.1',
+          'localhost',
         ],
       },
     }),

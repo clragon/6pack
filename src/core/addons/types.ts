@@ -1,9 +1,10 @@
 import type { Action } from '../actions/types';
 import type { PageContext } from '../context/types';
-import type { SettingSpec } from '../settings';
+import type { SettingSpec, SettingsApi } from '../settings';
 
 export interface AddonContext {
   page: PageContext;
+  settings: SettingsApi;
 }
 
 export interface SixpackAddon {
@@ -15,4 +16,9 @@ export interface SixpackAddon {
   // The script runs at document-start and core/addons/loader.ts runs cached
   // add-ons synchronously, so DOM work in setup goes through whenReady.
   setup?: (ctx: AddonContext) => void | (() => void);
+}
+
+export interface SixpackApi {
+  version: number;
+  register(addon: SixpackAddon): void;
 }

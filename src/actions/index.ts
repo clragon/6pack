@@ -1,4 +1,5 @@
 import type { Action } from '../core/actions/types';
+import { addonsActions } from './addons';
 import { userActivity } from './activity';
 import { burnable } from './burnable';
 import { convertToBan, convertToFeedback } from './convert';
@@ -26,6 +27,7 @@ export const allActions: Action[] = [
   ...settingsActions,
   mode,
   fixUpload,
+  ...addonsActions,
   logs,
   diagnostics,
 ];
