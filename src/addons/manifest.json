@@ -16,6 +16,14 @@
       "icon": "🐍",
       "entry": "src/addons/ouroboru/entry.ts",
       "file": "ouroboru.user.js"
+    },
+    {
+      "id": "better-edits",
+      "name": "Better Edits",
+      "description": "Parks the edit form beside the image on wide screens, like the upload screen, and lets you scroll to zoom the image.",
+      "icon": "✏️",
+      "entry": "src/addons/better-edits/entry.ts",
+      "file": "better-edits.user.js"
     }
   ]
 }
