@@ -1,0 +1,21 @@
+{
+  "addons": [
+    {
+      "id": "sources",
+      "name": "Source shortener",
+      "description": "Collapse known platform source links to their key detail",
+      "icon": "🔗",
+      "entry": "src/addons/sources/entry.ts",
+      "file": "source-shortener.user.js"
+    },
+    {
+      "id": "ouroboru",
+      "name": "Ouroboru",
+      "description": "The snakes never stop",
+      "summary": "Infinite pages for posts",
+      "icon": "🐍",
+      "entry": "src/addons/ouroboru/entry.ts",
+      "file": "ouroboru.user.js"
+    }
+  ]
+}
