@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
         userscript: {
           name: fat ? '6 P.A.C.K. (fat)' : '6 P.A.C.K.',
           namespace: 'https://clynamic.net',
+          // Boot before first paint so CSS-driven add-ons can land early; the
+          // DOM-dependent boot waits for the parse via whenReady in main.ts.
+          'run-at': 'document-start',
           icon: 'https://em-content.zobj.net/source/microsoft-3D-fluent/433/fire-extinguisher_1f9ef.png',
           match: ['https://e621.net/*', 'https://e926.net/*'],
           // Hosts the "Fix file upload" command may download from; keep in sync
