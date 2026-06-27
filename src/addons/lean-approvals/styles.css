@@ -1,0 +1,81 @@
+/* The | and • between buttons are bare text nodes, so zeroing the font on the
+   bar is the only way to collapse them; each surviving button restores its size. */
+#pending-approval-notice .quick-mod {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0;
+}
+
+#pending-approval-notice .quick-mod-group {
+  gap: 0;
+  margin: 0;
+}
+
+#pending-approval-notice .delete-with-reason-link,
+#pending-approval-notice .disapprove-post-link,
+#pending-approval-notice #approve-post-prev {
+  display: none;
+}
+
+/* Color lives per button, not here, so this base can't out-specify it. */
+#pending-approval-notice .quick-mod a.button {
+  font-size: 1rem;
+  margin: 0;
+  padding: 0.3rem 0.75rem;
+  border-width: 1px;
+  border-style: solid;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+}
+
+/* Group order is set in JS; this only pushes the reject pair clear of approve. */
+#pending-approval-notice .quick-mod-group:has(.detailed-rejection-link) {
+  margin-left: auto;
+}
+
+#pending-approval-notice #approve-post,
+#pending-approval-notice #approve-post-next {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-success);
+}
+#pending-approval-notice #approve-post:hover,
+#pending-approval-notice #approve-post-next:hover {
+  background: var(--color-success);
+  color: var(--color-text-white);
+}
+
+#pending-approval-notice .detailed-rejection-link {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-warning);
+}
+#pending-approval-notice .detailed-rejection-link:hover {
+  background: var(--color-warning);
+  color: var(--color-text-white);
+}
+
+#pending-approval-notice a[href*='confirm_delete'] {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-danger);
+}
+#pending-approval-notice a[href*='confirm_delete']:hover {
+  background: var(--color-danger);
+  color: var(--color-text-white);
+}
+
+/* Segmented pill: Approve's right edge is the only divider, and it flattens
+   only when Next exists, which it doesn't outside a queue. */
+#pending-approval-notice .quick-mod-group:has(#approve-post-next) #approve-post {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+#pending-approval-notice #approve-post-next {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: none;
+}

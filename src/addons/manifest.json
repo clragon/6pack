@@ -20,6 +20,13 @@
       "description": "Roomier post editing",
       "entry": "src/addons/better-edits/entry.ts",
       "file": "better-edits.user.js"
+    },
+    {
+      "id": "lean-approvals",
+      "name": "Lean Approvals",
+      "description": "You dont actually need all those deletion reasons",
+      "entry": "src/addons/lean-approvals/entry.ts",
+      "file": "lean-approvals.user.js"
     }
   ]
 }
