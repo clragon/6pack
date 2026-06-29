@@ -90,45 +90,41 @@ export function ConfirmPrompt() {
     }
   };
 
-  // Drive the dialog from a capture-phase window listener, not the panel, so it
-  // beats e621's own document-level hotkeys. e621 ignores keys aimed at inputs, so
-  // while a field holds the cursor we let typing through; while a button or
-  // checkbox does, we swallow every key so its hotkeys can't fire behind the modal.
-  // A ref carries the fresh closure so the listener subscribes once per dialog,
-  // not once per keystroke.
+  // Drive the dialog from a capture-phase window listener so it beats e621's
+  // document-level hotkeys. The dialog is in a shadow root, so the page reads
+  // document.activeElement as the host, not the focused field, and its
+  // input-focus guard fails: any key reaching the page fires a hotkey. So swallow
+  // propagation for every key, and preventDefault only the ones we handle here,
+  // leaving a field to receive its character. A ref carries the fresh closure so
+  // the listener subscribes once per dialog, not once per keystroke.
   const onKeyRef = useRef<(event: KeyboardEvent) => void>(() => {});
   onKeyRef.current = (event) => {
     const item = items[selected];
     const inField = item?.kind === 'field';
-    const own = () => {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    };
+    event.stopImmediatePropagation();
     switch (event.key) {
       case 'Escape':
-        own();
+        event.preventDefault();
         resolveConfirm(null);
         return;
       case 'ArrowDown':
-        own();
+        event.preventDefault();
         setSelected((s) => Math.min(s + 1, items.length - 1));
         return;
       case 'ArrowUp':
-        own();
+        event.preventDefault();
         setSelected((s) => Math.max(s - 1, 0));
         return;
       case 'Enter':
-        own();
+        event.preventDefault();
         if (item) activate(item);
         return;
       case ' ':
         if (!inField && item) {
-          own();
+          event.preventDefault();
           activate(item);
         }
         return;
-      default:
-        if (!inField) event.stopImmediatePropagation();
     }
   };
 
