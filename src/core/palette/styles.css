@@ -377,7 +377,8 @@ button.sp-crumb:hover {
   color: #fff;
 }
 
-.sp-confirm-sel,
+.sp-confirm-option.sp-confirm-sel,
+.sp-btn.sp-confirm-sel,
 .sp-confirm-field.sp-confirm-sel .sp-confirm-input {
   outline: none;
   border-color: var(--palette-text-yellow, #ffd666);
