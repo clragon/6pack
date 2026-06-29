@@ -106,10 +106,6 @@ function atLeast(level: number): boolean {
   return cached != null && cached.level >= level;
 }
 
-export function isJanitorPlus(): boolean {
-  return atLeast(Level.Janitor);
-}
-
 export const isModeratorPlus = probe('moderator+', (): boolean =>
   atLeast(Level.Moderator),
 );
