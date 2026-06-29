@@ -205,17 +205,28 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
       : [];
   };
 
+  const rankByUse = (actions: Action[]): Action[] => {
+    const now = Date.now();
+    return actions
+      .slice()
+      .sort(
+        (a, b) =>
+          (b.weight ?? 0) - (a.weight ?? 0) ||
+          scoreFor(frecency, b.id, now) - scoreFor(frecency, a.id, now),
+      );
+  };
+
   const childMatchOf = (action: Action): Action | undefined => {
     const query = filter.trim();
     if (!query || !action.submenu) return undefined;
     const children = reachableChildren(action);
     if (!children || children.length === 0) return undefined;
-    return searchActions(query, children)[0];
+    return rankByUse(searchActions(query, children))[0];
   };
 
   const surfacedChild = (action: Action): Action | undefined => {
     const match = childMatchOf(action);
-    if (match) return match;
+    if (match && !match.submenu) return match;
     const children = reachableChildren(action);
     const only = children && children.length === 1 ? children[0] : undefined;
     return only && !only.submenu && !only.search ? only : undefined;
@@ -223,19 +234,9 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   const filtered = useMemo(() => {
     const query = filter.trim();
-    if (!query) {
-      const now = Date.now();
-      return levelActions
-        .filter((action) => !action.hidden)
-        .sort(
-          (a, b) =>
-            (b.weight ?? 0) - (a.weight ?? 0) ||
-            scoreFor(frecency, b.id, now) - scoreFor(frecency, a.id, now),
-        );
-    }
-    return searchActions(query, levelActions, childTerms).sort(
-      (a, b) => (b.weight ?? 0) - (a.weight ?? 0),
-    );
+    if (!query)
+      return rankByUse(levelActions.filter((action) => !action.hidden));
+    return rankByUse(searchActions(query, levelActions, childTerms));
   }, [level, filter, frecency]);
 
   if (!open) return null;
@@ -389,12 +390,12 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
       const match = childMatchOf(action);
       const shown = new Set<string>();
       const childRows: Row[] = [];
-      if (match) {
+      if (match && !match.submenu) {
         childRows.push(childRow(match));
         shown.add(match.id);
       }
       for (const child of reachableChildren(action) ?? []) {
-        if (child.surface && !shown.has(child.id)) {
+        if (child.surface && !child.submenu && !shown.has(child.id)) {
           childRows.push(childRow(child));
           shown.add(child.id);
         }
