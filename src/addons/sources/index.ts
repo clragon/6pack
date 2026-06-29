@@ -77,5 +77,15 @@ export const sourcesAddon: SixpackAddon = {
   id: 'sources',
   name: 'Source shortener',
   when: (page) => page.kind === 'post',
-  setup: () => mount(),
+  setup: (ctx) => {
+    let disposed = false;
+    let teardown: (() => void) | undefined;
+    ctx.whenReady(() => {
+      if (!disposed) teardown = mount();
+    });
+    return () => {
+      disposed = true;
+      teardown?.();
+    };
+  },
 };

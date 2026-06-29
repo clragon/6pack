@@ -3,6 +3,7 @@ import type { SixpackAddon, SixpackApi } from './types';
 import type { ActionRegistry } from '../actions/registry';
 import type { PageContext } from '../context/types';
 import { settings } from '../settings';
+import { whenReady } from '../ready';
 import { log } from '../log';
 
 export class AddonHost {
@@ -42,7 +43,7 @@ export class AddonHost {
       }
 
       if (addon.setup && (!addon.when || addon.when(this.page))) {
-        const teardown = addon.setup({ page: this.page, settings });
+        const teardown = addon.setup({ page: this.page, settings, whenReady });
         if (teardown) this.teardowns.set(addon.id, teardown);
       }
 

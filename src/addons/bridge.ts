@@ -1,5 +1,7 @@
 import { unsafeWindow } from 'vite-plugin-monkey/dist/client';
 import type { SixpackAddon, SixpackApi } from '../core/addons/types';
+import { whenReady } from '../core/ready';
+import { selfHost } from './selfhost';
 
 type Bridge = SixpackApi & { queue?: SixpackAddon[] };
 
@@ -17,4 +19,13 @@ export function registerAddon(addon: SixpackAddon): void {
     },
   };
   host.sixpack.register(addon);
+
+  // Standalone fallback: 6pack publishes its real api (version 1) at
+  // document-start, so a surviving version 0 stub at ready-time means no 6pack
+  // is here to drain the queue. Run the add-on solo. When 6pack is present it
+  // owns the add-on (managed eval, or this registration as a third-party hook),
+  // so we step aside.
+  whenReady(() => {
+    if (host.sixpack!.version === 0) selfHost(addon);
+  });
 }

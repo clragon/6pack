@@ -4,16 +4,11 @@ import LEAN_APPROVALS_CSS from './styles.css?inline';
 // Pares the janitor quick-mod bar to approve, delete, and disapprove. Restyling
 // e621's own anchors in place keeps their wired handlers and dialogs intact.
 
-function mount(): () => void {
-  const style = document.createElement('style');
-  style.id = 'lean-approvals';
-  style.textContent = LEAN_APPROVALS_CSS;
-  document.head.appendChild(style);
-
+function reorderBar(): () => void {
   const bar = document.querySelector<HTMLElement>(
     '#pending-approval-notice .quick-mod',
   );
-  if (!bar) return () => style.remove();
+  if (!bar) return () => {};
 
   const groups = Array.from(
     bar.querySelectorAll<HTMLElement>('.quick-mod-group'),
@@ -39,7 +34,6 @@ function mount(): () => void {
   return () => {
     if (next && nextLabel !== null) next.textContent = nextLabel;
     for (const group of original) bar.appendChild(group);
-    style.remove();
   };
 }
 
@@ -47,5 +41,21 @@ export const leanApprovalsAddon: SixpackAddon = {
   id: 'lean-approvals',
   name: 'Lean Approvals',
   when: (page) => page.kind === 'post',
-  setup: () => mount(),
+  setup: (ctx) => {
+    const style = document.createElement('style');
+    style.id = 'lean-approvals';
+    style.textContent = LEAN_APPROVALS_CSS;
+    document.head.appendChild(style);
+
+    let disposed = false;
+    let teardown: (() => void) | undefined;
+    ctx.whenReady(() => {
+      if (!disposed) teardown = reorderBar();
+    });
+    return () => {
+      disposed = true;
+      teardown?.();
+      style.remove();
+    };
+  },
 };

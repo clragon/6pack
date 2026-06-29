@@ -170,5 +170,15 @@ function mount(): () => void {
 export const ouroboruAddon: SixpackAddon = {
   id: 'ouroboru',
   name: 'Ouroboru',
-  setup: () => mount(),
+  setup: (ctx) => {
+    let disposed = false;
+    let teardown: (() => void) | undefined;
+    ctx.whenReady(() => {
+      if (!disposed) teardown = mount();
+    });
+    return () => {
+      disposed = true;
+      teardown?.();
+    };
+  },
 };

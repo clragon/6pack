@@ -34,14 +34,14 @@ record('page', page);
 const registry = new ActionRegistry();
 registry.register(...allActions);
 
-// Boot runs at document-start, before the body exists, so everything that reads
-// or mounts into the page waits for the parse. Third-party hooks registering
-// earlier queue on the bridge stub and drain when addons.init publishes.
-whenReady(() => {
-  // Publish the bridge for third-party hooks and runtime-load any enabled managed
-  // add-ons. Nothing is bundled in; the same register() contract serves all.
-  addons.init(registry, page);
+// Publish the bridge and load enabled add-ons eagerly at document-start: a
+// cached add-on registers and injects its styles before first paint, and its
+// own setup defers DOM work via ctx.whenReady. Third-party hooks registering
+// earlier queue on the bridge stub and drain when init publishes.
+addons.init(registry, page);
 
+// The rest reads or mounts into the page, so it waits for the parse.
+whenReady(() => {
   // Every tab can show chips for tickets open in other tabs, so register the
   // source regardless of the current page. The mass-ban chip likewise surfaces a
   // pending ban template on any page.

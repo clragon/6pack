@@ -7,6 +7,9 @@ export interface AddonContext {
   // Shared services, injected so a managed add-on never imports core (which would
   // bundle disconnected copies of stateful singletons).
   settings: SettingsApi;
+  // Setup can run as early as document-start (a cached add-on registers before
+  // the body exists), so inject styles synchronously but route DOM work here.
+  whenReady: (run: () => void) => void;
 }
 
 // The one contract every contributor registers through: core, first-party
