@@ -88,35 +88,30 @@ export function ConfirmPrompt() {
   onKeyRef.current = (event) => {
     const item = items[selected];
     const inField = item?.kind === 'field';
-    const own = () => {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    };
+    event.stopImmediatePropagation();
     switch (event.key) {
       case 'Escape':
-        own();
+        event.preventDefault();
         resolveConfirm(null);
         return;
       case 'ArrowDown':
-        own();
+        event.preventDefault();
         setSelected((s) => Math.min(s + 1, items.length - 1));
         return;
       case 'ArrowUp':
-        own();
+        event.preventDefault();
         setSelected((s) => Math.max(s - 1, 0));
         return;
       case 'Enter':
-        own();
+        event.preventDefault();
         if (item) activate(item);
         return;
       case ' ':
         if (!inField && item) {
-          own();
+          event.preventDefault();
           activate(item);
         }
         return;
-      default:
-        if (!inField) event.stopImmediatePropagation();
     }
   };
 
