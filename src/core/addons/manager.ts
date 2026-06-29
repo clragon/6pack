@@ -37,14 +37,8 @@ class AddonManager {
       else log.error(`addon ${entry.id} missing from fat bundle`);
       return;
     }
-    loadAddon(entry.file).catch((error) =>
-      log.error(`addon ${entry.id} failed to load: ${describe(error)}`),
-    );
+    loadAddon(entry.id, entry.file);
   }
 }
 
 export const addons = new AddonManager();
-
-function describe(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}

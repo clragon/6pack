@@ -34,9 +34,9 @@ record('page', page);
 const registry = new ActionRegistry();
 registry.register(...allActions);
 
-whenReady(() => {
-  addons.init(registry, page);
+addons.init(registry, page);
 
+whenReady(() => {
   installTicketChips();
   installMassBanChip();
 

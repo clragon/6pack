@@ -5,6 +5,7 @@ import type { SettingSpec, SettingsApi } from '../settings';
 export interface AddonContext {
   page: PageContext;
   settings: SettingsApi;
+  whenReady: (run: () => void) => void;
 }
 
 export interface SixpackAddon {

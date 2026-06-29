@@ -10,17 +10,12 @@ function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
 }
 
-function mount(): () => void {
-  const style = document.createElement('style');
-  style.id = 'better-edits';
-  style.textContent = BETTER_EDITS_CSS;
-  document.head.appendChild(style);
-
+function mountDom(): () => void {
   const frame = document.querySelector<HTMLElement>('#image-and-nav');
   const container = document.querySelector<HTMLElement>('#image-container');
   const image = document.querySelector('#image');
   if (!frame || !container || !image || image.tagName !== 'IMG') {
-    return () => style.remove();
+    return () => {};
   }
   const img = image as HTMLImageElement;
 
@@ -164,7 +159,6 @@ function mount(): () => void {
     observer?.disconnect();
     reset();
     frame.style.height = '';
-    style.remove();
   };
 }
 
@@ -172,5 +166,21 @@ export const betterEditsAddon: SixpackAddon = {
   id: 'better-edits',
   name: 'Better Edits',
   when: (page) => page.kind === 'post',
-  setup: () => mount(),
+  setup: (ctx) => {
+    const style = document.createElement('style');
+    style.id = 'better-edits';
+    style.textContent = BETTER_EDITS_CSS;
+    document.head.appendChild(style);
+
+    let disposed = false;
+    let teardown: (() => void) | undefined;
+    ctx.whenReady(() => {
+      if (!disposed) teardown = mountDom();
+    });
+    return () => {
+      disposed = true;
+      teardown?.();
+      style.remove();
+    };
+  },
 };
