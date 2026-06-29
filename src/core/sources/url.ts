@@ -34,6 +34,7 @@ const DECORATABLE_DOMAINS = [
   'webtoons.com',
   'aethy.com',
   'bsky.app',
+  'bilibili.com',
   'blogspot.com',
   'cohost.org',
   'facebook.com',
@@ -125,6 +126,7 @@ const DECORATABLE_ALIASES: Record<string, string> = {
   'cloudfront.net': 'amazonaws.com',
   'mastodon.art': 'mastodon.social',
   'meow.social': 'mastodon.social',
+  'pawb.fun': 'mastodon.social',
   'sta.sh': 'deviantart.com',
 
   '4cdn.org': '4chan.org',
@@ -190,6 +192,26 @@ export const getHostnameForLink = (url: string): string | null => {
   }
 };
 
+const idIn = (path: string, pattern: RegExp): string | null => {
+  const m = path.match(pattern);
+  return m ? `#${m[1]}` : null;
+};
+
+const queryId = (u: URL): string | null => {
+  const id = u.searchParams.get('id');
+  return id && /^\d+$/.test(id) ? `#${id}` : null;
+};
+
+const mastodonLabel = (u: URL): string | null => {
+  const post = u.pathname.match(/^\/@([^/]+)\/(\d+)/);
+  if (post) return `@${post[1]}/${post[2]}`;
+  const profile = u.pathname.match(/^\/@([^/]+)/);
+  return profile ? `@${profile[1]}` : null;
+};
+
+const trimBskyHandle = (handle: string): string =>
+  handle.replace(/\.bsky\.social$/, '');
+
 const DISPLAY_RULES: Record<string, (u: URL) => string | null> = {
   'furaffinity.net': (u) => {
     const view = u.pathname.match(/\/(?:view|full)\/(\d+)/);
@@ -237,6 +259,55 @@ const DISPLAY_RULES: Record<string, (u: URL) => string | null> = {
     if (sub && sub[1] !== 'www') return `@${sub[1]}`;
     return null;
   },
+  'bsky.app': (u) => {
+    const post = u.pathname.match(/^\/profile\/([^/]+)\/post\/([^/]+)/);
+    if (post) return `@${trimBskyHandle(post[1])}/${post[2]}`;
+    const profile = u.pathname.match(/^\/profile\/([^/]+)/);
+    return profile ? `@${trimBskyHandle(profile[1])}` : null;
+  },
+  'mastodon.social': mastodonLabel,
+  'pawoo.net': mastodonLabel,
+  'tumblr.com': (u) => {
+    const sub = u.hostname.match(/^([^.]+)\.tumblr\.com$/);
+    if (sub && sub[1] !== 'www') {
+      const post = u.pathname.match(/\/post\/(\d+)/);
+      return post ? `@${sub[1]}/#${post[1]}` : `@${sub[1]}`;
+    }
+    const m = u.pathname.match(/^\/([^/]+)\/(\d+)/);
+    return m ? `@${m[1]}/#${m[2]}` : null;
+  },
+  'reddit.com': (u) => {
+    const sub = u.pathname.match(/^\/r\/([^/]+)/);
+    if (sub) return `r/${sub[1]}`;
+    const user = u.pathname.match(/^\/(?:u|user)\/([^/]+)/);
+    return user ? `u/${user[1]}` : null;
+  },
+  'instagram.com': (u) => idIn(u.pathname, /\/(?:p|reel)\/([^/]+)/),
+  'aryion.com': (u) => idIn(u.pathname, /\/g4\/view\/(\d+)/),
+  'derpibooru.org': (u) =>
+    idIn(u.pathname, /\/images\/(\d+)/) ?? idIn(u.pathname, /^\/(\d+)/),
+  'furrynetwork.com': (u) => idIn(u.pathname, /\/artwork\/(\d+)/),
+  'itaku.ee': (u) => idIn(u.pathname, /\/images\/(\d+)/),
+  'piczel.tv': (u) => idIn(u.pathname, /\/gallery\/image\/(\d+)/),
+  'pillowfort.social': (u) => idIn(u.pathname, /\/posts\/(\d+)/),
+  'snootbooru.com': (u) => idIn(u.pathname, /\/post\/(\d+)/),
+  'sofurry.com': (u) => idIn(u.pathname, /\/s\/(\d+)/),
+  'rule34.paheal.net': (u) => idIn(u.pathname, /\/post\/view\/(\d+)/),
+  'trello.com': (u) => idIn(u.pathname, /^\/c\/([^/]+)/),
+  'bilibili.com': (u) =>
+    idIn(u.pathname, /\/opus\/(\d+)/) ?? idIn(u.pathname, /^\/(\d+)/),
+  'hentai-foundry.com': (u) => {
+    const m = u.pathname.match(/\/pictures\/user\/([^/]+)/);
+    return m ? `@${m[1]}` : null;
+  },
+  'gelbooru.com': queryId,
+  'rule34.xxx': queryId,
+  'steamcommunity.com': queryId,
+  'the-collection.booru.org': (u) =>
+    idIn(u.pathname, /\/post\/view\/(\d+)/) ?? queryId(u),
+  'commishes.com': (u) => idIn(u.pathname, /\/auction\/show\/([^/?]+)/),
+  'desuarchive.org': (u) =>
+    idIn(u.hash, /(\d+)/) ?? idIn(u.pathname, /\/thread\/(\d+)/),
 };
 
 export const getSourceDisplayLabel = (url: string): string => {
