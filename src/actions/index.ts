@@ -8,6 +8,7 @@ import { createFeedback } from './feedback';
 import { diagnostics } from './diagnostics';
 import { logs } from './logs';
 import { mode } from './mode';
+import { jumpTo, manageJumps } from './nav';
 import { postActions } from './post';
 import { settingsActions } from './settings';
 import { ticketActions } from './ticket';
@@ -23,6 +24,8 @@ export const allActions: Action[] = [
   convertToFeedback,
   viewUser,
   userActivity,
+  jumpTo,
+  manageJumps,
   burnable,
   ...settingsActions,
   mode,
