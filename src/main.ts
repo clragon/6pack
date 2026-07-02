@@ -11,14 +11,13 @@ import { log } from './core/log';
 import { whenReady } from './core/ready';
 import { mountBurnControls } from './burn/mount';
 import {
+  canComposeResponse,
   prefetchReportedDestination,
   readAccused,
   readTicketStatus,
 } from './site/ticket';
-import {
-  canComposeResponse,
-  readTicketTemplates,
-} from './site/ticketTemplates';
+import { listTicketResponses } from './core/tickets/providers';
+import { installRe621ResponseProvider } from './core/tickets/re621Provider';
 import { publishOpenTicket } from './core/tickets/registry';
 import { installTicketCommandHandler } from './core/tickets/commands';
 import { installTicketChips } from './core/tickets/chipSource';
@@ -64,17 +63,22 @@ whenReady(() => {
   // the in-context command opens straight at it.
   if (page.kind === 'ticket') prefetchReportedDestination();
 
+  // Register the response providers this tab can compose from before reading what
+  // they offer. RE621's chips are the only source for now.
+  installRe621ResponseProvider();
+
   // Publish an open, handleable ticket so other tabs can close it from their chip
-  // row. Only a moderator's view renders the response field (and RE621's chips),
-  // and an already-approved ticket is closed, so neither is worth announcing.
+  // row. Only a moderator's view renders the response field, and an already-closed
+  // ticket or one with no responses on offer is not worth announcing.
   if (page.kind === 'ticket' && canComposeResponse()) {
     const status = readTicketStatus();
-    if (status !== 'approved') {
+    const responses = listTicketResponses();
+    if (status !== 'approved' && responses.length > 0) {
       publishOpenTicket({
         ticketId: page.id,
         status: status ?? 'pending',
         accused: readAccused(),
-        templates: readTicketTemplates(),
+        responses,
         canHandle: true,
       });
       installTicketCommandHandler();

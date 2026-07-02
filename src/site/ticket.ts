@@ -212,6 +212,12 @@ export const readTicketStatus = probe('status', (): TicketStatus | null => {
   );
 });
 
+// Whether this ticket can be handled here: e621 renders the response textarea only
+// on a handler's view, so its presence means this tab can compose and close.
+export function canComposeResponse(): boolean {
+  return document.querySelector("textarea[name='ticket[response]']") !== null;
+}
+
 // Eagerly resolve where the reported content opens, so the in-context command can
 // point a new tab straight at the destination instead of redirecting a blank one.
 // Only forum posts need it: their URL takes a fetch, while comments already carry

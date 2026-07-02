@@ -1,5 +1,5 @@
 import { openChannel } from '../tabs/channel';
-import type { TicketTemplate } from '../../site/ticketTemplates';
+import type { TicketResponse } from './providers';
 
 // A live view of the tickets open in the user's other e621 tabs, so a palette on
 // any page can surface them as chips and act on them. Each tab that sits on a
@@ -18,7 +18,7 @@ export interface OpenTicket {
   // pending | partial | approved. Lets the chip skip an already-closed ticket.
   status: string;
   accused: { id: number; name: string } | null;
-  templates: TicketTemplate[];
+  responses: TicketResponse[];
   // The viewer can compose and close here (the response field is present). A tab
   // that only views the ticket still announces, but cannot be a close target.
   canHandle: boolean;
