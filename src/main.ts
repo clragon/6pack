@@ -17,7 +17,6 @@ import {
   readTicketStatus,
 } from './site/ticket';
 import { listTicketResponses } from './core/tickets/providers';
-import { installRe621ResponseProvider } from './core/tickets/re621Provider';
 import { publishOpenTicket } from './core/tickets/registry';
 import { installTicketCommandHandler } from './core/tickets/commands';
 import { installTicketChips } from './core/tickets/chipSource';
@@ -62,10 +61,6 @@ whenReady(() => {
   // On a ticket, resolve the reported content's destination ahead of the click so
   // the in-context command opens straight at it.
   if (page.kind === 'ticket') prefetchReportedDestination();
-
-  // Register the response providers this tab can compose from before reading what
-  // they offer. RE621's chips are the only source for now.
-  installRe621ResponseProvider();
 
   // Publish an open, handleable ticket so other tabs can close it from their chip
   // row. Only a moderator's view renders the response field, and an already-closed

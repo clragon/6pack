@@ -4,6 +4,7 @@ import type { ActionRegistry } from '../actions/registry';
 import type { PageContext } from '../context/types';
 import { settings } from '../settings';
 import { whenReady } from '../ready';
+import { registerTicketResponseProvider } from '../tickets/providers';
 import { log } from '../log';
 
 export class AddonHost {
@@ -41,6 +42,9 @@ export class AddonHost {
             : addon.actions;
         this.registry.register(...actions);
       }
+
+      if (addon.ticketResponses)
+        registerTicketResponseProvider(addon.ticketResponses);
 
       if (addon.setup && (!addon.when || addon.when(this.page))) {
         const teardown = addon.setup({ page: this.page, settings, whenReady });

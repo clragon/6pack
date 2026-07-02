@@ -1,6 +1,7 @@
 import type { Action } from '../actions/types';
 import type { PageContext } from '../context/types';
 import type { SettingSpec, SettingsApi } from '../settings';
+import type { TicketResponseProvider } from '../tickets/providers';
 
 export interface AddonContext {
   page: PageContext;
@@ -26,6 +27,10 @@ export interface SixpackAddon {
   actions?: Action[] | ((page: PageContext) => Action[]);
   // Preferences the add-on owns; each becomes a switch in the settings submenu.
   settings?: SettingSpec[];
+  // A source of ticket close responses, folded into the registry the close flow
+  // reads. Declared like actions: the host registers it, and the provider stays
+  // unaware of how or where a response it composes is used.
+  ticketResponses?: TicketResponseProvider;
   // Imperative DOM lifecycle (observers, injection). The returned teardown runs
   // when the manager unloads the add-on (e.g. the user disables it).
   setup?: (ctx: AddonContext) => void | (() => void);

@@ -27,6 +27,13 @@
       "description": "You dont actually need all those deletion reasons",
       "entry": "src/addons/lean-approvals/entry.ts",
       "file": "lean-approvals.user.js"
+    },
+    {
+      "id": "re621",
+      "name": "RE621 Responses",
+      "description": "Close tickets with RE621's response templates",
+      "entry": "src/addons/re621/entry.ts",
+      "file": "re621.user.js"
     }
   ]
 }
