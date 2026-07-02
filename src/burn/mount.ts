@@ -1,7 +1,11 @@
 import { h, render } from 'preact';
 import { Shield, ShieldOff } from 'lucide-preact';
 import { burnPile, type BurnRef } from '../core/burn';
-import { openPaletteAt } from '../core/palette/store';
+import {
+  ensureIconButtonStyles,
+  flameButton,
+  ICON_BTN_CLASS,
+} from '../core/palette/flame';
 import {
   currentBurnableConfig,
   readBurnables,
@@ -22,25 +26,6 @@ const CHECKBOX_CLASS = 'sixpack-burner';
 const ALL_CLASS = 'sixpack-burner-all';
 const COUNT_CLASS = 'sixpack-burner-count';
 const REGION_ID = 'sixpack-burner-controls';
-const ICON_BTN_CLASS = 'sixpack-icon-btn';
-const STYLE_ID = 'sixpack-burner-style';
-
-// A menu-style hover highlight for the inline icon buttons. This region is page
-// DOM, so :hover needs a real rule, not inline styles; the colour matches the
-// palette's selected row.
-function ensureStyles(): void {
-  if (document.getElementById(STYLE_ID)) return;
-  const style = document.createElement('style');
-  style.id = STYLE_ID;
-  style.textContent =
-    `.${ICON_BTN_CLASS} { background: none; padding: 4px; border-radius: 4px; transition: background-color 0.15s ease; }` +
-    `.${ICON_BTN_CLASS}:hover { background: var(--color-section-lighten-10, #2a3852); }`;
-  document.head.appendChild(style);
-}
-
-// lucide's flame, filled, matching the palette home button.
-const FLAME_SVG =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
 
 function refOf(item: Burnable): BurnRef {
   return { type: item.type, id: item.id };
@@ -99,7 +84,7 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
   const anchor = document.querySelector(config.controls.selector);
   if (!anchor) return null;
 
-  ensureStyles();
+  ensureIconButtonStyles();
 
   const region = document.createElement('div');
   region.id = REGION_ID;
@@ -108,20 +93,13 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
 
   // Flame opens the palette drilled into the burn actions (onboarding); the
   // counter beside it shows how many are on the pile.
-  const burn = document.createElement('button');
-  burn.type = 'button';
-  burn.title = 'Incinerate selection';
-  burn.className = ICON_BTN_CLASS;
-  burn.style.cssText =
-    'display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; color: var(--palette-text-yellow, #ffd666); font-weight: 700;';
-  burn.innerHTML = FLAME_SVG;
+  const burn = flameButton('burnable', { title: 'Incinerate selection' });
   const count = document.createElement('span');
   count.className = COUNT_CLASS;
   // Match the icon's 16px box so the counter appearing can't grow the bar.
   count.style.cssText = 'font-size: 13px; line-height: 16px;';
   // To the left of the flame.
   burn.prepend(count);
-  burn.addEventListener('click', () => openPaletteAt('burnable'));
 
   const all = document.createElement('input');
   all.type = 'checkbox';
