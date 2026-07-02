@@ -17,7 +17,6 @@ import {
   readTicketStatus,
 } from './site/ticket';
 import { listTicketResponses } from './core/tickets/providers';
-import { installRe621ResponseProvider } from './core/tickets/re621Provider';
 import { publishOpenTicket } from './core/tickets/registry';
 import { installTicketCommandHandler } from './core/tickets/commands';
 import { installTicketChips } from './core/tickets/chipSource';
@@ -48,8 +47,6 @@ whenReady(() => {
   });
 
   if (page.kind === 'ticket') prefetchReportedDestination();
-
-  installRe621ResponseProvider();
 
   if (page.kind === 'ticket' && canComposeResponse()) {
     const status = readTicketStatus();
