@@ -189,6 +189,10 @@ export const readTicketStatus = probe('status', (): TicketStatus | null => {
   );
 });
 
+export function canComposeResponse(): boolean {
+  return document.querySelector("textarea[name='ticket[response]']") !== null;
+}
+
 export function prefetchReportedDestination(): void {
   const content = readReportedContent();
   if (content?.type === 'forum' && content.id != null) {

@@ -11,29 +11,34 @@ import {
 } from './registry';
 
 function closeActions(ticket: OpenTicket): Action[] {
-  if (ticket.templates.length === 0) {
+  if (ticket.responses.length === 0) {
     return [
       {
         id: `chip.ticket.${ticket.ticketId}.empty`,
-        title: 'No templates on the ticket tab',
+        title: 'No responses on the ticket tab',
         run: () => {},
       },
     ];
   }
-  return ticket.templates.map((template, index) => ({
-    id: `chip.ticket.${ticket.ticketId}.close.${index}`,
-    title: `Close: ${template.title}`,
-    keywords: ['close', 'ticket', 'template', template.title],
+  return ticket.responses.map((response) => ({
+    id: `chip.ticket.${ticket.ticketId}.close.${response.providerId}.${response.optionId}`,
+    title: `Close: ${response.title}`,
+    keywords: ['close', 'ticket', 'template', response.title],
     run: async ({ close }) => {
       const ok = await openConfirm({
-        title: `Close ticket #${ticket.ticketId} with "${template.title}"?`,
+        title: `Close ticket #${ticket.ticketId} with "${response.title}"?`,
         confirmLabel: 'Close',
       });
       if (!ok) return;
       close();
       const fire = progress(`Closing ticket #${ticket.ticketId}…`);
       try {
-        await requestClose(ticket.tabId, ticket.ticketId, index);
+        await requestClose(
+          ticket.tabId,
+          ticket.ticketId,
+          response.providerId,
+          response.optionId,
+        );
         fire.finish(`Closed ticket #${ticket.ticketId}.`);
       } catch (error) {
         fire.finish(`Could not close ticket #${ticket.ticketId}.`);

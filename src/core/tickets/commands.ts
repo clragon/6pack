@@ -1,6 +1,6 @@
 import { openChannel } from '../tabs/channel';
 import { closeTicket } from '../api/tickets';
-import { composeResponse } from '../../site/ticketTemplates';
+import { composeTicketResponse } from './providers';
 import { localTabId } from './registry';
 
 type Message =
@@ -9,7 +9,8 @@ type Message =
       id: string;
       target: string;
       ticketId: number;
-      templateIndex: number;
+      providerId: string;
+      optionId: string;
       forceClaim: boolean;
     }
   | { kind: 'reply'; id: string; ok: boolean; error?: string };
@@ -31,12 +32,13 @@ export function installTicketCommandHandler(): void {
 
 async function performClose(
   ticketId: number,
-  templateIndex: number,
+  providerId: string,
+  optionId: string,
   forceClaim: boolean,
 ): Promise<void> {
-  const response = composeResponse(templateIndex);
+  const response = composeTicketResponse(providerId, optionId);
   if (response == null)
-    throw new Error('Templates are no longer available on the ticket tab');
+    throw new Error('That response is no longer available on the ticket tab');
   if (response.trim().length < 2)
     throw new Error('The composed response is empty');
   const result = (await closeTicket(ticketId, response, { forceClaim })) as {
@@ -63,7 +65,8 @@ async function serve(
   try {
     await performClose(
       request.ticketId,
-      request.templateIndex,
+      request.providerId,
+      request.optionId,
       request.forceClaim,
     );
     channel.post({ kind: 'reply', id: request.id, ok: true });
@@ -81,13 +84,17 @@ async function serve(
 export function requestClose(
   targetTabId: string,
   ticketId: number,
-  templateIndex: number,
+  providerId: string,
+  optionId: string,
   options: { forceClaim?: boolean } = {},
 ): Promise<void> {
   if (targetTabId === localTabId) {
-    return performClose(ticketId, templateIndex, !!options.forceClaim).then(
-      reloadAfterClose,
-    );
+    return performClose(
+      ticketId,
+      providerId,
+      optionId,
+      !!options.forceClaim,
+    ).then(reloadAfterClose);
   }
   return new Promise((resolve, reject) => {
     const id = crypto.randomUUID();
@@ -107,7 +114,8 @@ export function requestClose(
       id,
       target: targetTabId,
       ticketId,
-      templateIndex,
+      providerId,
+      optionId,
       forceClaim: !!options.forceClaim,
     });
   });

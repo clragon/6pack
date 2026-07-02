@@ -1,12 +1,12 @@
 import { openChannel } from '../tabs/channel';
-import type { TicketTemplate } from '../../site/ticketTemplates';
+import type { TicketResponse } from './providers';
 
 export interface OpenTicket {
   tabId: string;
   ticketId: number;
   status: string;
   accused: { id: number; name: string } | null;
-  templates: TicketTemplate[];
+  responses: TicketResponse[];
   canHandle: boolean;
 }
 

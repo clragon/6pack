@@ -11,14 +11,13 @@ import { log } from './core/log';
 import { whenReady } from './core/ready';
 import { mountBurnControls } from './burn/mount';
 import {
+  canComposeResponse,
   prefetchReportedDestination,
   readAccused,
   readTicketStatus,
 } from './site/ticket';
-import {
-  canComposeResponse,
-  readTicketTemplates,
-} from './site/ticketTemplates';
+import { listTicketResponses } from './core/tickets/providers';
+import { installRe621ResponseProvider } from './core/tickets/re621Provider';
 import { publishOpenTicket } from './core/tickets/registry';
 import { installTicketCommandHandler } from './core/tickets/commands';
 import { installTicketChips } from './core/tickets/chipSource';
@@ -50,14 +49,17 @@ whenReady(() => {
 
   if (page.kind === 'ticket') prefetchReportedDestination();
 
+  installRe621ResponseProvider();
+
   if (page.kind === 'ticket' && canComposeResponse()) {
     const status = readTicketStatus();
-    if (status !== 'approved') {
+    const responses = listTicketResponses();
+    if (status !== 'approved' && responses.length > 0) {
       publishOpenTicket({
         ticketId: page.id,
         status: status ?? 'pending',
         accused: readAccused(),
-        templates: readTicketTemplates(),
+        responses,
         canHandle: true,
       });
       installTicketCommandHandler();
