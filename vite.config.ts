@@ -1,5 +1,7 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type PluginOption } from 'vite';
 import monkey from 'vite-plugin-monkey';
+
+import { buildAddons } from './scripts/build-addons.mjs';
 
 export default defineConfig(({ mode }) => {
   const fat = mode === 'fat';
@@ -9,6 +11,12 @@ export default defineConfig(({ mode }) => {
     build: { minify: true },
     define: { __FAT__: JSON.stringify(fat) },
     plugins: [
+      !fat &&
+        ({
+          name: 'sixpack:serve-addons',
+          apply: 'serve',
+          configureServer: () => buildAddons({ watch: true }),
+        } satisfies PluginOption),
       monkey({
         entry: 'src/main.ts',
         build: fat ? { fileName: '6pack.fat.user.js' } : undefined,
