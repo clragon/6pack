@@ -38,8 +38,19 @@ const channel = openChannel<Message>('tickets');
 
 // Tickets others have announced, keyed by their tabId. Never holds our own.
 const known = new Map<string, OpenTicket>();
-// This tab's published ticket, re-announced on demand when others poll.
-let localTicket: OpenTicket | null = null;
+// This tab's published ticket. Responses are read live (a provider can register
+// after publish), so they are held apart and re-read on each announce.
+let localTicket: Omit<OpenTicket, 'responses'> | null = null;
+let localResponses: () => TicketResponse[] = () => [];
+
+function currentLocal(): OpenTicket | null {
+  return localTicket ? { ...localTicket, responses: localResponses() } : null;
+}
+
+function announce(): void {
+  const ticket = currentLocal();
+  if (ticket) channel.post({ kind: 'announce', ticket });
+}
 
 const listeners = new Set<() => void>();
 function emit(): void {
@@ -59,15 +70,19 @@ channel.subscribe((message) => {
   } else if (message.kind === 'leave') {
     if (known.delete(message.tabId)) emit();
   } else if (message.kind === 'poll') {
-    if (localTicket) channel.post({ kind: 'announce', ticket: localTicket });
+    announce();
   }
 });
 
 // Publish this tab's ticket and keep answering polls for it until the page goes
 // away. Called once on a ticket page after the metadata is read.
-export function publishOpenTicket(ticket: Omit<OpenTicket, 'tabId'>): void {
+export function publishOpenTicket(
+  ticket: Omit<OpenTicket, 'tabId' | 'responses'>,
+  responses: () => TicketResponse[],
+): void {
   localTicket = { ...ticket, tabId: localTabId };
-  channel.post({ kind: 'announce', ticket: localTicket });
+  localResponses = responses;
+  announce();
   window.addEventListener('beforeunload', () => {
     channel.post({ kind: 'leave', tabId: localTabId });
   });
@@ -99,9 +114,8 @@ export function refreshOpenTickets(): void {
 // it can close in-process without a cross-tab round trip.
 export function openTickets(): OpenTicket[] {
   const byTicket = new Map<number, OpenTicket>();
-  const all = localTicket
-    ? [localTicket, ...known.values()]
-    : [...known.values()];
+  const local = currentLocal();
+  const all = local ? [local, ...known.values()] : [...known.values()];
   for (const ticket of all) {
     const existing = byTicket.get(ticket.ticketId);
     if (!existing || (ticket.canHandle && !existing.canHandle)) {

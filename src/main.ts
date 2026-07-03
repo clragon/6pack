@@ -5,6 +5,7 @@ import { ActionRegistry } from './core/actions/registry';
 import { addons } from './core/addons/manager';
 import { mountPalette } from './core/palette/mount';
 import { isConfirmActive } from './core/palette/confirm';
+import { isDialogActive } from './core/palette/dialog';
 import { deepActiveElement, isEditableElement } from './core/palette/focus';
 import { captureStore, paletteStore } from './core/palette/store';
 import { log } from './core/log';
@@ -64,18 +65,19 @@ whenReady(() => {
 
   // Publish an open, handleable ticket so other tabs can close it from their chip
   // row. Only a moderator's view renders the response field, and an already-closed
-  // ticket or one with no responses on offer is not worth announcing.
+  // ticket cannot be handled, so neither is worth announcing.
   if (page.kind === 'ticket' && canComposeResponse()) {
     const status = readTicketStatus();
-    const responses = listTicketResponses();
-    if (status !== 'approved' && responses.length > 0) {
-      publishOpenTicket({
-        ticketId: page.id,
-        status: status ?? 'pending',
-        accused: readAccused(),
-        responses,
-        canHandle: true,
-      });
+    if (status !== 'approved') {
+      publishOpenTicket(
+        {
+          ticketId: page.id,
+          status: status ?? 'pending',
+          accused: readAccused(),
+          canHandle: true,
+        },
+        () => listTicketResponses(),
+      );
       installTicketCommandHandler();
     }
   }
@@ -95,7 +97,9 @@ whenReady(() => {
   window.addEventListener(
     'keydown',
     (event) => {
-      if (captureStore.isOpen() || isConfirmActive()) return; // a prompt is open
+      // a prompt or dialog is open
+      if (captureStore.isOpen() || isConfirmActive() || isDialogActive())
+        return;
       if (!matchesTrigger(event)) return;
       // A modifier-less trigger (e.g. plain "Q") must not hijack typing in a
       // field; close with Esc instead.
