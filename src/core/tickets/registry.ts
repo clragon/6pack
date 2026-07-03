@@ -22,7 +22,17 @@ export const localTabId = crypto.randomUUID();
 const channel = openChannel<Message>('tickets');
 
 const known = new Map<string, OpenTicket>();
-let localTicket: OpenTicket | null = null;
+let localTicket: Omit<OpenTicket, 'responses'> | null = null;
+let localResponses: () => TicketResponse[] = () => [];
+
+function currentLocal(): OpenTicket | null {
+  return localTicket ? { ...localTicket, responses: localResponses() } : null;
+}
+
+function announce(): void {
+  const ticket = currentLocal();
+  if (ticket) channel.post({ kind: 'announce', ticket });
+}
 
 const listeners = new Set<() => void>();
 function emit(): void {
@@ -40,13 +50,17 @@ channel.subscribe((message) => {
   } else if (message.kind === 'leave') {
     if (known.delete(message.tabId)) emit();
   } else if (message.kind === 'poll') {
-    if (localTicket) channel.post({ kind: 'announce', ticket: localTicket });
+    announce();
   }
 });
 
-export function publishOpenTicket(ticket: Omit<OpenTicket, 'tabId'>): void {
+export function publishOpenTicket(
+  ticket: Omit<OpenTicket, 'tabId' | 'responses'>,
+  responses: () => TicketResponse[],
+): void {
   localTicket = { ...ticket, tabId: localTabId };
-  channel.post({ kind: 'announce', ticket: localTicket });
+  localResponses = responses;
+  announce();
   window.addEventListener('beforeunload', () => {
     channel.post({ kind: 'leave', tabId: localTabId });
   });
@@ -73,9 +87,8 @@ export function refreshOpenTickets(): void {
 
 export function openTickets(): OpenTicket[] {
   const byTicket = new Map<number, OpenTicket>();
-  const all = localTicket
-    ? [localTicket, ...known.values()]
-    : [...known.values()];
+  const local = currentLocal();
+  const all = local ? [local, ...known.values()] : [...known.values()];
   for (const ticket of all) {
     const existing = byTicket.get(ticket.ticketId);
     if (!existing || (ticket.canHandle && !existing.canHandle)) {

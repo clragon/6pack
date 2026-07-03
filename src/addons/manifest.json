@@ -34,6 +34,13 @@
       "description": "Close tickets with RE621's response templates",
       "entry": "src/addons/re621/entry.ts",
       "file": "re621.user.js"
+    },
+    {
+      "id": "quick-replies",
+      "name": "Quick Replies",
+      "description": "Stop retyping the same responses",
+      "entry": "src/addons/quick-replies/entry.ts",
+      "file": "quick-replies.user.js"
     }
   ]
 }
