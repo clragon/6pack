@@ -1,5 +1,6 @@
 import type { Action } from '../actions/types';
 import type { PageContext } from '../context/types';
+import type { DialogSpec } from '../palette/dialog';
 import type { SettingSpec, SettingsApi } from '../settings';
 import type { TicketResponseProvider } from '../tickets/providers';
 
@@ -24,4 +25,5 @@ export interface SixpackAddon {
 export interface SixpackApi {
   version: number;
   register(addon: SixpackAddon): void;
+  openDialog(spec: DialogSpec): () => void;
 }

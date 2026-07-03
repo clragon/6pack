@@ -4,6 +4,7 @@ import { useMemo } from 'preact/hooks';
 import type { Action } from '../actions/types';
 import type { PageContext } from '../context/types';
 import { ConfirmPrompt } from './ConfirmPrompt';
+import { DialogHost } from './DialogHost';
 import { Palette } from './Palette';
 import { RebindPrompt } from './RebindPrompt';
 import { captureStore, paletteStore } from './store';
@@ -33,6 +34,7 @@ function Root({
         onClose={() => captureStore.set(false)}
       />
       <ConfirmPrompt />
+      <DialogHost />
     </>
   );
 }

@@ -3,7 +3,10 @@ import type { SixpackAddon, SixpackApi } from '../core/addons/types';
 import { whenReady } from '../core/ready';
 import { selfHost } from './selfhost';
 
-type Bridge = SixpackApi & { queue?: SixpackAddon[] };
+type Bridge = Pick<SixpackApi, 'version' | 'register'> & {
+  queue?: SixpackAddon[];
+  openDialog?: SixpackApi['openDialog'];
+};
 
 export function registerAddon(addon: SixpackAddon): void {
   const host = unsafeWindow as unknown as { sixpack?: Bridge };

@@ -7,6 +7,7 @@ import { notifyError } from '../../site/toast';
 import { allChips, refreshChips, subscribeChips, type Chip } from './chips';
 import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { focusNoScroll } from './focus';
+import { useOverlay } from './overlay';
 import { captureNav, type Level, takeRestore } from './nav';
 import { getFrecency, recordUse, scoreFor } from './frecency';
 import { takePaletteTarget } from './store';
@@ -110,26 +111,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     return subscribeChips(() => forceChips((n) => n + 1));
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const el = (document.scrollingElement ??
-      document.documentElement) as HTMLElement;
-    const top = el.scrollTop;
-    const left = el.scrollLeft;
-    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
-    const prevOverflow = el.style.overflow;
-    const prevPadding = el.style.paddingRight;
-    el.style.overflow = 'hidden';
-    if (scrollbar > 0) el.style.paddingRight = `${scrollbar}px`;
-    el.scrollTop = top;
-    el.scrollLeft = left;
-    return () => {
-      el.style.overflow = prevOverflow;
-      el.style.paddingRight = prevPadding;
-      el.scrollTop = top;
-      el.scrollLeft = left;
-    };
-  }, [open]);
+  useOverlay(open);
 
   useEffect(() => {
     setSelected(level.search ? -1 : 0);
@@ -279,7 +261,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     else runAction(action, viaGroup);
   };
 
-  const drillInto = (action: Action, carryQuery: boolean) => {
+  const drillInto = (action: Action) => {
     const children = childrenOf(action);
     if (!children) return;
     setStack((s) => [
@@ -290,7 +272,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
         placeholder: action.placeholder,
       },
     ]);
-    if (!carryQuery) setFilter('');
+    setFilter('');
   };
 
   const enterSearch = (action: Action) => {
@@ -370,7 +352,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
           },
         ];
       }
-      const drill = () => drillInto(action, !!childMatchOf(action));
+      const drill = () => drillInto(action);
       const groupRow: Row = {
         id: action.id,
         title: action.title,

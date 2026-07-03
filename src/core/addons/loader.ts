@@ -30,7 +30,9 @@ function runCode(code: string): void {
 }
 
 export function loadAddon(id: string, file: string): void {
-  const cached = readJson<string | null>(CACHE_PREFIX + file, null);
+  const cached = import.meta.env.DEV
+    ? null
+    : readJson<string | null>(CACHE_PREFIX + file, null);
   if (cached) {
     try {
       runCode(cached);

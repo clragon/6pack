@@ -41,9 +41,8 @@ export function useNav(): Nav | null {
   return nav;
 }
 
-export function returnTo(levelIndex: number): void {
-  if (!nav) return;
-  pendingRestore = nav.stack.slice(0, levelIndex + 1);
+export function returnTo(stack: Level[], levelIndex: number): void {
+  pendingRestore = stack.slice(0, levelIndex + 1);
   paletteStore.set(true);
 }
 
