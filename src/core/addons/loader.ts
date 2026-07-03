@@ -42,7 +42,11 @@ function runCode(code: string): void {
 // synchronously, so it can register before first paint, then revalidates in the
 // background; an uncached one fetches first, so only its first-ever load lags.
 export function loadAddon(id: string, file: string): void {
-  const cached = readJson<string | null>(CACHE_PREFIX + file, null);
+  // Dev serves a watched, freshly-built artifact, so a cached copy would just
+  // re-run last reload's code; always refetch instead.
+  const cached = import.meta.env.DEV
+    ? null
+    : readJson<string | null>(CACHE_PREFIX + file, null);
   if (cached) {
     try {
       runCode(cached);

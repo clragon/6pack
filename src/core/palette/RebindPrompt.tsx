@@ -3,6 +3,7 @@ import { useEffect } from 'preact/hooks';
 import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { formatTrigger, setTrigger, triggerFromEvent } from '../config';
 import { useNav, returnTo } from './nav';
+import { useOverlay } from './overlay';
 
 interface RebindPromptProps {
   active: boolean;
@@ -11,6 +12,7 @@ interface RebindPromptProps {
 
 export function RebindPrompt({ active, onClose }: RebindPromptProps) {
   const nav = useNav();
+  useOverlay(active);
   useEffect(() => {
     if (!active) return;
     // Capture phase so the combo is consumed here rather than triggering the
@@ -39,7 +41,7 @@ export function RebindPrompt({ active, onClose }: RebindPromptProps) {
           label: level.title ?? '',
           onClick: () => {
             onClose();
-            returnTo(i + 1);
+            returnTo(nav.stack, i + 1);
           },
         })),
         { label: nav.leaf },
@@ -54,7 +56,7 @@ export function RebindPrompt({ active, onClose }: RebindPromptProps) {
             crumbs={crumbs}
             onHome={() => {
               onClose();
-              if (nav) returnTo(0);
+              if (nav) returnTo(nav.stack, 0);
             }}
           />
           <input class="sp-input" disabled aria-hidden="true" tabIndex={-1} />

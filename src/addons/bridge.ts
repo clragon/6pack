@@ -3,7 +3,12 @@ import type { SixpackAddon, SixpackApi } from '../core/addons/types';
 import { whenReady } from '../core/ready';
 import { selfHost } from './selfhost';
 
-type Bridge = SixpackApi & { queue?: SixpackAddon[] };
+// The pre-publish stub only queues registrations, so it carries version/register
+// plus the queue; 6pack's real api (with openDialog) replaces it on publish.
+type Bridge = Pick<SixpackApi, 'version' | 'register'> & {
+  queue?: SixpackAddon[];
+  openDialog?: SixpackApi['openDialog'];
+};
 
 // Hand an add-on to 6pack through the page window, the only object isolated
 // userscript worlds share. The queue stub covers loading before 6pack publishes;

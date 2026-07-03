@@ -4,6 +4,7 @@ import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { resolveConfirm, useConfirm } from './confirm';
 import { focusNoScroll } from './focus';
 import { useNav, returnTo } from './nav';
+import { useOverlay } from './overlay';
 
 // Every interactive control, flattened in tab order so one cursor (arrow keys)
 // walks fields, then checkboxes, then the action buttons, like the command list.
@@ -20,6 +21,8 @@ export function ConfirmPrompt() {
   const [selected, setSelected] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
   const itemEls = useRef<(HTMLElement | null)[]>([]);
+
+  useOverlay(!!request);
 
   const items = useMemo<Item[]>(() => {
     if (!request) return [];
@@ -143,7 +146,7 @@ export function ConfirmPrompt() {
           label: level.title ?? '',
           onClick: () => {
             resolveConfirm(null);
-            returnTo(i + 1);
+            returnTo(nav.stack, i + 1);
           },
         })),
         { label: nav.leaf },
@@ -168,7 +171,7 @@ export function ConfirmPrompt() {
               crumbs={crumbs}
               onHome={() => {
                 resolveConfirm(null);
-                if (nav) returnTo(0);
+                if (nav) returnTo(nav.stack, 0);
               }}
             />
             <input class="sp-input" disabled aria-hidden="true" tabIndex={-1} />

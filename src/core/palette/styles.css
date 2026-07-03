@@ -9,6 +9,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  padding: 12vh 12px 12px;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
   font-family: Verdana, Helvetica, Arial, sans-serif;
@@ -18,10 +19,39 @@
   box-sizing: border-box;
 }
 
+.sp-shell.sp-shell-dialog {
+  max-width: 920px;
+}
+
+.sp-shell.sp-shell-dialog .sp-panel {
+  /* Anchored 12vh from the top, so keep it a contained size and let the list
+     scroll inside past this; a big viewport fraction grows a lopsided slab. */
+  max-height: min(560px, 76vh);
+}
+
+/* On a phone the dialog takes nearly the whole screen, so the master-detail views
+   have room and the height stays bounded. */
+@media (max-width: 640px) {
+  .sp-backdrop {
+    padding-top: 6vh;
+  }
+  .sp-shell.sp-shell-dialog .sp-panel {
+    max-height: 90vh;
+  }
+}
+
+.sp-dialog-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
 .sp-shell {
   position: relative;
-  margin-top: 12vh;
-  width: min(560px, 92vw);
+  width: 100%;
+  max-width: 560px;
   display: flex;
   flex-direction: column;
   /* The chips are absolutely placed above the panel (see .sp-chips), so the panel
@@ -50,6 +80,14 @@
   padding: 0 10px;
   background: var(--color-section-darken-5, transparent);
   border-bottom: 1px solid var(--color-table-border, #313d52);
+}
+
+/* A dialog head has no search input to give the row height, so pad it directly.
+   min-width:0 lets the breadcrumb shrink and clip instead of overflowing. */
+.sp-dialog-head {
+  min-width: 0;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .sp-chips {

@@ -7,6 +7,7 @@ import { notifyError } from '../../site/toast';
 import { allChips, refreshChips, subscribeChips, type Chip } from './chips';
 import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { focusNoScroll } from './focus';
+import { useOverlay } from './overlay';
 import { captureNav, type Level, takeRestore } from './nav';
 import { getFrecency, recordUse, scoreFor } from './frecency';
 import { takePaletteTarget } from './store';
@@ -125,32 +126,9 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     return subscribeChips(() => forceChips((n) => n + 1));
   }, [open]);
 
-  // Lock the page scroll while open without moving content: snap the scroller
-  // back to its captured position on any scroll. Layout-agnostic, and catches
-  // both the focus-induced jump and background scrolling.
-  // Lock background scroll while open without jitter: hide the scroller's
-  // overflow so it can't scroll, compensate the scrollbar width to avoid a
-  // layout shift, and pin the position in case overflow:hidden resets it.
-  useEffect(() => {
-    if (!open) return;
-    const el = (document.scrollingElement ??
-      document.documentElement) as HTMLElement;
-    const top = el.scrollTop;
-    const left = el.scrollLeft;
-    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
-    const prevOverflow = el.style.overflow;
-    const prevPadding = el.style.paddingRight;
-    el.style.overflow = 'hidden';
-    if (scrollbar > 0) el.style.paddingRight = `${scrollbar}px`;
-    el.scrollTop = top;
-    el.scrollLeft = left;
-    return () => {
-      el.style.overflow = prevOverflow;
-      el.style.paddingRight = prevPadding;
-      el.scrollTop = top;
-      el.scrollLeft = left;
-    };
-  }, [open]);
+  // Freeze scroll and contain focus while open (shared, ref-counted so a dialog
+  // launched from the palette hands the lock over cleanly).
+  useOverlay(open);
 
   useEffect(() => {
     // Search levels start with nothing highlighted so Enter searches the query.
@@ -320,7 +298,10 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     else runAction(action, viaGroup);
   };
 
-  const drillInto = (action: Action, carryQuery: boolean) => {
+  // Drilling into a group always clears the query: it found the group, and its
+  // contents shouldn't stay filtered by the term that matched the group's name.
+  // Running a query-matched child directly is the reach-in row's job, not this.
+  const drillInto = (action: Action) => {
     const children = childrenOf(action);
     if (!children) return;
     setStack((s) => [
@@ -331,7 +312,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
         placeholder: action.placeholder,
       },
     ]);
-    if (!carryQuery) setFilter('');
+    setFilter('');
   };
 
   const enterSearch = (action: Action) => {
@@ -415,7 +396,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
           },
         ];
       }
-      const drill = () => drillInto(action, !!childMatchOf(action));
+      const drill = () => drillInto(action);
       const groupRow: Row = {
         id: action.id,
         title: action.title,

@@ -5,6 +5,7 @@ import type { PageContext } from '../context/types';
 import { settings } from '../settings';
 import { whenReady } from '../ready';
 import { registerTicketResponseProvider } from '../tickets/providers';
+import { openDialog } from '../palette/dialog';
 import { log } from '../log';
 
 export class AddonHost {
@@ -16,6 +17,7 @@ export class AddonHost {
   readonly api: SixpackApi = {
     version: 1,
     register: (addon) => this.register(addon),
+    openDialog: (spec) => openDialog(spec),
   };
 
   constructor(

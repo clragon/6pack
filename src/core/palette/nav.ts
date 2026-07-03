@@ -49,11 +49,10 @@ export function useNav(): Nav | null {
   return nav;
 }
 
-// Reopen the palette at a captured level (0 = root). Dialogs call this from a
-// breadcrumb crumb to return to the selection they came from.
-export function returnTo(levelIndex: number): void {
-  if (!nav) return;
-  pendingRestore = nav.stack.slice(0, levelIndex + 1);
+// Reopen the palette at a level of a captured stack (0 = root). Dialogs call this
+// from a breadcrumb crumb to return to the selection they came from.
+export function returnTo(stack: Level[], levelIndex: number): void {
+  pendingRestore = stack.slice(0, levelIndex + 1);
   paletteStore.set(true);
 }
 

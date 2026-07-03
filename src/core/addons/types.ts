@@ -1,5 +1,6 @@
 import type { Action } from '../actions/types';
 import type { PageContext } from '../context/types';
+import type { DialogSpec } from '../palette/dialog';
 import type { SettingSpec, SettingsApi } from '../settings';
 import type { TicketResponseProvider } from '../tickets/providers';
 
@@ -41,4 +42,7 @@ export interface SixpackAddon {
 export interface SixpackApi {
   version: number;
   register(addon: SixpackAddon): void;
+  // Render a dialog in the palette's chrome from add-on-supplied content, the way
+  // an add-on reaches a real dialog without importing core. Returns a close handle.
+  openDialog(spec: DialogSpec): () => void;
 }
