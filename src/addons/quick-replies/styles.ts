@@ -23,6 +23,7 @@ export const STYLES = `
 .sp-qr-strip-flame:hover { background: var(--color-section-lighten-10, #2a3852); }
 .sp-qr-manager { display: flex; min-height: 0; flex: 1; }
 .sp-qr-editor { width: 100%; box-sizing: border-box; }
+.sp-qr-editor-slot { min-height: 212px; }
 .sp-qr-editor textarea, .sp-qr-editor .dtext-formatter { width: 100%; max-width: 100%; box-sizing: border-box; }
 .sp-qr-list { width: 220px; flex: none; border-right: 1px solid var(--color-table-border, #313d52); padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
 .sp-qr-list-item { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 7px 9px; text-align: left; border: none; background: none; color: inherit; border-radius: 4px; cursor: pointer; font: inherit; font-size: 13px; }
