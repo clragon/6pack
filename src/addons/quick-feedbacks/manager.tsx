@@ -10,14 +10,14 @@ import {
   Trash2,
   Upload,
 } from 'lucide-preact';
-import { unsafeWindow } from 'vite-plugin-monkey/dist/client';
 
 import type { DialogCrumb } from '../../core/palette/dialog';
+import { buildDTextEditor } from '../../core/palette/dtextEditor';
 import { deepActiveElement } from '../../core/palette/focus';
 import { spawnDialog } from '../../core/palette/spawnDialog';
 import { RULES } from './rules';
 import { RuleGroups } from './ruleGroups';
-import { rove } from './rove';
+import { rove } from '../../core/palette/rove';
 import {
   addRecord,
   listRecords,
@@ -339,55 +339,6 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
   );
 }
 
-interface ReasonEditor {
-  node: HTMLElement;
-  formatter?: { destroy?: () => void };
-}
-
-// A reason field backed by e6's DText formatter (Write/Preview tabs, toolbar) when
-// it is present, falling back to a plain textarea otherwise.
-function buildReasonEditor(
-  reason: string,
-  onInput: (value: string) => void,
-): ReasonEditor {
-  const node = document.createElement('div');
-  node.className = 'sp-qf-reason-editor';
-  const textarea = document.createElement('textarea');
-  textarea.rows = 5;
-  textarea.placeholder = 'Reason';
-  textarea.value = reason;
-  // Makes the formatter fire a native input event after its buttons edit the text.
-  textarea.classList.add('dtext-vue');
-  textarea.setAttribute('data-color', 'false');
-  node.appendChild(textarea);
-  textarea.addEventListener('input', () => onInput(textarea.value));
-
-  let formatter: { destroy?: () => void } | undefined;
-  const page = unsafeWindow as unknown as {
-    Danbooru?: {
-      DTextFormatter?: { buildFromTextarea: (t: unknown) => unknown };
-    };
-    jQuery?: (el: unknown) => unknown;
-  };
-  const dtext = page.Danbooru?.DTextFormatter;
-  if (dtext && page.jQuery) {
-    try {
-      formatter = dtext.buildFromTextarea(page.jQuery(textarea)) as {
-        destroy?: () => void;
-      };
-      // Keep the editor a single tab stop (the textarea).
-      for (const el of node.querySelectorAll<HTMLElement>(
-        'button, a[href], [tabindex]',
-      )) {
-        if (el !== textarea) el.tabIndex = -1;
-      }
-    } catch {
-      // fall back to the plain textarea
-    }
-  }
-  return { node, formatter };
-}
-
 function Editor({
   template,
   onDelete,
@@ -414,9 +365,13 @@ function Editor({
   useEffect(() => {
     const container = reasonRef.current;
     if (!container) return;
-    const editor = buildReasonEditor(template.reason, (value) =>
-      updateRecord(id, { reason: value }),
-    );
+    const editor = buildDTextEditor({
+      value: template.reason,
+      className: 'sp-qf-reason-editor',
+      rows: 5,
+      placeholder: 'Reason',
+      onInput: (value) => updateRecord(id, { reason: value }),
+    });
     const root = container.getRootNode();
     const shadowHost =
       root instanceof ShadowRoot ? (root.host as HTMLElement) : null;

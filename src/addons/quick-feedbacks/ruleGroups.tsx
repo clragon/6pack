@@ -1,7 +1,7 @@
 import { useRef } from 'preact/hooks';
 
 import { RULES, RULE_GROUPS } from './rules';
-import { rove } from './rove';
+import { rove } from '../../core/palette/rove';
 
 // The full rule set, grouped under its headings, as one tab stop with arrow-key
 // roving across every pill.

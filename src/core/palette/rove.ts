@@ -1,4 +1,4 @@
-import { deepActiveElement } from '../../core/palette/focus';
+import { deepActiveElement } from './focus';
 
 // Move roving focus among `selector` items within `container` on arrows / Home /
 // End, keeping the group a single tab stop. Returns whether it handled the key.

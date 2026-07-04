@@ -26,7 +26,7 @@ function contentRef(): string {
   return content.id ? `${content.type} #${content.id}` : content.type;
 }
 
-export const VARIABLES: TemplateVariable[] = [
+export const TICKET_VARIABLES: TemplateVariable[] = [
   {
     token: 'reporter',
     label: 'Reporter',
@@ -42,10 +42,14 @@ export const VARIABLES: TemplateVariable[] = [
   { token: 'content', label: 'Content', resolve: contentRef },
 ];
 
-// Expand every known %token%; an unknown token is left verbatim.
-export function substitute(body: string): string {
+// Expand every known %token% against the given variable set; an unknown token is
+// left verbatim.
+export function substitute(
+  body: string,
+  variables: TemplateVariable[],
+): string {
   return body.replace(/%(\w+)%/g, (whole, token) => {
-    const variable = VARIABLES.find((v) => v.token === token);
+    const variable = variables.find((v) => v.token === token);
     return variable ? variable.resolve() : whole;
   });
 }
