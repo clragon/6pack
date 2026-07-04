@@ -41,6 +41,13 @@
       "description": "Stop retyping the same responses",
       "entry": "src/addons/quick-replies/entry.ts",
       "file": "quick-replies.user.js"
+    },
+    {
+      "id": "quick-feedbacks",
+      "name": "Quick Feedbacks",
+      "description": "Build records from your own reasons and the rules they cite",
+      "entry": "src/addons/quick-feedbacks/entry.ts",
+      "file": "quick-feedbacks.user.js"
     }
   ]
 }
