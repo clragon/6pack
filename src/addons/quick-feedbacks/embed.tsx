@@ -8,7 +8,7 @@ import { assembleRecord } from './compositor';
 import { openRecordsManager } from './manager';
 import { RULES } from './rules';
 import { RuleGroups } from './ruleGroups';
-import { rove } from './rove';
+import { rove } from '../../core/palette/rove';
 import { rankRules, recordRuleUse } from './ruleFrecency';
 import { listRecords, subscribe, type RecordTemplate } from './store';
 import { STYLES } from './styles';

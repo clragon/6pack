@@ -1,4 +1,4 @@
-import { deepActiveElement } from '../../core/palette/focus';
+import { deepActiveElement } from './focus';
 
 export function rove(
   container: HTMLElement | null,

@@ -1,7 +1,7 @@
 import { useRef } from 'preact/hooks';
 
 import { RULES, RULE_GROUPS } from './rules';
-import { rove } from './rove';
+import { rove } from '../../core/palette/rove';
 
 export function RuleGroups({
   isActive,
