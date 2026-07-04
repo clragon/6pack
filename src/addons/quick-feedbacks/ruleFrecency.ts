@@ -3,7 +3,7 @@ import { readJson, writeJson } from '../../core/storage';
 // Frecency ranking for rules (frequency with recency decay), the same shape the
 // palette uses. Seeded once from observed aggregate usage so a fresh install ranks
 // sensibly, then the mod's own picks decay past the prior and take over.
-const KEY = 'quick-feedbacks.rule-frecency';
+const KEY = 'sp.quick-feedbacks.rule-frecency';
 const HALF_LIFE_MS = 7 * 24 * 60 * 60 * 1000;
 
 interface Entry {

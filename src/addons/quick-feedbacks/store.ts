@@ -20,7 +20,7 @@ export interface RecordTemplate {
   preventLogin?: boolean;
 }
 
-const KEY = 'quick-feedbacks';
+const KEY = 'sp.quick-feedbacks';
 
 // A fresh install seeds the starter templates. An emptied list is not a fresh
 // install, so deleted templates stay gone.

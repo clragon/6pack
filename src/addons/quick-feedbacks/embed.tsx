@@ -62,12 +62,12 @@ function SourceFields({
   };
 
   return (
-    <div class="qf-sources-list">
+    <div class="sp-qf-sources-list">
       {rows.map((value, index) => (
-        <div class="qf-source-row" key={index}>
+        <div class="sp-qf-source-row" key={index}>
           <input
             type="text"
-            class="qf-source"
+            class="sp-qf-source"
             placeholder="Source link"
             value={value}
             onInput={(e) => setAt(index, e.currentTarget.value)}
@@ -75,8 +75,8 @@ function SourceFields({
               if (e.key !== 'Enter') return;
               e.preventDefault();
               e.currentTarget
-                .closest('.qf-source-row')
-                ?.nextElementSibling?.querySelector<HTMLElement>('.qf-source')
+                .closest('.sp-qf-source-row')
+                ?.nextElementSibling?.querySelector<HTMLElement>('.sp-qf-source')
                 ?.focus();
             }}
             onBlur={() => {
@@ -86,7 +86,7 @@ function SourceFields({
           />
           <button
             type="button"
-            class="qf-source-x"
+            class="sp-qf-source-x"
             tabIndex={-1}
             title="Remove"
             onClick={() => removeAt(index)}
@@ -182,16 +182,16 @@ function Embed({
   return (
     <>
       <div
-        class="qf-strip"
+        class="sp-qf-strip"
         ref={stripRef}
         onKeyDown={(e) =>
-          rove(stripRef.current, e, '.qf-chip, .qf-strip-more, .qf-strip-flame')
+          rove(stripRef.current, e, '.sp-qf-chip, .sp-qf-strip-more, .sp-qf-strip-flame')
         }
       >
         {shownTemplates.map((template, index) => (
           <button
             type="button"
-            class="qf-chip"
+            class="sp-qf-chip"
             key={template.id}
             tabIndex={index === 0 ? 0 : -1}
             onClick={() => {
@@ -234,7 +234,7 @@ function Embed({
         {records.length > pinned.length && (
           <button
             type="button"
-            class="qf-strip-more"
+            class="sp-qf-strip-more"
             tabIndex={-1}
             onClick={() => setTemplatesExpanded((o) => !o)}
           >
@@ -248,7 +248,7 @@ function Embed({
         )}
         <button
           type="button"
-          class="qf-strip-flame"
+          class="sp-qf-strip-flame"
           tabIndex={shownTemplates.length ? -1 : 0}
           onClick={() => openRecordsManager()}
         >
@@ -257,17 +257,17 @@ function Embed({
         </button>
       </div>
 
-      <div class="qf-label">Reason</div>
+      <div class="sp-qf-label">Reason</div>
       <textarea
         ref={reasonRef}
-        class="qf-input qf-grow"
+        class="sp-qf-input sp-qf-grow"
         rows={1}
         placeholder="Reason"
         value={reason}
         onInput={(e) => setReason(e.currentTarget.value)}
       />
 
-      <div class="qf-label">Rules</div>
+      <div class="sp-qf-label">Rules</div>
       {moreOpen ? (
         <>
           <RuleGroups
@@ -276,7 +276,7 @@ function Embed({
           />
           <button
             type="button"
-            class="qf-more"
+            class="sp-qf-more"
             onClick={() => setMoreOpen(false)}
           >
             <span>Less</span>
@@ -285,16 +285,16 @@ function Embed({
         </>
       ) : (
         <div
-          class="qf-rules"
+          class="sp-qf-rules"
           ref={rulesRef}
-          onKeyDown={(e) => rove(rulesRef.current, e, '.qf-pill, .qf-more')}
+          onKeyDown={(e) => rove(rulesRef.current, e, '.sp-qf-pill, .sp-qf-more')}
         >
           {collapsedKeys.map((key, index) => (
             <button
               type="button"
               key={key}
               tabIndex={index === 0 ? 0 : -1}
-              class={'qf-pill' + (active.includes(key) ? ' qf-on' : '')}
+              class={'sp-qf-pill' + (active.includes(key) ? ' sp-qf-on' : '')}
               onClick={() => toggleRule(key)}
             >
               {RULES[key].title}
@@ -302,7 +302,7 @@ function Embed({
           ))}
           <button
             type="button"
-            class="qf-more"
+            class="sp-qf-more"
             tabIndex={collapsedKeys.length ? -1 : 0}
             onClick={() => setMoreOpen(true)}
           >
@@ -312,10 +312,10 @@ function Embed({
         </div>
       )}
 
-      <div class="qf-label">Sources</div>
+      <div class="sp-qf-label">Sources</div>
       <SourceFields sources={sources} onChange={setSources} />
 
-      <div class="qf-label qf-output">Record</div>
+      <div class="sp-qf-label sp-qf-output">Record</div>
     </>
   );
 }
@@ -332,7 +332,7 @@ export function mountEmbed(): () => void {
   const style = document.createElement('style');
   style.textContent = STYLES;
   const panel = document.createElement('div');
-  panel.className = 'qf-panel';
+  panel.className = 'sp-qf-panel';
   shadow.append(style, panel);
   render(<Embed field={field} anchor={anchor} />, panel);
 

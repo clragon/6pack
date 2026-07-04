@@ -1,7 +1,7 @@
 import { readJson, writeJson } from '../storage';
 
 // User-pinned jump points, keyed by URL.
-const KEY = 'nav.entries';
+const KEY = 'sp.nav.entries';
 
 export type NavEntries = Record<string, string>;
 
@@ -22,7 +22,7 @@ export function removeEntry(url: string): void {
 }
 
 // Default slugs the user has hidden from the jump list.
-const HIDDEN_KEY = 'nav.hidden';
+const HIDDEN_KEY = 'sp.nav.hidden';
 
 export function isHidden(slug: string): boolean {
   return readJson<string[]>(HIDDEN_KEY, []).includes(slug);

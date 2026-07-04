@@ -27,7 +27,7 @@ export const CATALOG: CatalogEntry[] = (manifest.addons as ManifestAddon[]).map(
   }),
 );
 
-const KEY = 'addons.enabled';
+const KEY = 'sp.addons.enabled';
 
 export function enabledIds(): string[] {
   return readJson<string[]>(KEY, []);

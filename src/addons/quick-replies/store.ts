@@ -9,7 +9,7 @@ export interface Template {
   pinned?: boolean;
 }
 
-const KEY = 'quick-replies.ticket';
+const KEY = 'sp.quick-replies.ticket';
 
 let current = readJson<Template[]>(KEY, []);
 const listeners = new Set<() => void>();

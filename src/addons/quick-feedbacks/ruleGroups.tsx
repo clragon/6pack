@@ -24,20 +24,20 @@ export function RuleGroups({
 
   return (
     <div
-      class="qf-rule-groups"
+      class="sp-qf-rule-groups"
       ref={ref}
-      onKeyDown={(event) => rove(ref.current, event, '.qf-pill')}
+      onKeyDown={(event) => rove(ref.current, event, '.sp-qf-pill')}
     >
       {groups.map((group) => (
-        <div class="qf-rule-group" key={group.label}>
-          <div class="qf-rule-group-label">{group.label}</div>
-          <div class="qf-rules">
+        <div class="sp-qf-rule-group" key={group.label}>
+          <div class="sp-qf-rule-group-label">{group.label}</div>
+          <div class="sp-qf-rules">
             {group.keys.map((key) => (
               <button
                 type="button"
                 key={key}
                 tabIndex={key === ordered[0] ? 0 : -1}
-                class={'qf-pill' + (isActive(key) ? ' qf-on' : '')}
+                class={'sp-qf-pill' + (isActive(key) ? ' sp-qf-on' : '')}
                 onClick={() => onToggle(key)}
               >
                 {RULES[key].title}

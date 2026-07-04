@@ -1,6 +1,6 @@
 import { readJson, writeJson } from '../storage';
 
-const KEY = 'palette.frecency';
+const KEY = 'sp.palette.frecency';
 
 // Half-life of a single use's contribution. Within a session, decay over minutes
 // is negligible, so ranking is effectively by frequency (a one-off can't jump a
