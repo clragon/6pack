@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { ChevronDown, ChevronUp, Flame } from 'lucide-preact';
 import { unsafeWindow } from 'vite-plugin-monkey/dist/client';
 
-import { navigateTo } from '../../core/navigate';
 import { assembleRecord } from './compositor';
 import { openRecordsManager } from './manager';
 import { RULES } from './rules';
@@ -12,8 +11,7 @@ import { rove } from '../../core/palette/rove';
 import { rankRules, recordRuleUse } from './ruleFrecency';
 import { listRecords, subscribe, type RecordTemplate } from './store';
 import { STYLES } from './styles';
-
-const BODY_FIELD = "textarea[name='user_feedback[body]']";
+import type { EmbedTarget } from './targets';
 
 interface Formatter {
   state: string;
@@ -100,9 +98,11 @@ function SourceFields({
 function Embed({
   field,
   anchor,
+  target,
 }: {
   field: HTMLTextAreaElement;
   anchor: Element;
+  target: EmbedTarget;
 }) {
   const [reason, setReason] = useState('');
   const [active, setActive] = useState<string[]>([]);
@@ -187,39 +187,7 @@ function Embed({
             class="sp-qf-chip"
             key={template.id}
             tabIndex={index === 0 ? 0 : -1}
-            onClick={() => {
-              if (template.category === 'ban') {
-                const userName =
-                  document.querySelector<HTMLInputElement>(
-                    'input[name="user_feedback[user_name]"]',
-                  )?.value ?? '';
-                const params = new URLSearchParams();
-                if (userName) params.set('ban[user_name]', userName);
-                params.set(
-                  'ban[reason]',
-                  assembleRecord({
-                    reason: template.reason,
-                    rules: template.rules,
-                    sources: [],
-                  }),
-                );
-                if (template.duration != null)
-                  params.set('ban[duration]', String(template.duration));
-                if (template.preventLogin)
-                  params.set('ban[prevent_login]', '1');
-                navigateTo(`/bans/new?${params}`);
-                return;
-              }
-              setReason(template.reason);
-              setActive([...template.rules]);
-              recordRuleUse(template.rules);
-              if (template.category)
-                document
-                  .querySelector<HTMLInputElement>(
-                    `input[name="user_feedback[category]"][value="${template.category}"]`,
-                  )
-                  ?.click();
-            }}
+            onClick={() => target.pick(template, { setReason, setActive })}
           >
             {template.title || '(untitled)'}
           </button>
@@ -308,13 +276,13 @@ function Embed({
       <div class="sp-qf-label">Sources</div>
       <SourceFields sources={sources} onChange={setSources} />
 
-      <div class="sp-qf-label sp-qf-output">Record</div>
+      <div class="sp-qf-label sp-qf-output">{target.outputLabel}</div>
     </>
   );
 }
 
-export function mountEmbed(): () => void {
-  const field = document.querySelector<HTMLTextAreaElement>(BODY_FIELD);
+export function mountEmbed(target: EmbedTarget): () => void {
+  const field = document.querySelector<HTMLTextAreaElement>(target.field);
   const anchor = field?.closest('.dtext-formatter') ?? field;
   if (!field || !anchor) return () => {};
 
@@ -326,7 +294,7 @@ export function mountEmbed(): () => void {
   const panel = document.createElement('div');
   panel.className = 'sp-qf-panel';
   shadow.append(style, panel);
-  render(<Embed field={field} anchor={anchor} />, panel);
+  render(<Embed field={field} anchor={anchor} target={target} />, panel);
 
   return () => {
     render(null, panel);
