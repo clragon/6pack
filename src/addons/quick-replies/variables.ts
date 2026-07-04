@@ -42,6 +42,29 @@ export const TICKET_VARIABLES: TemplateVariable[] = [
   { token: 'content', label: 'Content', resolve: contentRef },
 ];
 
+export const APPEAL_VARIABLES: TemplateVariable[] = [
+  {
+    token: 'reporter',
+    label: 'Appellant',
+    resolve: () =>
+      document.querySelector<HTMLElement>(
+        '#c-appeals .appeal-display-report-creator a',
+      )?.innerText ?? '',
+  },
+  { token: 'me', label: 'Me', resolve: () => currentUserName() ?? '' },
+];
+
+export const DMAIL_VARIABLES: TemplateVariable[] = [
+  {
+    token: 'recipient',
+    label: 'Recipient',
+    resolve: () =>
+      document.querySelector<HTMLInputElement>("input[name='dmail[to_name]']")
+        ?.value ?? '',
+  },
+  { token: 'me', label: 'Me', resolve: () => currentUserName() ?? '' },
+];
+
 // Expand every known %token% against the given variable set; an unknown token is
 // left verbatim.
 export function substitute(

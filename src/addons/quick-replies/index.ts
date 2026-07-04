@@ -4,10 +4,26 @@ import type {
   TicketResponseOption,
   TicketResponseProvider,
 } from '../../core/tickets/providers';
-import { ticketContext, type ReplyContext } from './context';
+import {
+  appealContext,
+  dmailContext,
+  ticketContext,
+  type ReplyContext,
+} from './context';
 import { openManager } from './manager';
 import { mountStrip } from './strip';
 import { substitute } from './variables';
+
+const CONTEXTS = [ticketContext, appealContext, dmailContext];
+
+const onReplyPage = (): boolean =>
+  /^\/tickets\/\d+/.test(location.pathname) ||
+  /^\/appeals\/\d+/.test(location.pathname) ||
+  location.pathname === '/dmails/new';
+
+// The context whose field is present on the page, if any.
+const activeContext = (): ReplyContext | undefined =>
+  CONTEXTS.find((c) => c.field() !== null);
 
 // Expands the template against its context and drops it into the field, letting
 // e621's field listeners react via a synthetic input event.
@@ -19,55 +35,55 @@ function insertTemplate(context: ReplyContext, body: string): void {
   field.focus();
 }
 
-const store = ticketContext.store;
-const hasField = (): boolean => ticketContext.field() !== null;
+function makeActions(context: ReplyContext): Action[] {
+  const here = (): boolean => context.field() !== null;
+  return [
+    {
+      id: `${context.id}.replies`,
+      title: context.label,
+      description: 'Insert a saved template',
+      keywords: ['template', 'templates', 'response', 'reply', 'macro', 'canned'],
+      weight: 1,
+      when: here,
+      submenu: () =>
+        context.store.list().map(({ id, title, body }) => ({
+          id: `${context.id}.replies.use:${id}`,
+          title: title || '(untitled)',
+          run: () => insertTemplate(context, body),
+        })),
+    },
+    {
+      id: `${context.id}.replies.manage`,
+      title: context.manageTitle,
+      description: 'Edit, pin, import, or export your saved templates',
+      keywords: ['manage', 'edit', 'new', 'pin', 'import', 'export'],
+      when: here,
+      run: () => openManager(context),
+    },
+    {
+      id: `${context.id}.replies.save`,
+      title: 'Save as template',
+      description: 'Turn what you wrote into a saved template',
+      keywords: ['save', 'new', 'add', 'capture'],
+      when: here,
+      run: () => {
+        const body = context.field()?.value.trim();
+        openManager(context, body || undefined);
+      },
+    },
+  ];
+}
 
-// Palette mirror of the on-page strip: pick a saved reply to drop into the
-// response box. Just the replies, nothing about managing them.
-const insertReply: Action = {
-  id: 'ticket.replies',
-  title: 'Quick replies',
-  description: 'Insert a saved response',
-  keywords: ['template', 'templates', 'response', 'reply', 'macro', 'canned'],
-  weight: 1,
-  when: hasField,
-  submenu: () =>
-    store.list().map(({ id, title, body }) => ({
-      id: `ticket.replies.use:${id}`,
-      title: title || '(untitled)',
-      run: () => insertTemplate(ticketContext, body),
-    })),
-};
-
-const manageReplies: Action = {
-  id: 'ticket.replies.manage',
-  title: 'Manage quick replies',
-  description: 'Edit, pin, import, or export your saved responses',
-  keywords: ['manage', 'edit', 'new', 'pin', 'import', 'export'],
-  when: hasField,
-  run: () => openManager(ticketContext),
-};
-
-const saveReply: Action = {
-  id: 'ticket.replies.save',
-  title: 'Save response as reply',
-  description: 'Turn the response you wrote into a saved reply',
-  keywords: ['save', 'new', 'add', 'capture'],
-  when: hasField,
-  run: () => {
-    const body = ticketContext.field()?.value.trim();
-    openManager(ticketContext, body || undefined);
-  },
-};
-
-// Offers the saved replies as ticket close responses; compose expands a template
-// against this ticket, the same text the strip would insert.
+// Offers the saved ticket replies as ticket close responses; compose expands a
+// template against this ticket, the same text the strip would insert.
 const provider: TicketResponseProvider = {
   id: 'quick-replies',
   list: (): TicketResponseOption[] =>
-    store.list().map((t) => ({ id: t.id, title: t.title || '(untitled)' })),
+    ticketContext.store
+      .list()
+      .map((t) => ({ id: t.id, title: t.title || '(untitled)' })),
   compose: (optionId) => {
-    const template = store.list().find((t) => t.id === optionId);
+    const template = ticketContext.store.list().find((t) => t.id === optionId);
     return template ? substitute(template.body, ticketContext.variables) : null;
   },
 };
@@ -75,13 +91,14 @@ const provider: TicketResponseProvider = {
 export const quickRepliesAddon: SixpackAddon = {
   id: 'quick-replies',
   name: 'Quick Replies',
-  when: (page) => page.kind === 'ticket',
-  actions: [insertReply, manageReplies, saveReply],
+  when: onReplyPage,
+  actions: CONTEXTS.flatMap(makeActions),
   ticketResponses: provider,
   setup: (ctx) => {
     let teardown: (() => void) | undefined;
     ctx.whenReady(() => {
-      teardown = mountStrip(ticketContext);
+      const context = activeContext();
+      if (context) teardown = mountStrip(context);
     });
     return () => teardown?.();
   },
