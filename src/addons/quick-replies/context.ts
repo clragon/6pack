@@ -1,6 +1,15 @@
 import { createStore, type ReplyStore } from './store';
-import { seedTicketReplies } from './seeds';
-import { TICKET_VARIABLES, type TemplateVariable } from './variables';
+import {
+  seedAppealReplies,
+  seedDmailReplies,
+  seedTicketReplies,
+} from './seeds';
+import {
+  APPEAL_VARIABLES,
+  DMAIL_VARIABLES,
+  TICKET_VARIABLES,
+  type TemplateVariable,
+} from './variables';
 
 export interface ReplyContext {
   id: string;
@@ -28,5 +37,37 @@ export const ticketContext: ReplyContext = {
   field: () =>
     document.querySelector<HTMLTextAreaElement>(
       "textarea[name='ticket[response]']",
+    ),
+};
+
+export const appealContext: ReplyContext = {
+  id: 'appeal',
+  label: 'Quick appeals',
+  manageTitle: 'Manage quick appeals',
+  exportName: 'quick-appeals.json',
+  addLabel: 'New reply',
+  emptyHint: 'Select a reply, or add a new one.',
+  bodyPlaceholder: 'Body. Click a variable below to insert it.',
+  store: createStore('sp.quick-replies.appeal', seedAppealReplies),
+  variables: APPEAL_VARIABLES,
+  field: () =>
+    document.querySelector<HTMLTextAreaElement>(
+      "textarea[name='appeal[response]']",
+    ),
+};
+
+export const dmailContext: ReplyContext = {
+  id: 'dmail',
+  label: 'Quick dmails',
+  manageTitle: 'Manage quick dmails',
+  exportName: 'quick-dmails.json',
+  addLabel: 'New dmail',
+  emptyHint: 'Select a template, or add a new one.',
+  bodyPlaceholder: 'Body. Click a variable below to insert it.',
+  store: createStore('sp.quick-replies.dmail', seedDmailReplies),
+  variables: DMAIL_VARIABLES,
+  field: () =>
+    document.querySelector<HTMLTextAreaElement>(
+      "form.new_dmail textarea[name='dmail[body]']",
     ),
 };

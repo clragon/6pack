@@ -1,76 +1,90 @@
 import type { Template } from './store';
 
-const GREETING = 'Hi %reporter%,\n\n';
-
-const FLAG_TEXT =
-  'Thank you for the report. However, when a post is not suited for our site, a [i]"flag":[/help/flag_for_deletion][/i] is the correct remedy, as the moderators who handle reports can\'t delete posts (that\'s our janitors\' job). [i]Reports[/i] are for when the [i]conduct[/i] relating to the post is disallowed (e.g. tag warring, removal of valid sources, uploaded with not enough tags, etc.), not for when the post\'s [i]content[/i] itself is disallowed.\n\n';
-const FLAG_TEXT_END =
-  ', but for future reference, you can flag posts by selecting `Flag` instead of `Report` in the sidebar. If you have trouble remembering, selecting the appropriate reason on either page will redirect you to the correct mechanism if the current one is incorrect.';
-
-interface Seed {
-  id: string;
-  title: string;
-  body: string;
-  pinned?: boolean;
-}
-
-const SEEDS: Seed[] = [
+const SEEDS: Template[] = [
   {
     id: 'ticket-handled',
     title: 'Handled',
-    body: 'This ticket has been handled, thank you!',
+    body: 'Hi %reporter%,\n\nThis ticket has been handled, thank you!',
     pinned: true,
   },
   {
     id: 'ticket-reviewed',
     title: 'Reviewed',
-    body: 'This ticket has been reviewed, thank you!',
-  },
-  {
-    id: 'ticket-nat',
-    title: 'NAT',
-    body: "Thank you for the heads-up! We've reviewed the ticket and completed our investigation into the matter; however, we've decided it does not warrant action at this time.",
+    body: 'Hi %reporter%,\n\nThis ticket has been reviewed, thank you!',
     pinned: true,
-  },
-  {
-    id: 'ticket-closed',
-    title: 'Closed',
-    body: 'This ticket has been closed.',
-  },
-  {
-    id: 'ticket-already-record',
-    title: 'Already (Rec)',
-    body: 'Thank you for your report, but this user has already received a record for this matter.',
-  },
-  {
-    id: 'ticket-already-ban',
-    title: 'Already (Ban)',
-    body: 'Thank you for your report, but this user is already banned.',
   },
   {
     id: 'ticket-blacklist',
     title: 'Blacklist',
-    body: 'Thank you for your report, but this post\'s content does not violate our "":[/help/uploading_guidelines].\nIf you find the contents of the post objectionable, we\'d ask you to add the relevant tags (or the post\'s id itself) to your "blacklist":[/help/blacklist].',
+    body: 'Hi %reporter%,\n\nThank you for your report. This post\'s content does not violate our "uploading guidelines":[/help/uploading_guidelines].\nIf you find the contents of this post objectionable, please add the relevant tags to your "blacklist":[/help/blacklist].',
     pinned: true,
   },
   {
     id: 'ticket-flag',
     title: 'Flag',
-    body: `${FLAG_TEXT}The post has already been flagged${FLAG_TEXT_END}`,
+    body: 'Hi %reporter%,\n\nThank you for your report. For posts which violate our "uploading guidelines":[/help/uploading_guidelines], please use a "flag":[/help/flag_for_deletion] instead.',
     pinned: true,
-  },
-  {
-    id: 'ticket-dmed',
-    title: 'DMed',
-    body: "Thank you for your report, we've discussed the matter with them.",
   },
 ];
 
 export function seedTicketReplies(): Template[] {
-  return SEEDS.map((s) => ({
-    id: s.id,
-    title: s.title,
-    body: GREETING + s.body,
-    pinned: s.pinned,
-  }));
+  return SEEDS.map((t) => ({ ...t }));
+}
+
+const APPEAL_SEEDS: Template[] = [
+  {
+    id: 'appeal-approved',
+    title: 'Approved',
+    body: 'Hi %reporter%,\n\nYour appeal has been accepted and the post has been restored.',
+    pinned: true,
+  },
+  {
+    id: 'appeal-rejected',
+    title: 'Rejected',
+    body: 'Hi %reporter%,\n\nYour appeal has been rejected and the post will remain deleted.',
+    pinned: true,
+  },
+];
+
+export function seedAppealReplies(): Template[] {
+  return APPEAL_SEEDS.map((t) => ({ ...t }));
+}
+
+const DMAIL_SEEDS: Template[] = [
+  {
+    id: 'dmail-outreach',
+    title: 'Outreach',
+    body: 'Thank you for reaching out.',
+    pinned: true,
+  },
+  {
+    id: 'dmail-attempt',
+    title: 'Attempt',
+    body: 'Thank you for attempting to resolve this.',
+    pinned: true,
+  },
+  {
+    id: 'dmail-contesting-deletions',
+    title: 'Contesting Deletions',
+    body: 'Hi %recipient%,\n\nIf you wish to contest a deletion, please contact the janitor who deleted the post. \nIf they have declined to reinstate your post, you may contact our "Janitor Lead":[/help/staff#list:~:text=Janitor%20Lead] instead.',
+  },
+  {
+    id: 'dmail-takedown-required',
+    title: 'Takedown: Required',
+    body: 'Hi %recipient%,\n\nThis matter requires a takedown request. Please see "here":[/static/takedown].',
+  },
+  {
+    id: 'dmail-takedown-third-party',
+    title: 'Takedown: No Third-party',
+    body: 'Hi %recipient%,\n\nOnly artists, character owners, & commissioners may issue takedown requests for their material, & they must do so directly; we do not accept third party takedown requests.',
+  },
+  {
+    id: 'dmail-takedown-see-here',
+    title: 'Takedown: See here',
+    body: 'Hi %recipient%,\n\nPlease see "here":[/static/takedown] for details about takedown requests.',
+  },
+];
+
+export function seedDmailReplies(): Template[] {
+  return DMAIL_SEEDS.map((t) => ({ ...t }));
 }
