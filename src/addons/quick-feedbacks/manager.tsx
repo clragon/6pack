@@ -476,7 +476,11 @@ function Editor({
       )}
 
       <div class="sp-qf-label">Reason</div>
-      <div ref={reasonRef} dangerouslySetInnerHTML={{ __html: '' }} />
+      <div
+        ref={reasonRef}
+        class="sp-qf-reason-slot"
+        dangerouslySetInnerHTML={{ __html: '' }}
+      />
 
       <div class="sp-qf-label">Category</div>
       <div

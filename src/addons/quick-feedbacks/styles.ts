@@ -52,6 +52,7 @@ export const STYLES = `
 .sp-qf-add:hover { background: var(--color-section-lighten-5, #28323f); }
 .sp-qf-editor { flex: 1; min-width: 0; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
 .sp-qf-editor > * { flex: none; }
+.sp-qf-reason-slot { min-height: 212px; }
 .sp-qf-empty { color: var(--color-text-muted, #9aa6bd); font-size: 13px; margin: auto; }
 .sp-qf-rule-groups { display: flex; flex-direction: column; gap: 10px; }
 .sp-qf-rule-group-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-text-muted, #9aa6bd); margin-bottom: 5px; }

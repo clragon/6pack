@@ -478,7 +478,7 @@ function Editor({
         </div>
       )}
 
-      <div ref={bodyRef} />
+      <div ref={bodyRef} class="sp-qr-editor-slot" />
 
       <div
         class="sp-qr-chips"
