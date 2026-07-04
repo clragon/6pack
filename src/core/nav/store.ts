@@ -1,6 +1,6 @@
 import { readJson, writeJson } from '../storage';
 
-const KEY = 'nav.entries';
+const KEY = 'sp.nav.entries';
 
 export type NavEntries = Record<string, string>;
 
@@ -20,7 +20,7 @@ export function removeEntry(url: string): void {
   writeJson(KEY, next);
 }
 
-const HIDDEN_KEY = 'nav.hidden';
+const HIDDEN_KEY = 'sp.nav.hidden';
 
 export function isHidden(slug: string): boolean {
   return readJson<string[]>(HIDDEN_KEY, []).includes(slug);

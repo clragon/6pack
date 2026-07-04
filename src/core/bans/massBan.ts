@@ -1,6 +1,6 @@
 import { readJson, writeJson } from '../storage';
 
-const KEY = 'massban';
+const KEY = 'sp.massban';
 
 export interface MassBan {
   userIds: number[];

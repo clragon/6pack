@@ -173,14 +173,14 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
   function focusDetail(): void {
     requestAnimationFrame(() =>
       rootRef.current
-        ?.querySelector<HTMLElement>('.qf-editor .qf-input')
+        ?.querySelector<HTMLElement>('.sp-qf-editor .sp-qf-input')
         ?.focus(),
     );
   }
   function focusList(): void {
     requestAnimationFrame(() =>
       rootRef.current
-        ?.querySelector<HTMLElement>('.qf-list-item.qf-selected, .qf-list-item')
+        ?.querySelector<HTMLElement>('.sp-qf-list-item.sp-qf-selected, .sp-qf-list-item')
         ?.focus(),
     );
   }
@@ -200,7 +200,7 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
     ? selectedId
     : records[0]?.id;
 
-  const MEMBER = '.qf-list-item, .qf-add, .qf-more-btn';
+  const MEMBER = '.sp-qf-list-item, .sp-qf-add, .sp-qf-more-btn';
   const members = (): HTMLElement[] =>
     Array.from(listRef.current?.querySelectorAll<HTMLElement>(MEMBER) ?? []);
   const focusMember = (el: HTMLElement | undefined): void => {
@@ -222,7 +222,7 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
         requestAnimationFrame(() =>
           focusMember(
             listRef.current?.querySelector<HTMLElement>(
-              `.qf-list-item[data-id="${id}"]`,
+              `.sp-qf-list-item[data-id="${id}"]`,
             ) ?? undefined,
           ),
         );
@@ -239,8 +239,8 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
   };
 
   return (
-    <div class={'qf-manager qf-view-' + view} ref={rootRef}>
-      <div class="qf-list" ref={listRef} tabIndex={-1} onKeyDown={onListKeyDown}>
+    <div class={'sp-qf-manager sp-qf-view-' + view} ref={rootRef}>
+      <div class="sp-qf-list" ref={listRef} tabIndex={-1} onKeyDown={onListKeyDown}>
         {records.map((template) => (
           <button
             type="button"
@@ -249,9 +249,9 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
             draggable
             tabIndex={template.id === rovingId ? 0 : -1}
             class={
-              'qf-list-item' +
-              (template.id === selectedId ? ' qf-selected' : '') +
-              (overId === template.id ? ' qf-drop-over' : '')
+              'sp-qf-list-item' +
+              (template.id === selectedId ? ' sp-qf-selected' : '') +
+              (overId === template.id ? ' sp-qf-drop-over' : '')
             }
             onClick={() => select(template.id)}
             onDragStart={() => (dragId.current = template.id)}
@@ -274,17 +274,17 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
               setOverId(null);
             }}
           >
-            <span class="qf-list-name">{template.title || '(untitled)'}</span>
+            <span class="sp-qf-list-name">{template.title || '(untitled)'}</span>
             {template.pinned && (
-              <span class="qf-pin-dot" title="Shown on the strip" />
+              <span class="sp-qf-pin-dot" title="Shown on the strip" />
             )}
           </button>
         ))}
-        <div class="qf-list-actions">
-          <div class="qf-add-row">
+        <div class="sp-qf-list-actions">
+          <div class="sp-qf-add-row">
             <button
               type="button"
-              class="qf-add"
+              class="sp-qf-add"
               tabIndex={records.length ? -1 : 0}
               onClick={() => select(addRecord('', '', []).id)}
             >
@@ -293,7 +293,7 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
             </button>
             <button
               type="button"
-              class="qf-more-btn"
+              class="sp-qf-more-btn"
               tabIndex={-1}
               title="Import or export"
               onClick={() => setMenuOpen((o) => !o)}
@@ -302,12 +302,12 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
             </button>
           </div>
           {menuOpen && (
-            <div class="qf-tool-menu" ref={toolMenuRef}>
-              <button type="button" class="qf-tool-btn" onClick={exportToFile}>
+            <div class="sp-qf-tool-menu" ref={toolMenuRef}>
+              <button type="button" class="sp-qf-tool-btn" onClick={exportToFile}>
                 <Download size={16} />
                 <span>Export</span>
               </button>
-              <button type="button" class="qf-tool-btn" onClick={importFromFile}>
+              <button type="button" class="sp-qf-tool-btn" onClick={importFromFile}>
                 <Upload size={16} />
                 <span>Import</span>
               </button>
@@ -315,7 +315,7 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
           )}
         </div>
       </div>
-      <div class="qf-editor" tabIndex={-1}>
+      <div class="sp-qf-editor" tabIndex={-1}>
         {selected ? (
           <Editor
             key={selected.id}
@@ -327,7 +327,7 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
             }}
           />
         ) : (
-          <div class="qf-empty">Select a template, or add one.</div>
+          <div class="sp-qf-empty">Select a template, or add one.</div>
         )}
       </div>
     </div>
@@ -344,7 +344,7 @@ function buildReasonEditor(
   onInput: (value: string) => void,
 ): ReasonEditor {
   const node = document.createElement('div');
-  node.className = 'qf-reason-editor';
+  node.className = 'sp-qf-reason-editor';
   const textarea = document.createElement('textarea');
   textarea.rows = 5;
   textarea.placeholder = 'Reason';
@@ -410,10 +410,10 @@ function Editor({
       root instanceof ShadowRoot ? (root.host as HTMLElement) : null;
     let slot: HTMLSlotElement | undefined;
     if (shadowHost) {
-      editor.node.slot = 'qf-reason';
+      editor.node.slot = 'sp-qf-reason';
       shadowHost.appendChild(editor.node);
       slot = document.createElement('slot');
-      slot.setAttribute('name', 'qf-reason');
+      slot.setAttribute('name', 'sp-qf-reason');
       container.appendChild(slot);
     } else {
       container.appendChild(editor.node);
@@ -466,11 +466,11 @@ function Editor({
   return (
     <>
       {confirming ? (
-        <div class="qf-confirm" ref={confirmRef} onKeyDown={onConfirmKeyDown}>
+        <div class="sp-qf-confirm" ref={confirmRef} onKeyDown={onConfirmKeyDown}>
           <span>Delete "{template.title || '(untitled)'}"?</span>
           <button
             type="button"
-            class="qf-confirm-yes"
+            class="sp-qf-confirm-yes"
             tabIndex={-1}
             onClick={onDelete}
           >
@@ -478,7 +478,7 @@ function Editor({
           </button>
           <button
             type="button"
-            class="qf-confirm-no"
+            class="sp-qf-confirm-no"
             ref={cancelRef}
             tabIndex={0}
             onClick={() => setConfirming(false)}
@@ -487,17 +487,17 @@ function Editor({
           </button>
         </div>
       ) : (
-        <div class="qf-title-row">
+        <div class="sp-qf-title-row">
           <input
             type="text"
-            class="qf-input"
+            class="sp-qf-input"
             placeholder="Title"
             value={template.title}
             onInput={(e) => updateRecord(id, { title: e.currentTarget.value })}
           />
           <button
             type="button"
-            class={'qf-icon-btn' + (template.pinned ? ' qf-pinned' : '')}
+            class={'sp-qf-icon-btn' + (template.pinned ? ' sp-qf-pinned' : '')}
             title={template.pinned ? 'Shown on the strip' : 'Show on the strip'}
             onClick={() => updateRecord(id, { pinned: !template.pinned })}
           >
@@ -505,7 +505,7 @@ function Editor({
           </button>
           <button
             type="button"
-            class="qf-icon-btn qf-danger"
+            class="sp-qf-icon-btn sp-qf-danger"
             title="Delete template"
             onClick={() => (empty ? onDelete() : setConfirming(true))}
           >
@@ -514,19 +514,19 @@ function Editor({
         </div>
       )}
 
-      <div class="qf-label">Reason</div>
+      <div class="sp-qf-label">Reason</div>
       <div ref={reasonRef} dangerouslySetInnerHTML={{ __html: '' }} />
 
-      <div class="qf-label">Category</div>
+      <div class="sp-qf-label">Category</div>
       <div
-        class="qf-rules"
+        class="sp-qf-rules"
         ref={categoryRef}
-        onKeyDown={(e) => rove(categoryRef.current, e, '.qf-pill')}
+        onKeyDown={(e) => rove(categoryRef.current, e, '.sp-qf-pill')}
       >
         <button
           type="button"
           tabIndex={0}
-          class={'qf-pill qf-cat-none' + (!template.category ? ' qf-on' : '')}
+          class={'sp-qf-pill sp-qf-cat-none' + (!template.category ? ' sp-qf-on' : '')}
           onClick={() => updateRecord(id, { category: undefined })}
         >
           None
@@ -537,9 +537,9 @@ function Editor({
             key={category.value}
             tabIndex={-1}
             class={
-              'qf-pill qf-cat-' +
+              'sp-qf-pill sp-qf-cat-' +
               category.value +
-              (template.category === category.value ? ' qf-on' : '')
+              (template.category === category.value ? ' sp-qf-on' : '')
             }
             onClick={() => updateRecord(id, { category: category.value })}
           >
@@ -550,11 +550,11 @@ function Editor({
 
       {template.category === 'ban' && (
         <>
-          <div class="qf-label">Duration</div>
+          <div class="sp-qf-label">Duration</div>
           <div
-            class="qf-rules"
+            class="sp-qf-rules"
             ref={durationRef}
-            onKeyDown={(e) => rove(durationRef.current, e, '.qf-pill, .qf-duration')}
+            onKeyDown={(e) => rove(durationRef.current, e, '.sp-qf-pill, .sp-qf-duration')}
           >
             {DURATIONS.map((option, index) => (
               <button
@@ -562,7 +562,7 @@ function Editor({
                 key={option.value}
                 tabIndex={index === 0 ? 0 : -1}
                 class={
-                  'qf-pill' + (template.duration === option.value ? ' qf-on' : '')
+                  'sp-qf-pill' + (template.duration === option.value ? ' sp-qf-on' : '')
                 }
                 onClick={() => updateRecord(id, { duration: option.value })}
               >
@@ -573,7 +573,7 @@ function Editor({
               type="number"
               min="-1"
               tabIndex={-1}
-              class="qf-duration"
+              class="sp-qf-duration"
               placeholder="Custom days"
               value={template.duration != null ? String(template.duration) : ''}
               onInput={(e) => {
@@ -588,23 +588,23 @@ function Editor({
             type="button"
             role="switch"
             aria-checked={template.preventLogin ? 'true' : 'false'}
-            class="qf-switch-row"
+            class="sp-qf-switch-row"
             onClick={() =>
               updateRecord(id, { preventLogin: !template.preventLogin })
             }
           >
             <span>Prevent login</span>
             <span
-              class={'qf-switch' + (template.preventLogin ? ' qf-switch-on' : '')}
+              class={'sp-qf-switch' + (template.preventLogin ? ' sp-qf-switch-on' : '')}
             />
           </button>
         </>
       )}
 
-      <div class="qf-label">Rules</div>
+      <div class="sp-qf-label">Rules</div>
       {rulesExpanded ? (
         <>
-          <div class="qf-rules-scroll" tabIndex={-1}>
+          <div class="sp-qf-rules-scroll" tabIndex={-1}>
             <RuleGroups
               isActive={(key) => template.rules.includes(key)}
               onToggle={toggleRule}
@@ -612,7 +612,7 @@ function Editor({
           </div>
           <button
             type="button"
-            class="qf-more"
+            class="sp-qf-more"
             onClick={() => setRulesExpanded(false)}
           >
             <span>Less</span>
@@ -621,16 +621,16 @@ function Editor({
         </>
       ) : (
         <div
-          class="qf-rules"
+          class="sp-qf-rules"
           ref={rulesRef}
-          onKeyDown={(e) => rove(rulesRef.current, e, '.qf-pill, .qf-more')}
+          onKeyDown={(e) => rove(rulesRef.current, e, '.sp-qf-pill, .sp-qf-more')}
         >
           {template.rules.map((key, index) => (
             <button
               type="button"
               key={key}
               tabIndex={index === 0 ? 0 : -1}
-              class="qf-pill qf-on"
+              class="sp-qf-pill sp-qf-on"
               onClick={() => toggleRule(key)}
             >
               {RULES[key].title}
@@ -638,7 +638,7 @@ function Editor({
           ))}
           <button
             type="button"
-            class="qf-more"
+            class="sp-qf-more"
             tabIndex={template.rules.length ? -1 : 0}
             onClick={() => setRulesExpanded(true)}
           >

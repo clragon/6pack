@@ -14,7 +14,7 @@ export interface RecordTemplate {
   preventLogin?: boolean;
 }
 
-const KEY = 'quick-feedbacks';
+const KEY = 'sp.quick-feedbacks';
 
 function load(): RecordTemplate[] {
   const stored = readJson<RecordTemplate[] | null>(KEY, null);

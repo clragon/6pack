@@ -1,6 +1,6 @@
 import { readJson, writeJson } from '../storage';
 
-const KEY = 'palette.frecency';
+const KEY = 'sp.palette.frecency';
 
 const HALF_LIFE_MS = 7 * 24 * 60 * 60 * 1000;
 

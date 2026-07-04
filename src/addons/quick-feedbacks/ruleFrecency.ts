@@ -1,6 +1,6 @@
 import { readJson, writeJson } from '../../core/storage';
 
-const KEY = 'quick-feedbacks.rule-frecency';
+const KEY = 'sp.quick-feedbacks.rule-frecency';
 const HALF_LIFE_MS = 7 * 24 * 60 * 60 * 1000;
 
 interface Entry {

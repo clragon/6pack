@@ -17,7 +17,7 @@ export interface SettingsApi {
   subscribe(listener: () => void): () => void;
 }
 
-const KEY = 'settings';
+const KEY = 'sp.settings';
 
 const specs = new Map<string, SettingSpec>();
 let values: Record<string, boolean> = readJson<Record<string, boolean>>(
