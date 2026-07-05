@@ -14,7 +14,9 @@ export function RuleGroups({
   const ordered: string[] = [];
   const groups = Object.values(RULE_GROUPS)
     .map((label) => {
-      const keys = Object.keys(RULES).filter((key) => RULES[key].group === label);
+      const keys = Object.keys(RULES).filter(
+        (key) => RULES[key].group === label,
+      );
       ordered.push(...keys);
       return { label, keys };
     })

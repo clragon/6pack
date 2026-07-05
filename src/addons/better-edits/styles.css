@@ -1,15 +1,14 @@
 @media (min-width: 80rem) {
-  .post-display
-    > .content:has(> #edit:not([style*='display: none'])) {
+  /* e621's posts.js toggles #edit with jQuery show and hide, so the inline
+     display attribute marks an open editor. */
+  .post-display > .content:has(> #edit:not([style*='display: none'])) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: start;
     column-gap: 1rem;
   }
 
-  .post-display
-    > .content:has(> #edit:not([style*='display: none']))
-    > * {
+  .post-display > .content:has(> #edit:not([style*='display: none'])) > * {
     grid-column: 1;
     min-width: 0;
   }
@@ -43,9 +42,7 @@
     overflow: hidden;
   }
 
-  .post-display
-    > .content:has(> #edit:not([style*='display: none']))
-    #image {
+  .post-display > .content:has(> #edit:not([style*='display: none'])) #image {
     max-width: 100%;
     max-height: 100%;
     margin: auto;

@@ -180,7 +180,9 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
   function focusList(): void {
     requestAnimationFrame(() =>
       rootRef.current
-        ?.querySelector<HTMLElement>('.sp-qf-list-item.sp-qf-selected, .sp-qf-list-item')
+        ?.querySelector<HTMLElement>(
+          '.sp-qf-list-item.sp-qf-selected, .sp-qf-list-item',
+        )
         ?.focus(),
     );
   }
@@ -240,7 +242,12 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
 
   return (
     <div class={'sp-qf-manager sp-qf-view-' + view} ref={rootRef}>
-      <div class="sp-qf-list" ref={listRef} tabIndex={-1} onKeyDown={onListKeyDown}>
+      <div
+        class="sp-qf-list"
+        ref={listRef}
+        tabIndex={-1}
+        onKeyDown={onListKeyDown}
+      >
         {records.map((template) => (
           <button
             type="button"
@@ -274,7 +281,9 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
               setOverId(null);
             }}
           >
-            <span class="sp-qf-list-name">{template.title || '(untitled)'}</span>
+            <span class="sp-qf-list-name">
+              {template.title || '(untitled)'}
+            </span>
             {template.pinned && (
               <span class="sp-qf-pin-dot" title="Shown on the strip" />
             )}
@@ -303,11 +312,19 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
           </div>
           {menuOpen && (
             <div class="sp-qf-tool-menu" ref={toolMenuRef}>
-              <button type="button" class="sp-qf-tool-btn" onClick={exportToFile}>
+              <button
+                type="button"
+                class="sp-qf-tool-btn"
+                onClick={exportToFile}
+              >
                 <Download size={16} />
                 <span>Export</span>
               </button>
-              <button type="button" class="sp-qf-tool-btn" onClick={importFromFile}>
+              <button
+                type="button"
+                class="sp-qf-tool-btn"
+                onClick={importFromFile}
+              >
                 <Upload size={16} />
                 <span>Import</span>
               </button>
@@ -427,7 +444,11 @@ function Editor({
   return (
     <>
       {confirming ? (
-        <div class="sp-qf-confirm" ref={confirmRef} onKeyDown={onConfirmKeyDown}>
+        <div
+          class="sp-qf-confirm"
+          ref={confirmRef}
+          onKeyDown={onConfirmKeyDown}
+        >
           <span>Delete "{template.title || '(untitled)'}"?</span>
           <button
             type="button"
@@ -491,7 +512,10 @@ function Editor({
         <button
           type="button"
           tabIndex={0}
-          class={'sp-qf-pill sp-qf-cat-none' + (!template.category ? ' sp-qf-on' : '')}
+          class={
+            'sp-qf-pill sp-qf-cat-none' +
+            (!template.category ? ' sp-qf-on' : '')
+          }
           onClick={() => updateRecord(id, { category: undefined })}
         >
           None
@@ -519,7 +543,9 @@ function Editor({
           <div
             class="sp-qf-rules"
             ref={durationRef}
-            onKeyDown={(e) => rove(durationRef.current, e, '.sp-qf-pill, .sp-qf-duration')}
+            onKeyDown={(e) =>
+              rove(durationRef.current, e, '.sp-qf-pill, .sp-qf-duration')
+            }
           >
             {DURATIONS.map((option, index) => (
               <button
@@ -527,7 +553,8 @@ function Editor({
                 key={option.value}
                 tabIndex={index === 0 ? 0 : -1}
                 class={
-                  'sp-qf-pill' + (template.duration === option.value ? ' sp-qf-on' : '')
+                  'sp-qf-pill' +
+                  (template.duration === option.value ? ' sp-qf-on' : '')
                 }
                 onClick={() => updateRecord(id, { duration: option.value })}
               >
@@ -560,7 +587,10 @@ function Editor({
           >
             <span>Prevent login</span>
             <span
-              class={'sp-qf-switch' + (template.preventLogin ? ' sp-qf-switch-on' : '')}
+              class={
+                'sp-qf-switch' +
+                (template.preventLogin ? ' sp-qf-switch-on' : '')
+              }
             />
           </button>
         </>
@@ -588,7 +618,9 @@ function Editor({
         <div
           class="sp-qf-rules"
           ref={rulesRef}
-          onKeyDown={(e) => rove(rulesRef.current, e, '.sp-qf-pill, .sp-qf-more')}
+          onKeyDown={(e) =>
+            rove(rulesRef.current, e, '.sp-qf-pill, .sp-qf-more')
+          }
         >
           {template.rules.map((key, index) => (
             <button

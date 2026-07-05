@@ -10,7 +10,9 @@ const TEMPLATE_CHIP =
 const RESPONSE_FIELD = "textarea[name='ticket[response]']";
 
 function templateChips(): HTMLButtonElement[] {
-  return Array.from(document.querySelectorAll<HTMLButtonElement>(TEMPLATE_CHIP));
+  return Array.from(
+    document.querySelectorAll<HTMLButtonElement>(TEMPLATE_CHIP),
+  );
 }
 
 const options = probe('templates', (): TicketResponseOption[] =>
@@ -30,7 +32,11 @@ function compose(optionId: string): string | null {
   return field.value;
 }
 
-const provider: TicketResponseProvider = { id: 're621', list: options, compose };
+const provider: TicketResponseProvider = {
+  id: 're621',
+  list: options,
+  compose,
+};
 
 export const re621Addon: SixpackAddon = {
   id: 're621',

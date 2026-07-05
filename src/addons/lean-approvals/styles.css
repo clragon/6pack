@@ -66,7 +66,9 @@
   color: var(--color-text-white);
 }
 
-#pending-approval-notice .quick-mod-group:has(#approve-post-next) #approve-post {
+#pending-approval-notice
+  .quick-mod-group:has(#approve-post-next)
+  #approve-post {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }

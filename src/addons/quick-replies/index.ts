@@ -39,7 +39,14 @@ function makeActions(context: ReplyContext): Action[] {
       id: `${context.id}.replies`,
       title: context.label,
       description: 'Insert a saved template',
-      keywords: ['template', 'templates', 'response', 'reply', 'macro', 'canned'],
+      keywords: [
+        'template',
+        'templates',
+        'response',
+        'reply',
+        'macro',
+        'canned',
+      ],
       weight: 1,
       when: here,
       submenu: () =>

@@ -23,7 +23,11 @@ function redirectToBan(template: RecordTemplate): void {
   if (userName) params.set('ban[user_name]', userName);
   params.set(
     'ban[reason]',
-    assembleRecord({ reason: template.reason, rules: template.rules, sources: [] }),
+    assembleRecord({
+      reason: template.reason,
+      rules: template.rules,
+      sources: [],
+    }),
   );
   if (template.duration != null)
     params.set('ban[duration]', String(template.duration));

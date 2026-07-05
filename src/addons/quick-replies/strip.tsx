@@ -11,7 +11,10 @@ import { substitute } from './variables';
 
 function useTemplates(context: ReplyContext): Template[] {
   const [, force] = useState(0);
-  useEffect(() => context.store.subscribe(() => force((n) => n + 1)), [context]);
+  useEffect(
+    () => context.store.subscribe(() => force((n) => n + 1)),
+    [context],
+  );
   return context.store.list();
 }
 

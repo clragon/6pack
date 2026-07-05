@@ -61,7 +61,13 @@ export function updateRecord(
   patch: Partial<
     Pick<
       RecordTemplate,
-      'title' | 'reason' | 'rules' | 'pinned' | 'category' | 'duration' | 'preventLogin'
+      | 'title'
+      | 'reason'
+      | 'rules'
+      | 'pinned'
+      | 'category'
+      | 'duration'
+      | 'preventLogin'
     >
   >,
 ): void {
