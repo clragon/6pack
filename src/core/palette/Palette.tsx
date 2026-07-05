@@ -10,7 +10,13 @@ import type { Action, ActionContext, SearchSuggestion } from '../actions/types';
 import type { PageContext } from '../context/types';
 import { log } from '../log';
 import { notifyError } from '../../site/toast';
-import { allChips, refreshChips, subscribeChips, type Chip } from './chips';
+import {
+  allChips,
+  chipToAction,
+  refreshChips,
+  subscribeChips,
+  type Chip,
+} from './chips';
 import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { focusNoScroll } from './focus';
 import { useOverlay } from './overlay';
@@ -87,6 +93,10 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
       ? [...chips, activeChipRef.current]
       : chips;
   const activeChip = displayChips.find((c) => c.id === activeChipId) ?? null;
+  const chipById = new Map(displayChips.map((chip) => [chip.id, chip]));
+  // Chips ride into the root's row list as group actions so search and the
+  // keyboard reach them; drilling one funnels back through openChip.
+  const chipActions = chips.map(chipToAction);
   // Chips show at the root, and stay (with the active one marked) while inside a
   // chip's own menu, never over an unrelated submenu.
   const showChips =
@@ -265,11 +275,13 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   };
 
   const filtered = useMemo(() => {
+    // Chips only belong at the root, never folded over an unrelated submenu.
+    const pool =
+      stack.length === 1 ? [...levelActions, ...chipActions] : levelActions;
     const query = filter.trim();
-    if (!query)
-      return rankByUse(levelActions.filter((action) => !action.hidden));
-    return rankByUse(searchActions(query, levelActions, childTerms));
-  }, [filter, levelActions, rankByUse, childTerms]);
+    if (!query) return rankByUse(pool.filter((action) => !action.hidden));
+    return rankByUse(searchActions(query, pool, childTerms));
+  }, [filter, levelActions, chipActions, stack.length, rankByUse, childTerms]);
 
   if (!open) return null;
 
@@ -323,6 +335,11 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   // contents shouldn't stay filtered by the term that matched the group's name.
   // Running a query-matched child directly is the reach-in row's job, not this.
   const drillInto = (action: Action) => {
+    const chip = chipById.get(action.id);
+    if (chip) {
+      openChip(chip);
+      return;
+    }
     const children = childrenOf(action);
     if (!children) return;
     setStack((s) => [
@@ -459,8 +476,11 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
       }
       if (childRows.length > 0) return [...childRows, groupRow];
       // Nothing reached in: a single-leaf group surfaces its sole child (drilling
-      // a one-item menu is pointless); otherwise a plain drill-in group.
-      const single = surfacedChild(action);
+      // a one-item menu is pointless); otherwise a plain drill-in group. Chips
+      // always drill so their menu shows the info facts before you act.
+      const single = chipById.has(action.id)
+        ? undefined
+        : surfacedChild(action);
       if (single) {
         return [
           {

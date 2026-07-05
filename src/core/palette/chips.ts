@@ -33,6 +33,21 @@ export function registerChipSource(source: ChipSource): void {
   sources.push(source);
 }
 
+// A chip is a group action wearing a face: its menu is the group's submenu. The
+// palette surfaces chips as root rows through this so the keyboard reaches them,
+// while the chip strip stays a quick mouse affordance for the same thing.
+export function chipToAction(chip: Chip): Action {
+  return {
+    id: chip.id,
+    title: chip.label,
+    description: chip.info?.map((fact) => fact.value).join(' · ') || undefined,
+    // Lead the root list, above the weight ceiling other actions use: ambient
+    // state you likely opened the palette to deal with, mirroring the chip strip.
+    weight: 3,
+    submenu: (ctx) => chip.open(ctx),
+  };
+}
+
 export function allChips(): Chip[] {
   return sources.flatMap((source) => source.list());
 }
