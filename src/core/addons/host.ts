@@ -37,13 +37,7 @@ export class AddonHost {
     try {
       for (const spec of addon.settings ?? []) settings.define(spec);
 
-      if (addon.actions) {
-        const actions =
-          typeof addon.actions === 'function'
-            ? addon.actions(this.page)
-            : addon.actions;
-        this.registry.register(...actions);
-      }
+      if (addon.actions) this.registry.register(...addon.actions);
 
       if (addon.ticketResponses)
         registerTicketResponseProvider(addon.ticketResponses);

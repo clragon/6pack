@@ -24,8 +24,9 @@ export interface SixpackAddon {
   // Gate `setup` to the relevant pages. Absent means run everywhere. Actions
   // carry their own `when`, so this gates the DOM lifecycle, not the commands.
   when?: (page: PageContext) => boolean;
-  // Command-menu entries. A function form receives the page for contextual sets.
-  actions?: Action[] | ((page: PageContext) => Action[]);
+  // Command-menu entries. Each carries its own `when` gate; a dynamic set is a
+  // group with a `submenu`, not a page-conditional registration.
+  actions?: Action[];
   // Preferences the add-on owns; each becomes a switch in the settings submenu.
   settings?: SettingSpec[];
   // A source of ticket close responses, folded into the registry the close flow
