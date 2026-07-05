@@ -400,6 +400,12 @@ button.sp-crumb:hover {
   cursor: pointer;
 }
 
+.sp-confirm-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .sp-confirm-actions {
   display: flex;
   gap: 8px;
@@ -430,11 +436,11 @@ button.sp-crumb:hover {
   color: #fff;
 }
 
-/* The cursor: whichever control the keyboard is on gets a clear accent ring,
-   matching the command list's selected row. */
-.sp-confirm-option.sp-confirm-sel,
-.sp-btn.sp-confirm-sel,
-.sp-confirm-field.sp-confirm-sel .sp-confirm-input {
+/* Native focus is the cursor: whichever control the keyboard is on gets a clear
+   accent ring, matching the command list's selected row. */
+.sp-confirm-input:focus,
+.sp-confirm-option:focus-within,
+.sp-btn:focus {
   outline: none;
   border-color: var(--palette-text-yellow, #ffd666);
   box-shadow: 0 0 0 1px var(--palette-text-yellow, #ffd666);
