@@ -40,6 +40,8 @@ function reorderBar(): () => void {
 export const leanApprovalsAddon: SixpackAddon = {
   id: 'lean-approvals',
   name: 'Lean Approvals',
+  description:
+    'Pares the approvals bar down to approve, delete, and disapprove.',
   when: (page) => page.kind === 'post',
   setup: (ctx) => {
     const style = document.createElement('style');

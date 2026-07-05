@@ -98,6 +98,8 @@ const provider: TicketResponseProvider = {
 export const quickRepliesAddon: SixpackAddon = {
   id: 'quick-replies',
   name: 'Quick Replies',
+  description:
+    'Fills the reply box from saved templates for tickets, appeals, and dmails.',
   when: onReplyPage,
   actions: CONTEXTS.flatMap(makeActions),
   ticketResponses: provider,

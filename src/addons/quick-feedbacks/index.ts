@@ -29,6 +29,8 @@ const manageRecords: Action = {
 export const quickFeedbacksAddon: SixpackAddon = {
   id: 'quick-feedbacks',
   name: 'Quick Feedbacks',
+  description:
+    'Composes user feedback records from reusable rules and reasons.',
   when: onForm,
   actions: [manageRecords],
   setup: (ctx) => {
