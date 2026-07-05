@@ -7,12 +7,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:fat": "vite build --mode fat",
-    "build:addons": "node scripts/build-addons.mjs",
-    "typecheck": "tsc --noEmit",
+    "lint": "node scripts/check-styles.mjs",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "prebuild": "npm run lint",
+    "build": "vite build",
+    "prebuild:fat": "npm run lint",
+    "build:fat": "vite build --mode fat",
+    "prebuild:addons": "npm run lint",
+    "build:addons": "node scripts/build-addons.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
