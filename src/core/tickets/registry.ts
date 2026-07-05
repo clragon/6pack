@@ -6,6 +6,7 @@ export interface OpenTicket {
   ticketId: number;
   status: string;
   accused: { id: number; name: string } | null;
+  claimant: { id: number; name: string } | null;
   responses: TicketResponse[];
   canHandle: boolean;
 }

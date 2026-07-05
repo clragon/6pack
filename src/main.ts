@@ -15,6 +15,7 @@ import {
   canComposeResponse,
   prefetchReportedDestination,
   readAccused,
+  readClaimant,
   readTicketStatus,
 } from './site/ticket';
 import { listTicketResponses } from './core/tickets/providers';
@@ -57,6 +58,7 @@ whenReady(() => {
           ticketId: page.id,
           status: status ?? 'pending',
           accused: readAccused(),
+          claimant: readClaimant(),
           canHandle: true,
         },
         () => listTicketResponses(),

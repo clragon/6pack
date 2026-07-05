@@ -11,3 +11,11 @@ export function closeTicket(
     force_claim: options.forceClaim ? 'true' : undefined,
   });
 }
+
+export function claimTicket(id: number): Promise<unknown> {
+  return transport.post(`/tickets/${id}/claim.json`, {});
+}
+
+export function unclaimTicket(id: number): Promise<unknown> {
+  return transport.post(`/tickets/${id}/unclaim.json`, {});
+}
