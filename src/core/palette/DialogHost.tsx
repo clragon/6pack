@@ -22,10 +22,8 @@ export function DialogHost() {
 
   if (!spec) return null;
 
-  // Swallow keys once the body has handled them on the way up, so e621's document
-  // hotkeys can't fire; close on Escape.
+  // The overlay shields e621's hotkeys; this just closes on Escape.
   const onKeyDown = (event: KeyboardEvent) => {
-    event.stopPropagation();
     if (event.key === 'Escape') {
       event.preventDefault();
       closeDialog();

@@ -498,7 +498,6 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   }
 
   const onKeyDown = (event: KeyboardEvent) => {
-    event.stopPropagation();
     const current = rows[selected];
     if (event.key === 'ArrowDown') {
       event.preventDefault();

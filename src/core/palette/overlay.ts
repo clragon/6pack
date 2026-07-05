@@ -27,12 +27,20 @@ function engage(keep: Element | null): void {
     : [];
   for (const el of inerted) el.setAttribute('inert', '');
 
+  // Being in a dialog means the page's hotkeys should not fire. Keydowns compose
+  // out of our shadow and bubble to e621's document listener, whose input guard
+  // misreads the shadow host as non-editable, so stop them at the host on the way
+  // up. Bubble phase, so a dialog's own rove/native handlers run first.
+  const shield = (event: Event) => event.stopPropagation();
+  keep?.addEventListener('keydown', shield);
+
   restore = () => {
     scroller.style.overflow = prevOverflow;
     scroller.style.paddingRight = prevPadding;
     scroller.scrollTop = top;
     scroller.scrollLeft = left;
     for (const el of inerted) el.removeAttribute('inert');
+    keep?.removeEventListener('keydown', shield);
   };
 }
 
