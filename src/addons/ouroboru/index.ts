@@ -3,9 +3,9 @@ import type { SixpackAddon } from '../../core/addons/types';
 import OUROBORU_CSS from './styles.css?inline';
 
 interface Blacklist {
-  add_posts: (posts: unknown) => void;
-  update_styles?: () => void;
-  update_visibility: () => void;
+  addPosts: (posts: unknown) => void;
+  updateThumbnailStyles?: () => void;
+  updatePostVisibility: () => void;
 }
 
 function pageGlobals(): {
@@ -98,9 +98,9 @@ function mount(): () => void {
       const $ = win.jQuery;
       if (added.length && $ && e6?.Blacklist) {
         const $new = $(added);
-        e6.Blacklist.add_posts($new);
-        e6.Blacklist.update_styles?.();
-        e6.Blacklist.update_visibility();
+        e6.Blacklist.addPosts($new);
+        e6.Blacklist.updateThumbnailStyles?.();
+        e6.Blacklist.updatePostVisibility();
       }
 
       if (!nextHref) setState('end', "That's everything.");
