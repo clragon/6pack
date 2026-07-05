@@ -53,7 +53,7 @@ export function ConfirmPrompt() {
     const fieldCount = request.fields?.length ?? 0;
     const optionCount = request.options?.length ?? 0;
     setSelected(fieldCount > 0 || optionCount > 0 ? 0 : items.length - 1);
-  }, [request]);
+  }, [request, items.length]);
 
   // Focus follows the cursor so typing reaches a field and the focus ring shows
   // where you are.
