@@ -10,7 +10,13 @@ import type { Action, ActionContext, SearchSuggestion } from '../actions/types';
 import type { PageContext } from '../context/types';
 import { log } from '../log';
 import { notifyError } from '../../site/toast';
-import { allChips, refreshChips, subscribeChips, type Chip } from './chips';
+import {
+  allChips,
+  chipToAction,
+  refreshChips,
+  subscribeChips,
+  type Chip,
+} from './chips';
 import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { focusNoScroll } from './focus';
 import { useOverlay } from './overlay';
@@ -81,6 +87,8 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
       ? [...chips, activeChipRef.current]
       : chips;
   const activeChip = displayChips.find((c) => c.id === activeChipId) ?? null;
+  const chipById = new Map(displayChips.map((chip) => [chip.id, chip]));
+  const chipActions = chips.map(chipToAction);
   const showChips =
     displayChips.length > 0 && (stack.length === 1 || activeChipId != null);
 
@@ -236,11 +244,12 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   };
 
   const filtered = useMemo(() => {
+    const pool =
+      stack.length === 1 ? [...levelActions, ...chipActions] : levelActions;
     const query = filter.trim();
-    if (!query)
-      return rankByUse(levelActions.filter((action) => !action.hidden));
-    return rankByUse(searchActions(query, levelActions, childTerms));
-  }, [filter, levelActions, rankByUse, childTerms]);
+    if (!query) return rankByUse(pool.filter((action) => !action.hidden));
+    return rankByUse(searchActions(query, pool, childTerms));
+  }, [filter, levelActions, chipActions, stack.length, rankByUse, childTerms]);
 
   if (!open) return null;
 
@@ -283,6 +292,11 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   };
 
   const drillInto = (action: Action) => {
+    const chip = chipById.get(action.id);
+    if (chip) {
+      openChip(chip);
+      return;
+    }
     const children = childrenOf(action);
     if (!children) return;
     setStack((s) => [
@@ -404,7 +418,9 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
         }
       }
       if (childRows.length > 0) return [...childRows, groupRow];
-      const single = surfacedChild(action);
+      const single = chipById.has(action.id)
+        ? undefined
+        : surfacedChild(action);
       if (single) {
         return [
           {

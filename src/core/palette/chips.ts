@@ -19,6 +19,16 @@ export function registerChipSource(source: ChipSource): void {
   sources.push(source);
 }
 
+export function chipToAction(chip: Chip): Action {
+  return {
+    id: chip.id,
+    title: chip.label,
+    description: chip.info?.map((fact) => fact.value).join(' · ') || undefined,
+    weight: 3,
+    submenu: (ctx) => chip.open(ctx),
+  };
+}
+
 export function allChips(): Chip[] {
   return sources.flatMap((source) => source.list());
 }
