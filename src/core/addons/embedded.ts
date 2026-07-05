@@ -11,7 +11,6 @@ import { quickFeedbacksAddon } from '../../addons/quick-feedbacks';
 // registers these directly instead of fetching and eval'ing an artifact, so a
 // fat build needs no add-on server. The thin build (__FAT__ false) tree-shakes
 // this whole module out, since its only reference sits behind a dropped branch.
-// Keep the ids in sync with manifest.json.
 export const EMBEDDED: Record<string, SixpackAddon> = {
   sources: sourcesAddon,
   ouroboru: ouroboruAddon,
