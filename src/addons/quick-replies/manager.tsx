@@ -1,6 +1,13 @@
 import { render } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { Download, MoreHorizontal, Pin, Plus, Trash2, Upload } from 'lucide-preact';
+import {
+  Download,
+  MoreHorizontal,
+  Pin,
+  Plus,
+  Trash2,
+  Upload,
+} from 'lucide-preact';
 
 import type { DialogCrumb } from '../../core/palette/dialog';
 import { buildDTextEditor } from '../../core/palette/dtextEditor';
@@ -15,7 +22,9 @@ export function openManager(context: ReplyContext, initialBody?: string): void {
   // The slotted editor is light DOM, so it needs the sheet in document.head.
   ensureStyles();
   const initialId =
-    initialBody !== undefined ? context.store.add('', initialBody).id : undefined;
+    initialBody !== undefined
+      ? context.store.add('', initialBody).id
+      : undefined;
   spawnDialog({
     trail: [{ title: context.manageTitle }],
     styles: STYLES,
@@ -31,7 +40,10 @@ export function openManager(context: ReplyContext, initialBody?: string): void {
 
 function useTemplates(context: ReplyContext): Template[] {
   const [, force] = useState(0);
-  useEffect(() => context.store.subscribe(() => force((n) => n + 1)), [context]);
+  useEffect(
+    () => context.store.subscribe(() => force((n) => n + 1)),
+    [context],
+  );
   return context.store.list();
 }
 
@@ -162,7 +174,9 @@ function Manager({
 
   function focusDetail(): void {
     requestAnimationFrame(() =>
-      rootRef.current?.querySelector<HTMLElement>('.sp-qr-title-input')?.focus(),
+      rootRef.current
+        ?.querySelector<HTMLElement>('.sp-qr-title-input')
+        ?.focus(),
     );
   }
   function focusList(): void {
@@ -230,7 +244,12 @@ function Manager({
 
   return (
     <div class={'sp-qr-manager sp-qr-view-' + view} ref={rootRef}>
-      <div class="sp-qr-list" ref={listRef} tabIndex={-1} onKeyDown={onListKeyDown}>
+      <div
+        class="sp-qr-list"
+        ref={listRef}
+        tabIndex={-1}
+        onKeyDown={onListKeyDown}
+      >
         {templates.map((template) => (
           <button
             type="button"
@@ -264,7 +283,9 @@ function Manager({
               setOverId(null);
             }}
           >
-            <span class="sp-qr-list-name">{template.title || '(untitled)'}</span>
+            <span class="sp-qr-list-name">
+              {template.title || '(untitled)'}
+            </span>
             {template.pinned && (
               <span class="sp-qr-pin-dot" title="Shown on the strip" />
             )}
@@ -432,7 +453,11 @@ function Editor({
   return (
     <>
       {confirming ? (
-        <div class="sp-qr-confirm" ref={confirmRef} onKeyDown={onConfirmKeyDown}>
+        <div
+          class="sp-qr-confirm"
+          ref={confirmRef}
+          onKeyDown={onConfirmKeyDown}
+        >
           <span>Delete "{template.title || '(untitled)'}"?</span>
           <button
             type="button"

@@ -1,12 +1,7 @@
 import { useEffect, useRef } from 'preact/hooks';
 
 import { Breadcrumb, type Crumb } from './Breadcrumb';
-import {
-  closeDialog,
-  dialogTrail,
-  setDialogTrail,
-  useDialog,
-} from './dialog';
+import { closeDialog, dialogTrail, setDialogTrail, useDialog } from './dialog';
 import { useOverlay } from './overlay';
 import { openPaletteAt, paletteStore } from './store';
 

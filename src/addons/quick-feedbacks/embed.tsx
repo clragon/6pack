@@ -74,7 +74,9 @@ function SourceFields({
               e.preventDefault();
               e.currentTarget
                 .closest('.sp-qf-source-row')
-                ?.nextElementSibling?.querySelector<HTMLElement>('.sp-qf-source')
+                ?.nextElementSibling?.querySelector<HTMLElement>(
+                  '.sp-qf-source',
+                )
                 ?.focus();
             }}
             onBlur={() => {
@@ -185,7 +187,11 @@ function Embed({
         class="sp-qf-strip"
         ref={stripRef}
         onKeyDown={(e) =>
-          rove(stripRef.current, e, '.sp-qf-chip, .sp-qf-strip-more, .sp-qf-strip-flame')
+          rove(
+            stripRef.current,
+            e,
+            '.sp-qf-chip, .sp-qf-strip-more, .sp-qf-strip-flame',
+          )
         }
       >
         {shownTemplates.map((template, index) => (
@@ -255,7 +261,9 @@ function Embed({
         <div
           class="sp-qf-rules"
           ref={rulesRef}
-          onKeyDown={(e) => rove(rulesRef.current, e, '.sp-qf-pill, .sp-qf-more')}
+          onKeyDown={(e) =>
+            rove(rulesRef.current, e, '.sp-qf-pill, .sp-qf-more')
+          }
         >
           {collapsedKeys.map((key, index) => (
             <button

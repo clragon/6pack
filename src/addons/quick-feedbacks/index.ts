@@ -13,7 +13,15 @@ const manageRecords: Action = {
   id: 'feedbacks.manage',
   title: 'Manage quick feedbacks',
   description: 'Edit your record templates',
-  keywords: ['manage', 'edit', 'template', 'record', 'feedback', 'reason', 'pin'],
+  keywords: [
+    'manage',
+    'edit',
+    'template',
+    'record',
+    'feedback',
+    'reason',
+    'pin',
+  ],
   when: onForm,
   run: () => openRecordsManager(),
 };
