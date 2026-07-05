@@ -14,7 +14,7 @@ export interface SixpackAddon {
   id: string;
   name: string;
   when?: (page: PageContext) => boolean;
-  actions?: Action[] | ((page: PageContext) => Action[]);
+  actions?: Action[];
   settings?: SettingSpec[];
   ticketResponses?: TicketResponseProvider;
   // The script runs at document-start and core/addons/loader.ts runs cached
