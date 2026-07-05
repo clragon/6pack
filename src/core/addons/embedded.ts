@@ -5,6 +5,7 @@ import { betterEditsAddon } from '../../addons/better-edits';
 import { leanApprovalsAddon } from '../../addons/lean-approvals';
 import { re621Addon } from '../../addons/re621';
 import { quickRepliesAddon } from '../../addons/quick-replies';
+import { quickFeedbacksAddon } from '../../addons/quick-feedbacks';
 
 // Add-on objects compiled into a fat build, keyed by catalog id. The manager
 // registers these directly instead of fetching and eval'ing an artifact, so a
@@ -18,4 +19,5 @@ export const EMBEDDED: Record<string, SixpackAddon> = {
   'lean-approvals': leanApprovalsAddon,
   re621: re621Addon,
   'quick-replies': quickRepliesAddon,
+  'quick-feedbacks': quickFeedbacksAddon,
 };
