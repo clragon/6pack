@@ -76,7 +76,7 @@ const DMAIL_SEEDS: Template[] = [
   {
     id: 'dmail-takedown-third-party',
     title: 'Takedown: No Third-party',
-    body: 'Hi %recipient%,\n\nOnly artists, character owners, & commissioners may issue takedown requests for their material, & they must do so directly; we do not accept third party takedown requests.',
+    body: 'Hi %recipient%,\n\nOnly artists, character owners, and commissioners may issue takedown requests for their material, and they must do so directly; we do not accept third party takedown requests.',
   },
   {
     id: 'dmail-takedown-see-here',
