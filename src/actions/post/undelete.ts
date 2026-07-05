@@ -1,5 +1,6 @@
 import type { Action } from '../../core/actions/types';
 import { undeletePost, unapprovePost } from '../../core/api/posts';
+import { openConfirm } from '../../core/palette/confirm';
 import { isApprovalsEnabled } from '../../site/approval';
 import { isDeleted, readCreatedAt } from '../../site/post';
 import { notify, notifyError } from '../../site/toast';
@@ -15,6 +16,12 @@ function withinUnapproveWindow(): boolean {
 }
 
 async function runUndelete(id: number): Promise<void> {
+  const confirmed = await openConfirm({
+    title: `Undelete post #${id}`,
+    detail: 'Approves the post under your name.',
+    confirmLabel: 'Undelete',
+  });
+  if (!confirmed) return;
   try {
     await undeletePost(id);
     notify(`Undeleted post #${id}`);
@@ -27,6 +34,12 @@ async function runUndelete(id: number): Promise<void> {
 }
 
 async function runUndeleteAndUnapprove(id: number): Promise<void> {
+  const confirmed = await openConfirm({
+    title: `Undelete and unapprove post #${id}`,
+    detail: 'Restores the post to pending.',
+    confirmLabel: 'Undelete',
+  });
+  if (!confirmed) return;
   try {
     await undeletePost(id);
     await unapprovePost(id);
