@@ -69,6 +69,7 @@ function mount(): () => void {
 export const sourcesAddon: SixpackAddon = {
   id: 'sources',
   name: 'Source shortener',
+  description: 'Shortens pasted source links to their canonical form.',
   when: (page) => page.kind === 'post',
   setup: (ctx) => {
     let disposed = false;

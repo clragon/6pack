@@ -1,0 +1,54 @@
+.sp-man {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 62ch;
+}
+
+.sp-man-name {
+  font-size: 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sp-man-desc {
+  margin: 0;
+  color: var(--color-text-muted, #9aa6bd);
+}
+
+.sp-man-section {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
+.sp-man-rows {
+  margin: 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 3px 18px;
+}
+
+.sp-man-row {
+  display: contents;
+}
+
+.sp-man-row dt {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sp-man-row dd {
+  margin: 0;
+  color: var(--color-text-muted, #9aa6bd);
+}
+
+.sp-man-text {
+  margin: 0;
+  color: var(--color-text-muted, #9aa6bd);
+}

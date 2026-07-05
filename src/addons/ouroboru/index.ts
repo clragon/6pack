@@ -164,6 +164,7 @@ function mount(): () => void {
 export const ouroboruAddon: SixpackAddon = {
   id: 'ouroboru',
   name: 'Ouroboru',
+  description: 'Loads the next page of a post listing as you near the bottom.',
   setup: (ctx) => {
     let disposed = false;
     let teardown: (() => void) | undefined;

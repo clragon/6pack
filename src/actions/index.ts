@@ -6,6 +6,7 @@ import { convertToBan, convertToFeedback } from './convert';
 import { copy } from './copy';
 import { createFeedback } from './feedback';
 import { diagnostics } from './diagnostics';
+import { help } from './help';
 import { logs } from './logs';
 import { mode } from './mode';
 import { jumpTo, manageJumps } from './nav';
@@ -31,6 +32,7 @@ export const allActions: Action[] = [
   mode,
   fixUpload,
   ...addonsActions,
+  help,
   logs,
   diagnostics,
 ];
