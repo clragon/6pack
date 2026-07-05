@@ -6,6 +6,7 @@ import { settings } from '../settings';
 import { whenReady } from '../ready';
 import { registerTicketResponseProvider } from '../tickets/providers';
 import { openDialog } from '../palette/dialog';
+import { registerManual } from './manual';
 import { log } from '../log';
 
 export class AddonHost {
@@ -30,6 +31,14 @@ export class AddonHost {
     }
     this.loaded.add(addon.id);
     try {
+      registerManual({
+        id: addon.id,
+        name: addon.name,
+        description: addon.description,
+        actions: addon.actions ?? [],
+        settings: addon.settings ?? [],
+      });
+
       for (const spec of addon.settings ?? []) settings.define(spec);
 
       if (addon.actions) this.registry.register(...addon.actions);

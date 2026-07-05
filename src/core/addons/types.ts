@@ -13,6 +13,7 @@ export interface AddonContext {
 export interface SixpackAddon {
   id: string;
   name: string;
+  description?: string;
   when?: (page: PageContext) => boolean;
   actions?: Action[];
   settings?: SettingSpec[];
