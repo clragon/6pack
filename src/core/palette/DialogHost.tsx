@@ -23,7 +23,6 @@ export function DialogHost() {
   if (!spec) return null;
 
   const onKeyDown = (event: KeyboardEvent) => {
-    event.stopPropagation();
     if (event.key === 'Escape') {
       event.preventDefault();
       closeDialog();

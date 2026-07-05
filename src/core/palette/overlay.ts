@@ -21,12 +21,18 @@ function engage(keep: Element | null): void {
     : [];
   for (const el of inerted) el.setAttribute('inert', '');
 
+  // e621's hotkeys guard reads document.activeElement, which names the shadow
+  // host as a div, so a keydown escaping the shadow root would fire them.
+  const shield = (event: Event) => event.stopPropagation();
+  keep?.addEventListener('keydown', shield);
+
   restore = () => {
     scroller.style.overflow = prevOverflow;
     scroller.style.paddingRight = prevPadding;
     scroller.scrollTop = top;
     scroller.scrollLeft = left;
     for (const el of inerted) el.removeAttribute('inert');
+    keep?.removeEventListener('keydown', shield);
   };
 }
 
