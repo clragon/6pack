@@ -11,6 +11,9 @@ import { captureStore, paletteStore } from './store';
 import PALETTE_CSS from './styles.css?inline';
 import { useToggle } from './useToggle';
 
+const closePalette = () => paletteStore.set(false);
+const closeCapture = () => captureStore.set(false);
+
 function Root({
   page,
   resolveActions,
@@ -20,19 +23,19 @@ function Root({
 }) {
   const open = useToggle(paletteStore);
   const capturing = useToggle(captureStore);
-  const actions = useMemo(() => (open ? resolveActions() : []), [open]);
+  const actions = useMemo(
+    () => (open ? resolveActions() : []),
+    [open, resolveActions],
+  );
   return (
     <>
       <Palette
         open={open}
         page={page}
         actions={actions}
-        onClose={() => paletteStore.set(false)}
+        onClose={closePalette}
       />
-      <RebindPrompt
-        active={capturing}
-        onClose={() => captureStore.set(false)}
-      />
+      <RebindPrompt active={capturing} onClose={closeCapture} />
       <ConfirmPrompt />
       <DialogHost />
     </>

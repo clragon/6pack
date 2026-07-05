@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'preact/hooks';
 
 import type { Action, ActionContext, SearchSuggestion } from '../actions/types';
 import type { PageContext } from '../context/types';
@@ -59,10 +65,13 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const listRef = useRef<HTMLUListElement>(null);
   const childCache = useRef(new Map<string, Action[] | null>());
 
-  const ctx: ActionContext = { page, close: onClose };
+  const ctx = useMemo<ActionContext>(
+    () => ({ page, close: onClose }),
+    [page, onClose],
+  );
   const level = stack[stack.length - 1];
   const searchSpec = level.search;
-  const levelActions = level.actions ?? [];
+  const levelActions = useMemo(() => level.actions ?? [], [level]);
   const chips = open ? allChips() : [];
   const activeChipId = stack.find((l) => l.chipId)?.chipId ?? null;
   const displayChips =
@@ -103,7 +112,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     setFilter('');
     setFrecency(getFrecency());
     requestAnimationFrame(() => focusNoScroll(inputRef.current));
-  }, [open, actions]);
+  }, [open, actions, ctx]);
 
   useEffect(() => {
     if (!open) return;
@@ -115,7 +124,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   useEffect(() => {
     setSelected(level.search ? -1 : 0);
-  }, [filter, stack]);
+  }, [filter, stack, level.search]);
 
   useEffect(() => {
     const el = selectedRef.current;
@@ -159,44 +168,56 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     };
   }, [searchSpec, filter]);
 
-  const childrenOf = (action: Action): Action[] | null => {
-    if (!action.submenu) return null;
-    const cache = childCache.current;
-    if (cache.has(action.id)) return cache.get(action.id) ?? null;
-    let value: Action[] | null;
-    try {
-      const result = action.submenu(ctx);
-      value = result instanceof Promise ? null : result;
-    } catch (error) {
-      log.warn(`${action.id} submenu failed: ${describeError(error)}`);
-      value = null;
-    }
-    cache.set(action.id, value);
-    return value;
-  };
+  const childrenOf = useCallback(
+    (action: Action): Action[] | null => {
+      if (!action.submenu) return null;
+      const cache = childCache.current;
+      if (cache.has(action.id)) return cache.get(action.id) ?? null;
+      let value: Action[] | null;
+      try {
+        const result = action.submenu(ctx);
+        value = result instanceof Promise ? null : result;
+      } catch (error) {
+        log.warn(`${action.id} submenu failed: ${describeError(error)}`);
+        value = null;
+      }
+      cache.set(action.id, value);
+      return value;
+    },
+    [ctx],
+  );
 
-  const reachableChildren = (action: Action): Action[] | null => {
-    const children = childrenOf(action);
-    return children ? children.filter((c) => !c.submenuOnly) : null;
-  };
+  const reachableChildren = useCallback(
+    (action: Action): Action[] | null => {
+      const children = childrenOf(action);
+      return children ? children.filter((c) => !c.submenuOnly) : null;
+    },
+    [childrenOf],
+  );
 
-  const childTerms = (action: Action): string[] => {
-    const children = reachableChildren(action);
-    return children
-      ? children.flatMap((c) => [c.title, ...(c.keywords ?? [])])
-      : [];
-  };
+  const childTerms = useCallback(
+    (action: Action): string[] => {
+      const children = reachableChildren(action);
+      return children
+        ? children.flatMap((c) => [c.title, ...(c.keywords ?? [])])
+        : [];
+    },
+    [reachableChildren],
+  );
 
-  const rankByUse = (actions: Action[]): Action[] => {
-    const now = Date.now();
-    return actions
-      .slice()
-      .sort(
-        (a, b) =>
-          (b.weight ?? 0) - (a.weight ?? 0) ||
-          scoreFor(frecency, b.id, now) - scoreFor(frecency, a.id, now),
-      );
-  };
+  const rankByUse = useCallback(
+    (actions: Action[]): Action[] => {
+      const now = Date.now();
+      return actions
+        .slice()
+        .sort(
+          (a, b) =>
+            (b.weight ?? 0) - (a.weight ?? 0) ||
+            scoreFor(frecency, b.id, now) - scoreFor(frecency, a.id, now),
+        );
+    },
+    [frecency],
+  );
 
   const childMatchOf = (action: Action): Action | undefined => {
     const query = filter.trim();
@@ -219,7 +240,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     if (!query)
       return rankByUse(levelActions.filter((action) => !action.hidden));
     return rankByUse(searchActions(query, levelActions, childTerms));
-  }, [level, filter, frecency]);
+  }, [filter, levelActions, rankByUse, childTerms]);
 
   if (!open) return null;
 

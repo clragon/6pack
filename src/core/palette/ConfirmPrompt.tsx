@@ -49,7 +49,7 @@ export function ConfirmPrompt() {
     const fieldCount = request.fields?.length ?? 0;
     const optionCount = request.options?.length ?? 0;
     setSelected(fieldCount > 0 || optionCount > 0 ? 0 : items.length - 1);
-  }, [request]);
+  }, [request, items.length]);
 
   useEffect(() => {
     if (!request) return;
