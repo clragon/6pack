@@ -21,14 +21,11 @@ export interface AddonContext {
 export interface SixpackAddon {
   id: string;
   name: string;
-  // Prose for the add-on's help page. Its commands and settings are listed there
-  // from what it registers, so this is only the part they can't derive.
+  // Prose for the add-on's help page.
   description?: string;
   // Gate `setup` to the relevant pages. Absent means run everywhere. Actions
   // carry their own `when`, so this gates the DOM lifecycle, not the commands.
   when?: (page: PageContext) => boolean;
-  // Command-menu entries. Each carries its own `when` gate; a dynamic set is a
-  // group with a `submenu`, not a page-conditional registration.
   actions?: Action[];
   // Preferences the add-on owns; each becomes a switch in the settings submenu.
   settings?: SettingSpec[];

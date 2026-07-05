@@ -1,15 +1,9 @@
 import { openChannel } from '../tabs/channel';
 import type { TicketResponse } from './providers';
 
-// A live view of the tickets open in the user's other e621 tabs, so a palette on
-// any page can surface them as chips and act on them. Each tab that sits on a
-// ticket page publishes itself; every tab keeps a reconciled map of what the
-// others published. Reactive in the burnPile mould so the chip row re-renders the
-// instant the set changes.
-//
-// Liveness is poll/announce, not heartbeats: a backgrounded tab throttles its
-// timers (so a heartbeat would make a live tab look dead) but still runs message
-// handlers, so we ask everyone to re-announce and treat silence as gone.
+// A live, reactive map of the tickets open in the user's other tabs. A backgrounded
+// tab throttles timers but still runs message handlers, so liveness is poll/announce:
+// re-announce on demand, treat silence as gone.
 
 export interface OpenTicket {
   // Unique per tab/page-load; the address a close command is routed to.

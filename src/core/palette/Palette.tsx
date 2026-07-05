@@ -358,10 +358,9 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     setFilter('');
   };
 
-  // Opening a chip shows its menu as a level under the root, tagged with the chip
-  // id so the chip stays visible and marked active. Replacing (not stacking) lets
-  // you switch between chips like browser tabs. Remembered so the active tab keeps
-  // showing even if its ticket drops from the live list mid-menu.
+  // Opening a chip replaces the root's child level with the chip's menu. Remembered
+  // so the active chip keeps showing even if its ticket drops from the live list
+  // mid-menu.
   const openChip = (chip: Chip) => {
     activeChipRef.current = chip;
     setStack((s) => [

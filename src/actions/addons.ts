@@ -25,8 +25,6 @@ export const addonsActions: Action[] = [
         id: `addons.${entry.id}`,
         title: entry.name,
         description: entry.description,
-        // Installing/removing is a deliberate act: only reachable by drilling into
-        // Add-ons, never surfaced or run from the root via reach-in.
         submenuOnly: true,
         checked: () => addons.isEnabled(entry.id),
         run: () => {

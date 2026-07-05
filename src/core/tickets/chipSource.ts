@@ -11,9 +11,7 @@ import {
   type OpenTicket,
 } from './registry';
 
-// Turns the cross-tab open-ticket registry into palette chips. Opening a chip
-// lists its answer templates; choosing one confirms, then asks the owning tab to
-// compose the faithful response and close, reporting the outcome.
+// Turns the cross-tab open-ticket registry into palette chips.
 
 function opAction(
   ticket: OpenTicket,

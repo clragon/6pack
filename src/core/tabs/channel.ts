@@ -1,7 +1,5 @@
-// A same-origin message bus across the user's open e621 tabs, over
-// BroadcastChannel. Generic over the message union so each domain (open tickets,
-// later the burn pile) owns its own protocol and this stays transport-only: it
-// knows how to carry messages between tabs, never what they mean.
+// A same-origin message bus across the user's open e621 tabs, over BroadcastChannel.
+// Generic over the message union so each domain owns its own protocol; transport-only.
 
 export interface Channel<M> {
   // Broadcast to every other tab on this channel. The sender does not hear its

@@ -21,10 +21,7 @@ export function canApprovePosts(): boolean {
   return userData('userCanApprovePosts') === 'true';
 }
 
-// e621 user levels (app/logical/user_level.rb). Menu entries gate on a
-// numeric threshold rather than the canonical `is_<role>?` (which also requires
-// is_verified): for UI visibility the level alone is enough and is robust to the
-// flag's shape drifting.
+// e621 user levels (app/logical/user_level.rb).
 export const Level = {
   Member: 20,
   Privileged: 30,
@@ -62,9 +59,6 @@ function readUser(): CurrentUser | null {
   };
 }
 
-// Kept for call sites that preloaded the record; now a synchronous read wrapped
-// in a resolved promise. Caches only a real user, so an early read before the
-// body exists re-reads rather than pinning null.
 export function loadCurrentUser(): Promise<CurrentUser | null> {
   return Promise.resolve(currentUser());
 }

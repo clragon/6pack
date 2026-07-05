@@ -4,9 +4,6 @@ import { composeTicketResponse } from './providers';
 import { localTabId } from './registry';
 
 // Run a ticket action (close, claim, unclaim) on the tab that owns the ticket.
-// Close must run there: only the owner can compose faithful response text from its
-// providers and holds the session. Claim and unclaim run there too so the owning
-// page reloads to its new state. Request/reply is correlated by id over the channel.
 
 export type TicketOp =
   | { op: 'close'; providerId: string; optionId: string; forceClaim: boolean }

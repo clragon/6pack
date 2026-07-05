@@ -15,9 +15,8 @@ interface ManifestAddon {
   file: string;
 }
 
-// The add-on registry, derived from the single source of truth that the build
-// reads too (scripts/build-addons.mjs), so a name or description lives in one
-// place. A later phase fetches this from a repo's release instead of bundling it.
+// The add-on registry, derived from the manifest the build reads too
+// (scripts/build-addons.mjs).
 export const CATALOG: CatalogEntry[] = (manifest.addons as ManifestAddon[]).map(
   (addon) => ({
     id: addon.id,

@@ -4,10 +4,8 @@ import { openInNewTab } from '../core/navigate';
 import { readBanForm, readBanSubjectUser } from '../site/ban';
 import { readFeedbackForm } from '../site/feedback';
 
-// Which profile a "view user" command targets, as a /users/<ref> path segment.
-// e621 resolves that segment by id or by name (UsersController#show), so the
-// feedback/ban listings contribute an id while the new forms contribute the name
-// from their user field. All these screens lack a convenient profile link.
+// The /users/<ref> segment to open. e621 resolves it by id or by name
+// (UsersController#show).
 function profileRef(page: PageContext): string | null {
   if (page.kind === 'userFeedbacks' && page.userId != null)
     return String(page.userId);
@@ -29,7 +27,6 @@ export const viewUser: Action = {
   when: (page) => profileRef(page) !== null,
   run: ({ page }) => {
     const ref = profileRef(page);
-    // New tab so the feedback or ban screen stays open behind the profile.
     if (ref) openInNewTab(`/users/${encodeURIComponent(ref)}`);
   },
 };

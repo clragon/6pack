@@ -2,7 +2,7 @@ import type { Action } from '../actions/types';
 import type { SettingSpec } from '../settings';
 
 // Per-add-on help data, recorded as each add-on registers and read live by the
-// Help panel, so an add-on that registers late still surfaces on the next open.
+// Help panel.
 export interface AddonManual {
   id: string;
   name: string;

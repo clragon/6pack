@@ -11,9 +11,8 @@ import {
   type TemplateVariable,
 } from './variables';
 
-// One place a template set is used: its own saved list, its variables, the field
-// it fills, and the copy for its strip and manager. Ticket replies are the first;
-// appeal and dmail templates are more contexts of the same shape.
+// Everything a template set needs: its saved list, variables, the field it fills,
+// and the copy for its strip and manager.
 export interface ReplyContext {
   id: string;
   // Strip flame label and manager title copy.

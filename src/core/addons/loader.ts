@@ -5,8 +5,7 @@ import {
 import { readJson, writeJson } from '../storage';
 import { log } from '../log';
 
-// Where managed add-on artifacts live. In dev the running vite server serves
-// public/addons; a later phase resolves this from a repo's release instead.
+// Where managed add-on artifacts live; in dev the vite server serves public/addons.
 const BASE_URL = 'http://127.0.0.1:5837/addons/';
 
 // Stashed artifact code, so a return visit runs the add-on without a refetch.

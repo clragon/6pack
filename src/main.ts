@@ -34,17 +34,12 @@ record('page', page);
 const registry = new ActionRegistry();
 registry.register(...allActions);
 
-// Publish the bridge and load enabled add-ons eagerly at document-start: a
-// cached add-on registers and injects its styles before first paint, and its
-// own setup defers DOM work via ctx.whenReady. Third-party hooks registering
-// earlier queue on the bridge stub and drain when init publishes.
+// Publish the bridge and load enabled add-ons at document-start, before first paint.
 addons.init(registry, page);
 
 // The rest reads or mounts into the page, so it waits for the parse.
 whenReady(() => {
-  // Every tab can show chips for tickets open in other tabs, so register the
-  // source regardless of the current page. The mass-ban chip likewise surfaces a
-  // pending ban template on any page.
+  // Both chip sources register on every page.
   installTicketChips();
   installMassBanChip();
 
@@ -64,9 +59,7 @@ whenReady(() => {
   // the in-context command opens straight at it.
   if (page.kind === 'ticket') prefetchReportedDestination();
 
-  // Publish an open, handleable ticket so other tabs can close it from their chip
-  // row. Only a moderator's view renders the response field, and an already-closed
-  // ticket cannot be handled, so neither is worth announcing.
+  // Publish an open, handleable ticket so other tabs can close it from their chip.
   if (page.kind === 'ticket' && canComposeResponse()) {
     const status = readTicketStatus();
     if (status !== 'approved') {

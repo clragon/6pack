@@ -9,7 +9,7 @@ import { notify, progress } from '../site/toast';
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Throttled so the bulk hits don't trip rate limits, mirroring the legacy pace.
+// Throttled to stay under rate limits.
 const THROTTLE_MS = 500;
 
 async function incinerate(items: BurnRef[], markType?: string): Promise<void> {
@@ -76,8 +76,7 @@ export const burnable: Action = {
   when: () => burnPile.count() > 0,
   submenu: () => {
     const items = burnPile.items();
-    // Users don't incinerate: selecting them starts a ban template, which the
-    // ban form captures and the chip replays for the rest.
+    // Incinerating a user is banning them: a user pile starts a ban template.
     if (items.every((item) => item.type === 'user')) {
       return [
         {

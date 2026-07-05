@@ -30,10 +30,8 @@ const options = probe('templates', (): TicketResponseOption[] =>
   })),
 );
 
-// Clicking RE621's chip runs its own transform (greeting + %reporterName%) into
-// the response field, so we read the field back rather than reassemble it. Returns
-// null when the chip or field is missing. This populates the visible response box,
-// which is honest: the close sends exactly what is shown.
+// RE621's chip fills the response field with its own transform; read it back.
+// Null when the chip or field is missing.
 function compose(optionId: string): string | null {
   const field = document.querySelector<HTMLTextAreaElement>(RESPONSE_FIELD);
   const chip = templateChips()[Number(optionId)];

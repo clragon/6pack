@@ -4,10 +4,8 @@ import { readBanForm } from '../site/ban';
 import { readFeedbackForm } from '../site/feedback';
 import { isModeratorPlus } from '../site/user';
 
-// Feedback and ban share the same essential fields (user + reason), so a draft of
-// one converts to the other by carrying the text across via the destination
-// form's URL prefill. Same tab: the current draft is being switched, not kept.
-// Caveat: very long text rides in the URL; fine for typical reasons.
+// Converts a draft between feedback and ban by carrying its text through the
+// destination form's URL prefill. Caveat: long text rides in the URL.
 
 export const convertToBan: Action = {
   id: 'feedback.convert-to-ban',
