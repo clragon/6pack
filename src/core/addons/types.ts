@@ -21,6 +21,9 @@ export interface AddonContext {
 export interface SixpackAddon {
   id: string;
   name: string;
+  // Prose for the add-on's help page. Its commands and settings are listed there
+  // from what it registers, so this is only the part they can't derive.
+  description?: string;
   // Gate `setup` to the relevant pages. Absent means run everywhere. Actions
   // carry their own `when`, so this gates the DOM lifecycle, not the commands.
   when?: (page: PageContext) => boolean;
