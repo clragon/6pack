@@ -5,36 +5,19 @@ import { resolveConfirm, useConfirm } from './confirm';
 import { focusNoScroll } from './focus';
 import { useNav, returnTo } from './nav';
 import { useOverlay } from './overlay';
-
-type Item =
-  | { kind: 'field'; key: string }
-  | { kind: 'option'; key: string }
-  | { kind: 'button'; role: 'cancel' | 'confirm' };
+import { rove } from './rove';
 
 export function ConfirmPrompt() {
   const request = useConfirm();
   const nav = useNav();
   const [values, setValues] = useState<Record<string, string>>({});
   const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [selected, setSelected] = useState(0);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const itemEls = useRef<(HTMLElement | null)[]>([]);
+  const firstFieldRef = useRef<HTMLInputElement>(null);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  const optionsRef = useRef<HTMLDivElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
 
   useOverlay(!!request);
-
-  const items = useMemo<Item[]>(() => {
-    if (!request) return [];
-    return [
-      ...(request.fields ?? []).map(
-        (f): Item => ({ kind: 'field', key: f.key }),
-      ),
-      ...(request.options ?? []).map(
-        (o): Item => ({ kind: 'option', key: o.key }),
-      ),
-      { kind: 'button', role: 'cancel' },
-      { kind: 'button', role: 'confirm' },
-    ];
-  }, [request]);
 
   useEffect(() => {
     if (!request) return;
@@ -46,17 +29,10 @@ export function ConfirmPrompt() {
       initialChecked[option.key] = option.default ?? false;
     setValues(initialValues);
     setChecked(initialChecked);
-    const fieldCount = request.fields?.length ?? 0;
-    const optionCount = request.options?.length ?? 0;
-    setSelected(fieldCount > 0 || optionCount > 0 ? 0 : items.length - 1);
-  }, [request, items.length]);
-
-  useEffect(() => {
-    if (!request) return;
     requestAnimationFrame(() =>
-      focusNoScroll(itemEls.current[selected] ?? null),
+      focusNoScroll(firstFieldRef.current ?? confirmRef.current),
     );
-  }, [selected, request]);
+  }, [request]);
 
   const canConfirm = useMemo(() => {
     if (!request) return false;
@@ -67,63 +43,9 @@ export function ConfirmPrompt() {
   }, [request, values]);
 
   const submit = () => {
-    if (canConfirm) {
+    if (canConfirm)
       resolveConfirm({ fields: { ...values }, options: { ...checked } });
-    }
   };
-
-  const toggleOption = (key: string) => {
-    setChecked((c) => ({ ...c, [key]: !c[key] }));
-  };
-
-  const activate = (item: Item) => {
-    if (item.kind === 'button') {
-      if (item.role === 'confirm') submit();
-      else resolveConfirm(null);
-    } else if (item.kind === 'option') {
-      toggleOption(item.key);
-    } else {
-      submit();
-    }
-  };
-
-  const onKeyRef = useRef<(event: KeyboardEvent) => void>(() => {});
-  onKeyRef.current = (event) => {
-    const item = items[selected];
-    const inField = item?.kind === 'field';
-    event.stopImmediatePropagation();
-    switch (event.key) {
-      case 'Escape':
-        event.preventDefault();
-        resolveConfirm(null);
-        return;
-      case 'ArrowDown':
-        event.preventDefault();
-        setSelected((s) => Math.min(s + 1, items.length - 1));
-        return;
-      case 'ArrowUp':
-        event.preventDefault();
-        setSelected((s) => Math.max(s - 1, 0));
-        return;
-      case 'Enter':
-        event.preventDefault();
-        if (item) activate(item);
-        return;
-      case ' ':
-        if (!inField && item) {
-          event.preventDefault();
-          activate(item);
-        }
-        return;
-    }
-  };
-
-  useEffect(() => {
-    if (!request) return;
-    const onKey = (event: KeyboardEvent) => onKeyRef.current(event);
-    window.addEventListener('keydown', onKey, true);
-    return () => window.removeEventListener('keydown', onKey, true);
-  }, [request]);
 
   if (!request) return null;
 
@@ -142,17 +64,22 @@ export function ConfirmPrompt() {
 
   const fields = request.fields ?? [];
   const options = request.options ?? [];
-  const cancelIndex = fields.length + options.length;
-  const confirmIndex = cancelIndex + 1;
+
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      resolveConfirm(null);
+    }
+  };
 
   return (
-    <div class="sp-backdrop" onClick={() => resolveConfirm(null)}>
+    <div
+      class="sp-backdrop"
+      onClick={() => resolveConfirm(null)}
+      onKeyDown={onKeyDown}
+    >
       <div class="sp-shell">
-        <div
-          ref={panelRef}
-          class="sp-panel"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div class="sp-panel" onClick={(e) => e.stopPropagation()}>
           <div class="sp-input-row">
             <Breadcrumb
               crumbs={crumbs}
@@ -170,15 +97,10 @@ export function ConfirmPrompt() {
             )}
 
             {fields.map((field, i) => (
-              <label
-                class={`sp-confirm-field${selected === i ? ' sp-confirm-sel' : ''}`}
-                key={field.key}
-              >
+              <label class="sp-confirm-field" key={field.key}>
                 <span>{field.label}</span>
                 <input
-                  ref={(el) => {
-                    itemEls.current[i] = el;
-                  }}
+                  ref={i === 0 ? firstFieldRef : undefined}
                   class="sp-confirm-input"
                   type="text"
                   inputMode={field.numeric ? 'numeric' : undefined}
@@ -190,50 +112,60 @@ export function ConfirmPrompt() {
                       [field.key]: e.currentTarget.value,
                     }))
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      submit();
+                    }
+                  }}
                 />
               </label>
             ))}
 
-            {options.map((option, j) => {
-              const index = fields.length + j;
-              return (
-                <label
-                  class={`sp-confirm-option${selected === index ? ' sp-confirm-sel' : ''}`}
-                  key={option.key}
-                >
-                  <input
-                    ref={(el) => {
-                      itemEls.current[index] = el;
-                    }}
-                    type="checkbox"
-                    checked={checked[option.key] ?? false}
-                    onChange={(e) =>
-                      setChecked((c) => ({
-                        ...c,
-                        [option.key]: e.currentTarget.checked,
-                      }))
-                    }
-                  />
-                  {option.label}
-                </label>
-              );
-            })}
+            {options.length > 0 && (
+              <div
+                class="sp-confirm-options"
+                ref={optionsRef}
+                onKeyDown={(e) =>
+                  rove(optionsRef.current, e, '.sp-confirm-check')
+                }
+              >
+                {options.map((option, j) => (
+                  <label class="sp-confirm-option" key={option.key}>
+                    <input
+                      class="sp-confirm-check"
+                      type="checkbox"
+                      tabIndex={j === 0 ? 0 : -1}
+                      checked={checked[option.key] ?? false}
+                      onChange={(e) =>
+                        setChecked((c) => ({
+                          ...c,
+                          [option.key]: e.currentTarget.checked,
+                        }))
+                      }
+                    />
+                    {option.label}
+                  </label>
+                ))}
+              </div>
+            )}
 
-            <div class="sp-confirm-actions">
+            <div
+              class="sp-confirm-actions"
+              ref={actionsRef}
+              onKeyDown={(e) => rove(actionsRef.current, e, '.sp-btn')}
+            >
               <button
-                ref={(el) => {
-                  itemEls.current[cancelIndex] = el;
-                }}
-                class={`sp-btn${selected === cancelIndex ? ' sp-confirm-sel' : ''}`}
+                class="sp-btn"
+                tabIndex={-1}
                 onClick={() => resolveConfirm(null)}
               >
                 Cancel
               </button>
               <button
-                ref={(el) => {
-                  itemEls.current[confirmIndex] = el;
-                }}
-                class={`sp-btn sp-btn-danger${selected === confirmIndex ? ' sp-confirm-sel' : ''}`}
+                ref={confirmRef}
+                class="sp-btn sp-btn-danger"
+                tabIndex={0}
                 disabled={!canConfirm}
                 onClick={submit}
               >
