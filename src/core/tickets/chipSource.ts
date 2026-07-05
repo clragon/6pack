@@ -2,7 +2,8 @@ import type { Action } from '../actions/types';
 import { registerChipSource, type Chip } from '../palette/chips';
 import { openConfirm } from '../palette/confirm';
 import { notifyError, progress } from '../../site/toast';
-import { requestClose } from './commands';
+import { currentUserId } from '../../site/user';
+import { requestClaim, requestClose, requestUnclaim } from './commands';
 import {
   openTickets,
   refreshOpenTickets,
@@ -13,6 +14,40 @@ import {
 // Turns the cross-tab open-ticket registry into palette chips. Opening a chip
 // lists its answer templates; choosing one confirms, then asks the owning tab to
 // compose the faithful response and close, reporting the outcome.
+
+function opAction(
+  ticket: OpenTicket,
+  verb: 'Claim' | 'Unclaim',
+  request: (tabId: string, ticketId: number) => Promise<void>,
+): Action {
+  return {
+    id: `chip.ticket.${ticket.ticketId}.${verb.toLowerCase()}`,
+    title: `${verb} ticket`,
+    keywords: [verb.toLowerCase(), 'ticket', 'claim'],
+    run: async ({ close }) => {
+      close();
+      const fire = progress(`${verb}ing ticket #${ticket.ticketId}…`);
+      try {
+        await request(ticket.tabId, ticket.ticketId);
+        fire.finish(`${verb}ed ticket #${ticket.ticketId}.`);
+      } catch (error) {
+        fire.finish(
+          `Could not ${verb.toLowerCase()} ticket #${ticket.ticketId}.`,
+        );
+        notifyError(error instanceof Error ? error.message : `${verb} failed`);
+      }
+    },
+  };
+}
+
+function claimActions(ticket: OpenTicket): Action[] {
+  const me = currentUserId();
+  if (ticket.claimant === null)
+    return [opAction(ticket, 'Claim', requestClaim)];
+  if (me !== null && ticket.claimant.id === me)
+    return [opAction(ticket, 'Unclaim', requestUnclaim)];
+  return [];
+}
 
 function closeActions(ticket: OpenTicket): Action[] {
   if (ticket.responses.length === 0) {
@@ -60,9 +95,12 @@ function toChip(ticket: OpenTicket): Chip {
       ...(ticket.accused
         ? [{ label: 'Accused', value: ticket.accused.name }]
         : []),
+      ...(ticket.claimant
+        ? [{ label: 'Claimed by', value: ticket.claimant.name }]
+        : []),
       { label: 'Status', value: ticket.status },
     ],
-    open: () => closeActions(ticket),
+    open: () => [...claimActions(ticket), ...closeActions(ticket)],
   };
 }
 

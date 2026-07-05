@@ -18,6 +18,7 @@ export interface OpenTicket {
   // pending | partial | approved. Lets the chip skip an already-closed ticket.
   status: string;
   accused: { id: number; name: string } | null;
+  claimant: { id: number; name: string } | null;
   responses: TicketResponse[];
   // The viewer can compose and close here (the response field is present). A tab
   // that only views the ticket still announces, but cannot be a close target.

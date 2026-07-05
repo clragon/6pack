@@ -1,13 +1,17 @@
 import { openChannel } from '../tabs/channel';
-import { closeTicket } from '../api/tickets';
+import { claimTicket, closeTicket, unclaimTicket } from '../api/tickets';
 import { composeTicketResponse } from './providers';
 import { localTabId } from './registry';
 
-// The close-from-another-tab protocol. The acting tab asks the tab that owns the
-// ticket to close it: only the owner can compose faithful response text from its
-// providers (RE621's greeting + %reporterName% transform, say) and holds the
-// session it was opened under. Request/reply is correlated by id over its own
-// channel.
+// Run a ticket action (close, claim, unclaim) on the tab that owns the ticket.
+// Close must run there: only the owner can compose faithful response text from its
+// providers and holds the session. Claim and unclaim run there too so the owning
+// page reloads to its new state. Request/reply is correlated by id over the channel.
+
+export type TicketOp =
+  | { op: 'close'; providerId: string; optionId: string; forceClaim: boolean }
+  | { op: 'claim' }
+  | { op: 'unclaim' };
 
 type Message =
   | {
@@ -15,9 +19,7 @@ type Message =
       id: string;
       target: string;
       ticketId: number;
-      providerId: string;
-      optionId: string;
-      forceClaim: boolean;
+      action: TicketOp;
     }
   | { kind: 'reply'; id: string; ok: boolean; error?: string };
 
@@ -29,7 +31,7 @@ const REPLY_TIMEOUT_MS = 15000;
 
 let handlerInstalled = false;
 
-// Serve close requests addressed to this tab. Installed only where a ticket is
+// Serve requests addressed to this tab. Installed only where a ticket is
 // published, since composing needs that page's response field and chips.
 export function installTicketCommandHandler(): void {
   if (handlerInstalled) return;
@@ -38,6 +40,24 @@ export function installTicketCommandHandler(): void {
     if (message.kind === 'request' && message.target === localTabId)
       void serve(message);
   });
+}
+
+async function perform(ticketId: number, action: TicketOp): Promise<void> {
+  switch (action.op) {
+    case 'close':
+      return performClose(
+        ticketId,
+        action.providerId,
+        action.optionId,
+        action.forceClaim,
+      );
+    case 'claim':
+      await claimTicket(ticketId);
+      return;
+    case 'unclaim':
+      await unclaimTicket(ticketId);
+      return;
+  }
 }
 
 // Compose the faithful response on this (the owning) page and close the ticket.
@@ -69,10 +89,10 @@ async function performClose(
   }
 }
 
-// Composing left the response field filled, and the ticket is now closed, so
-// reload to drop the stale prefill and show the closed state. Deferred so a remote
-// reply reaches the acting tab before this tab tears down.
-function reloadAfterClose(): void {
+// The action changed the ticket server-side, so reload to drop any stale prefill
+// and show the new state. Deferred so a remote reply reaches the acting tab before
+// this tab tears down.
+function reloadAfterAction(): void {
   setTimeout(() => window.location.reload(), 100);
 }
 
@@ -80,14 +100,9 @@ async function serve(
   request: Extract<Message, { kind: 'request' }>,
 ): Promise<void> {
   try {
-    await performClose(
-      request.ticketId,
-      request.providerId,
-      request.optionId,
-      request.forceClaim,
-    );
+    await perform(request.ticketId, request.action);
     channel.post({ kind: 'reply', id: request.id, ok: true });
-    reloadAfterClose();
+    reloadAfterAction();
   } catch (error) {
     channel.post({
       kind: 'reply',
@@ -98,24 +113,16 @@ async function serve(
   }
 }
 
-// Ask the owning tab to close the ticket with the chosen template; resolves on its
-// reply, rejects on failure or silence.
-export function requestClose(
+// Ask the owning tab to run the action; resolves on its reply, rejects on failure
+// or silence. A ticket open in this very tab is handled in-process, since
+// BroadcastChannel does not deliver a tab's own messages.
+function requestAction(
   targetTabId: string,
   ticketId: number,
-  providerId: string,
-  optionId: string,
-  options: { forceClaim?: boolean } = {},
+  action: TicketOp,
 ): Promise<void> {
-  // The ticket is open in this very tab: close it directly, since BroadcastChannel
-  // does not deliver a tab's own messages and a self-addressed request would hang.
   if (targetTabId === localTabId) {
-    return performClose(
-      ticketId,
-      providerId,
-      optionId,
-      !!options.forceClaim,
-    ).then(reloadAfterClose);
+    return perform(ticketId, action).then(reloadAfterAction);
   }
   return new Promise((resolve, reject) => {
     const id = crypto.randomUUID();
@@ -124,7 +131,7 @@ export function requestClose(
       clearTimeout(timer);
       unsubscribe();
       if (message.ok) resolve();
-      else reject(new Error(message.error ?? 'Close failed'));
+      else reject(new Error(message.error ?? 'Ticket action failed'));
     });
     const timer = setTimeout(() => {
       unsubscribe();
@@ -135,9 +142,36 @@ export function requestClose(
       id,
       target: targetTabId,
       ticketId,
-      providerId,
-      optionId,
-      forceClaim: !!options.forceClaim,
+      action,
     });
   });
+}
+
+export function requestClose(
+  targetTabId: string,
+  ticketId: number,
+  providerId: string,
+  optionId: string,
+  options: { forceClaim?: boolean } = {},
+): Promise<void> {
+  return requestAction(targetTabId, ticketId, {
+    op: 'close',
+    providerId,
+    optionId,
+    forceClaim: !!options.forceClaim,
+  });
+}
+
+export function requestClaim(
+  targetTabId: string,
+  ticketId: number,
+): Promise<void> {
+  return requestAction(targetTabId, ticketId, { op: 'claim' });
+}
+
+export function requestUnclaim(
+  targetTabId: string,
+  ticketId: number,
+): Promise<void> {
+  return requestAction(targetTabId, ticketId, { op: 'unclaim' });
 }
