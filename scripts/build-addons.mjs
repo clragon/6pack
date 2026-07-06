@@ -41,6 +41,7 @@ export async function buildAddons({ watch = false } = {}) {
             description: addon.description,
             namespace: NAMESPACE,
             match: MATCH,
+            connect: addon.connect,
           },
         }),
       ],

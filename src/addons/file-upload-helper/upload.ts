@@ -1,4 +1,4 @@
-const DIRECT_URL = 'input[placeholder="Paste image URL"]';
+export const DIRECT_URL = 'input[placeholder="Paste image URL"]';
 const FILE_INPUT = '#file-input';
 const SOURCE_ROW = '.upload-source-row input[type="text"]';
 const ADD_SOURCE = '.upload-source-add';
@@ -56,6 +56,8 @@ export async function addSource(url: string): Promise<boolean> {
   return true;
 }
 
+// e621's file_input.vue mounts #file-input only while the direct URL is empty,
+// so callers clear the URL first.
 export async function setUploadFile(file: File): Promise<boolean> {
   const input = await waitFor<HTMLInputElement>(FILE_INPUT);
   if (!input) return false;

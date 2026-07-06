@@ -1,5 +1,7 @@
 import { GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client';
 
+// GM_xmlhttpRequest reaches only hosts granted by @connect, so this list
+// matches connect in manifest.json and vite.config.ts.
 const ALLOWED_HOSTS = [
   'twimg.com',
   'pximg.net',
@@ -35,6 +37,8 @@ export function isDownloadable(url: string): boolean {
 }
 
 const FILE_PATH = /\.(png|apng|jpe?g|gif|webp|webm|mp4)$/i;
+// pbs.twimg.com names the file type in a format query parameter instead of an
+// extension.
 const FILE_FORMAT = /^(png|jpe?g|gif|webp)$/i;
 
 export function looksLikeFile(url: string): boolean {
@@ -64,7 +68,9 @@ function fileName(url: string, type: string): string {
     if (last) base = decodeURIComponent(last);
     const format = parsed.searchParams.get('format');
     if (format && !base.includes('.')) base = `${base}.${format}`;
-  } catch {}
+  } catch {
+    // The default name stands, since e621 reads the extension from the bytes.
+  }
   if (!base.includes('.')) {
     const ext = type.split('/')[1]?.split('+')[0];
     if (ext) base = `${base}.${ext}`;
