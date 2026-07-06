@@ -41,6 +41,7 @@
       "description": "Fetch links e621 can't grab and upload them as files",
       "entry": "src/addons/file-upload-helper/entry.ts",
       "file": "file-upload-helper.user.js",
+      "default": true,
       "connect": [
         "twimg.com",
         "pximg.net",
