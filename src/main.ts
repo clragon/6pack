@@ -23,6 +23,7 @@ import { publishOpenTicket } from './core/tickets/registry';
 import { installTicketCommandHandler } from './core/tickets/commands';
 import { installTicketChips } from './core/tickets/chipSource';
 import { installMassBanChip } from './core/bans/chip';
+import { installBurnRunner } from './core/jobs/runner';
 import { captureBanForm } from './site/banCapture';
 import { mountBanHint } from './site/banHint';
 import { loadCurrentUser } from './site/user';
@@ -42,6 +43,8 @@ whenReady(() => {
   // Both chip sources register on every page.
   installTicketChips();
   installMassBanChip();
+  // Drains any persisted burn queue and installs its chip.
+  installBurnRunner();
 
   // On the new-ban form, capture the submitted ban fields for the pending template.
   if (location.pathname === '/bans/new') captureBanForm();

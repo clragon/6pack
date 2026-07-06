@@ -1,16 +1,11 @@
 import type { Action } from '../core/actions/types';
 import { burnPile, type BurnRef } from '../core/burn';
 import { resourceName } from '../core/resource';
-import { hide, markWarning } from '../core/api/burn';
 import { massBan } from '../core/bans/massBan';
 import { navigateTo } from '../core/navigate';
 import { openConfirm } from '../core/palette/confirm';
-import { notify, progress } from '../site/toast';
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// Throttled to stay under rate limits.
-const THROTTLE_MS = 500;
+import { enqueue } from '../core/jobs/queue';
+import { notify } from '../site/toast';
 
 async function incinerate(items: BurnRef[], markType?: string): Promise<void> {
   const total = items.length;
@@ -22,20 +17,21 @@ async function incinerate(items: BurnRef[], markType?: string): Promise<void> {
   });
   if (!confirmed) return;
 
-  const fire = progress(`Burning ${total} items...`);
-  let burnt = 0;
+  // One burn holds a single resource type, since types burn differently, so each
+  // type enqueues separately.
+  const byType = new Map<BurnRef['type'], string[]>();
   for (const item of items) {
-    try {
-      await hide(item.type, item.id);
-      if (markType) await markWarning(item.type, item.id, markType);
-      burnt += 1;
-    } catch {
-      // Count only what actually burned; a failure shouldn't halt the pile.
-    }
-    fire.update(`Burning ${burnt} of ${total}...`);
-    await delay(THROTTLE_MS);
+    const ids = byType.get(item.type) ?? [];
+    ids.push(item.id);
+    byType.set(item.type, ids);
   }
-  fire.finish(`Turned ${burnt} item${burnt === 1 ? '' : 's'} to ash.`);
+  for (const [type, ids] of byType) {
+    enqueue({
+      type,
+      markType,
+      targets: ids.map((id) => ({ id, status: 'pending' as const })),
+    });
+  }
   burnPile.clear();
 }
 
