@@ -1,17 +1,11 @@
-import type { Action } from '../core/actions/types';
-import {
-  downloadFile,
-  downloadHost,
-  isDownloadable,
-  looksLikeFile,
-} from '../core/download';
+import { downloadFile, downloadHost, isDownloadable } from './download';
 import {
   addSource,
   clearDirectUrl,
   readDirectUrl,
   setUploadFile,
-} from '../site/upload';
-import { notifyError, progress } from '../site/toast';
+} from './upload';
+import { notifyError, progress } from '../../site/toast';
 
 function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -19,7 +13,7 @@ function message(error: unknown): string {
 
 // Rescue an upload whose direct URL e621's server can't fetch: download the
 // image here, keep the link as a source, and hand e621 the file instead.
-async function fixFileUpload(): Promise<void> {
+export async function convertDirectUrl(): Promise<void> {
   const url = readDirectUrl();
   if (!url) {
     notifyError('No image URL to fix');
@@ -47,27 +41,3 @@ async function fixFileUpload(): Promise<void> {
   }
   status.finish(`Replaced link with file ${file.name}`);
 }
-
-export const fixUpload: Action = {
-  id: 'upload.fix-file',
-  title: 'Convert direct source link to file upload',
-  description: "Upload a link e621 can't fetch on its own",
-  keywords: [
-    'upload',
-    'file',
-    'fix',
-    'download',
-    'source',
-    'direct',
-    'url',
-    'convert',
-    'link',
-  ],
-  weight: 2,
-  when: (page) => {
-    if (page.kind !== 'upload') return false;
-    const url = readDirectUrl();
-    return url !== null && looksLikeFile(url);
-  },
-  run: () => void fixFileUpload(),
-};

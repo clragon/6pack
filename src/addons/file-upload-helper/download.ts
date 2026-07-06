@@ -1,8 +1,9 @@
 // Fetches image bytes from third-party hosts the way e621's server can't: with
 // GM_xmlhttpRequest, which runs from the user's browser (their IP, no CORS) so
 // hotlink-protected hosts that block e621's server-side downloader respond. The
-// host allowlist mirrors the @connect grants in vite.config.ts; the userscript
-// manager refuses any host not granted there, so the two lists must stay in sync.
+// host allowlist mirrors the @connect grants for this add-on (manifest.json) and
+// 6pack's own header (vite.config.ts, for the managed path); keep the three lists
+// in sync.
 import { GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client';
 
 // Base domains we may download from, matched against a host or any subdomain.

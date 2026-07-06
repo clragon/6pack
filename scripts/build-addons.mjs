@@ -51,6 +51,9 @@ export async function buildAddons({ watch = false } = {}) {
             description: addon.description,
             namespace: NAMESPACE,
             match: MATCH,
+            // Hosts a standalone install reaches with GM_xmlhttpRequest; managed
+            // installs use 6pack's own @connect grants.
+            connect: addon.connect,
           },
         }),
       ],

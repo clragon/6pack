@@ -13,7 +13,6 @@ import { jumpTo, manageJumps } from './nav';
 import { postActions } from './post';
 import { settingsActions } from './settings';
 import { ticketActions } from './ticket';
-import { fixUpload } from './upload';
 import { viewUser } from './viewUser';
 
 export const allActions: Action[] = [
@@ -30,7 +29,6 @@ export const allActions: Action[] = [
   burnable,
   ...settingsActions,
   mode,
-  fixUpload,
   ...addonsActions,
   help,
   logs,

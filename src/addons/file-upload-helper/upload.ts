@@ -4,7 +4,7 @@
 // exists while no direct URL is set (v-if="!disableFileUpload"), so a caller must
 // clear the URL before injecting a file and wait for the input to re-mount.
 
-const DIRECT_URL = 'input[placeholder="Paste image URL"]';
+export const DIRECT_URL = 'input[placeholder="Paste image URL"]';
 const FILE_INPUT = '#file-input';
 const SOURCE_ROW = '.upload-source-row input[type="text"]';
 const ADD_SOURCE = '.upload-source-add';

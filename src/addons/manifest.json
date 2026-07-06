@@ -36,6 +36,30 @@
       "file": "re621.user.js"
     },
     {
+      "id": "file-upload-helper",
+      "name": "File Upload Helper",
+      "description": "Fetch links e621 can't grab and upload them as files",
+      "entry": "src/addons/file-upload-helper/entry.ts",
+      "file": "file-upload-helper.user.js",
+      "connect": [
+        "twimg.com",
+        "pximg.net",
+        "furaffinity.net",
+        "facdn.net",
+        "wixmp.com",
+        "derpicdn.net",
+        "metapix.net",
+        "discordapp.com",
+        "discordapp.net",
+        "imgur.com",
+        "sofurryfiles.com",
+        "weasyl.com",
+        "bsky.app",
+        "e621.net",
+        "e926.net"
+      ]
+    },
+    {
       "id": "quick-replies",
       "name": "Quick Replies",
       "description": "Stop retyping the same responses",
