@@ -1,14 +1,10 @@
 import type { Action } from '../actions/types';
 import { registerChipSource, type Chip } from '../palette/chips';
 import { openConfirm } from '../palette/confirm';
-import { progress } from '../../site/toast';
 import { navigateTo } from '../navigate';
 import { readBanSubjectUser } from '../../site/ban';
-import { createBan } from '../api/ban';
+import { enqueue } from '../jobs/queue';
 import { massBan, type MassBan } from './massBan';
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-const THROTTLE_MS = 500;
 
 async function banOthers(fields: Record<string, string>, exclude: number) {
   const template = massBan.get();
@@ -21,17 +17,14 @@ async function banOthers(fields: Record<string, string>, exclude: number) {
   });
   if (!ok) return;
 
-  const fire = progress(`Banning ${targets.length} users...`);
-  let banned = 0;
-  for (const id of targets) {
-    try {
-      await createBan(id, fields);
-      banned += 1;
-    } catch {}
-    fire.update(`Banning ${banned} of ${targets.length}...`);
-    await delay(THROTTLE_MS);
-  }
-  fire.finish(`Banned ${banned} user${banned === 1 ? '' : 's'}.`);
+  enqueue({
+    type: 'user',
+    fields,
+    targets: targets.map((id) => ({
+      id: String(id),
+      status: 'pending' as const,
+    })),
+  });
   massBan.clear();
 }
 
