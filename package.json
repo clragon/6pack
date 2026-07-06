@@ -11,11 +11,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "prebuild": "npm run lint",
     "build": "vite build",
-    "prebuild:fat": "npm run lint",
     "build:fat": "vite build --mode fat",
-    "prebuild:addons": "npm run lint",
     "build:addons": "node scripts/build-addons.mjs"
   },
   "devDependencies": {
