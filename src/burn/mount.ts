@@ -118,7 +118,7 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
     toggle.type = 'button';
     toggle.className = ICON_BTN_CLASS;
     toggle.style.cssText =
-      'display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; font-weight: 700;';
+      'display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; color: var(--color-text, #cfd8e6); font-weight: 700;';
     const burntLabel = document.createElement('span');
     burntLabel.style.cssText = 'font-size: 13px; line-height: 16px;';
     burntLabel.textContent = String(burntCount());
