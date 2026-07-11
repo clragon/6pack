@@ -27,14 +27,18 @@ function fetchCode(file: string): Promise<string> {
   });
 }
 
-// Run an add-on's body in 6pack's world, injecting unsafeWindow so it reaches
-// the already-published bridge. The userscript header is just comments, ignored
-// by eval; 6pack honors what it would have meant instead (managed add-ons
-// inherit 6pack's grants and add none). Running here (not as a separate
-// userscript) is what makes the add-on lifecycle-owned: it loads only while
-// enabled and dies with 6pack.
+// Run an add-on's body in 6pack's world. A new Function body resolves free names
+// against the global scope, not 6pack's grant closure, so the bindings the
+// artifact compiled against are passed in: unsafeWindow to reach the published
+// bridge, and GM_xmlhttpRequest so its `typeof` guard finds the granted function.
+// The userscript header is inert comments here; managed add-ons inherit 6pack's
+// grants and add none. Running in-process (not as a separate userscript) keeps
+// the add-on lifecycle-owned: it loads only while enabled and dies with 6pack.
 function runCode(code: string): void {
-  new Function('unsafeWindow', code)(unsafeWindow);
+  new Function('unsafeWindow', 'GM_xmlhttpRequest', code)(
+    unsafeWindow,
+    GM_xmlhttpRequest,
+  );
 }
 
 // Load an add-on, stashing its code for next time. A cached artifact runs
