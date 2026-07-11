@@ -73,6 +73,14 @@
       "description": "Build records from your own reasons and the rules they cite",
       "entry": "src/addons/quick-feedbacks/entry.ts",
       "file": "quick-feedbacks.user.js"
+    },
+    {
+      "id": "compare-replacements",
+      "name": "Compare Replacements",
+      "description": "See exactly what a replacement changed before you wave it through",
+      "entry": "src/addons/compare-replacements/entry.ts",
+      "file": "compare-replacements.user.js",
+      "connect": ["e621.net", "e926.net"]
     }
   ]
 }

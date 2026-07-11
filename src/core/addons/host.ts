@@ -5,6 +5,7 @@ import type { PageContext } from '../context/types';
 import { settings } from '../settings';
 import { whenReady } from '../ready';
 import { registerTicketResponseProvider } from '../tickets/providers';
+import { openConfirm } from '../palette/confirm';
 import { openDialog } from '../palette/dialog';
 import { registerManual } from './manual';
 import { log } from '../log';
@@ -19,6 +20,7 @@ export class AddonHost {
     version: 1,
     register: (addon) => this.register(addon),
     openDialog: (spec) => openDialog(spec),
+    confirm: (request) => openConfirm(request),
   };
 
   constructor(

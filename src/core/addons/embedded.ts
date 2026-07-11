@@ -7,6 +7,7 @@ import { re621Addon } from '../../addons/re621';
 import { quickRepliesAddon } from '../../addons/quick-replies';
 import { quickFeedbacksAddon } from '../../addons/quick-feedbacks';
 import { fileUploadHelperAddon } from '../../addons/file-upload-helper';
+import { compareReplacementsAddon } from '../../addons/compare-replacements';
 
 // Add-on objects compiled into a fat build, keyed by catalog id. The manager
 // registers these directly instead of fetching and eval'ing an artifact, so a
@@ -21,4 +22,5 @@ export const EMBEDDED: Record<string, SixpackAddon> = {
   'quick-replies': quickRepliesAddon,
   'quick-feedbacks': quickFeedbacksAddon,
   'file-upload-helper': fileUploadHelperAddon,
+  'compare-replacements': compareReplacementsAddon,
 };

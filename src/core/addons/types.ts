@@ -1,4 +1,5 @@
 import type { Action } from '../actions/types';
+import type { ConfirmRequest, ConfirmResult } from '../palette/confirm';
 import type { PageContext } from '../context/types';
 import type { DialogSpec } from '../palette/dialog';
 import type { SettingSpec, SettingsApi } from '../settings';
@@ -46,4 +47,8 @@ export interface SixpackApi {
   // Render a dialog in the palette's chrome from add-on-supplied content, the way
   // an add-on reaches a real dialog without importing core. Returns a close handle.
   openDialog(spec: DialogSpec): () => void;
+  // Raise the palette's own confirm overlay, so an add-on's confirmation looks
+  // identical to core's instead of a bundled, disconnected copy. Resolves with the
+  // field/option values, or null on cancel.
+  confirm(request: ConfirmRequest): Promise<ConfirmResult | null>;
 }
