@@ -26,7 +26,12 @@ function fetchCode(file: string): Promise<string> {
 }
 
 function runCode(code: string): void {
-  new Function('unsafeWindow', code)(unsafeWindow);
+  // A Function body resolves free names on the global object and not in the
+  // userscript manager's grant closure, so the grants pass in as parameters.
+  new Function('unsafeWindow', 'GM_xmlhttpRequest', code)(
+    unsafeWindow,
+    GM_xmlhttpRequest,
+  );
 }
 
 export function loadAddon(id: string, file: string): void {
