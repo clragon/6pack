@@ -7,6 +7,7 @@ import { re621Addon } from '../../addons/re621';
 import { quickRepliesAddon } from '../../addons/quick-replies';
 import { quickFeedbacksAddon } from '../../addons/quick-feedbacks';
 import { fileUploadHelperAddon } from '../../addons/file-upload-helper';
+import { compareReplacementsAddon } from '../../addons/compare-replacements';
 
 export const EMBEDDED: Record<string, SixpackAddon> = {
   sources: sourcesAddon,
@@ -17,4 +18,5 @@ export const EMBEDDED: Record<string, SixpackAddon> = {
   'quick-replies': quickRepliesAddon,
   'quick-feedbacks': quickFeedbacksAddon,
   'file-upload-helper': fileUploadHelperAddon,
+  'compare-replacements': compareReplacementsAddon,
 };

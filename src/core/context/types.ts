@@ -3,5 +3,6 @@ export type PageContext =
   | { kind: 'ticket'; id: number }
   | { kind: 'user'; id: number }
   | { kind: 'userFeedbacks'; userId: number | null }
+  | { kind: 'postReplacements'; postId: number | null }
   | { kind: 'upload' }
   | { kind: 'unknown' };
