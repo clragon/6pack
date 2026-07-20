@@ -223,10 +223,15 @@ const DISPLAY_RULES: Record<string, (u: URL) => string | null> = {
     return null;
   },
   'twitter.com': (u) => {
-    const status = u.pathname.match(/^\/([^/]+)\/status\/(\d+)/);
-    if (status) return `@${status[1]}/${status[2]}`;
+    // Twitter serves /i/status and /i/web/status urls with no handle in the
+    // path, so the name comes from the verifier's author.
+    const status = u.pathname.match(/^\/([^/]+)(?:\/web)?\/status\/(\d+)/);
+    if (status) {
+      return status[1] === 'i' ? `#${status[2]}` : `@${status[1]}/${status[2]}`;
+    }
     const profile = u.pathname.replace(/^\/+|\/+$/g, '');
-    return profile && !profile.includes('/') ? `@${profile}` : null;
+    if (!profile || profile.includes('/') || profile === 'i') return null;
+    return `@${profile}`;
   },
   'pixiv.net': (u) => {
     const art = u.pathname.match(/artworks\/(\d+)/);
@@ -260,10 +265,11 @@ const DISPLAY_RULES: Record<string, (u: URL) => string | null> = {
     return null;
   },
   'bsky.app': (u) => {
-    const post = u.pathname.match(/^\/profile\/([^/]+)\/post\/([^/]+)/);
-    if (post) return `@${trimBskyHandle(post[1])}/${post[2]}`;
-    const profile = u.pathname.match(/^\/profile\/([^/]+)/);
-    return profile ? `@${trimBskyHandle(profile[1])}` : null;
+    const m = u.pathname.match(/^\/profile\/([^/]+)(?:\/post\/([^/]+))?/);
+    if (!m) return null;
+    if (m[1].startsWith('did:')) return m[2] ? `#${m[2]}` : m[1];
+    const handle = trimBskyHandle(m[1]);
+    return m[2] ? `@${handle}/${m[2]}` : `@${handle}`;
   },
   'mastodon.social': mastodonLabel,
   'pawoo.net': mastodonLabel,
