@@ -1,10 +1,12 @@
 import type { SixpackAddon } from '../../core/addons/types';
-import { getSourceDisplayLabel } from '../../core/sources/url';
+import { getSourceLabel } from '../../core/sources/url';
 
 const STASH = 'sixpackSource';
 
 const ANCHOR_SELECTOR =
   '.source-link a[href^="http"]:not(.jsv-replacement-anchor)';
+
+const AUTHORS_ATTRIBUTE = 'data-authors';
 
 function sourceAnchors(root: ParentNode): HTMLAnchorElement[] {
   return Array.from(root.querySelectorAll<HTMLAnchorElement>(ANCHOR_SELECTOR));
@@ -14,16 +16,37 @@ function labelNode(anchor: HTMLAnchorElement): HTMLElement {
   return anchor.querySelector('span') ?? anchor;
 }
 
+function readAuthors(anchor: HTMLAnchorElement): string[] | undefined {
+  const raw = anchor.getAttribute(AUTHORS_ATTRIBUTE);
+  if (!raw) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed === 'string') return parsed ? [parsed] : undefined;
+    if (Array.isArray(parsed))
+      return parsed.filter((a) => typeof a === 'string');
+  } catch {
+    return undefined;
+  }
+  return undefined;
+}
+
+function setLabel(el: HTMLElement, text: string): void {
+  const node = Array.from(el.childNodes).find(
+    (n): n is Text => n.nodeType === Node.TEXT_NODE,
+  );
+  if (node) node.data = text;
+  else el.appendChild(document.createTextNode(text));
+}
+
 function shorten(anchor: HTMLAnchorElement): void {
   const el = labelNode(anchor);
-  if (el.dataset[STASH] !== undefined) return;
   const href = anchor.getAttribute('href');
   if (!href) return;
-  const label = getSourceDisplayLabel(href);
-  const original = el.textContent ?? '';
-  if (label === original) return;
+  const original = el.dataset[STASH] ?? el.textContent ?? '';
+  const label = getSourceLabel(href, readAuthors(anchor));
+  if (label === el.textContent) return;
   el.dataset[STASH] = original;
-  el.textContent = label;
+  setLabel(el, label);
   anchor.title = original;
 }
 
@@ -31,7 +54,7 @@ function restore(anchor: HTMLAnchorElement): void {
   const el = labelNode(anchor);
   const original = el.dataset[STASH];
   if (original === undefined) return;
-  el.textContent = original;
+  setLabel(el, original);
   delete el.dataset[STASH];
   anchor.removeAttribute('title');
 }
@@ -56,9 +79,21 @@ function mount(): () => void {
       for (const node of mutation.addedNodes) {
         if (node instanceof HTMLElement) shortenWithin(node);
       }
+      const target = mutation.target;
+      if (
+        mutation.attributeName === AUTHORS_ATTRIBUTE &&
+        target instanceof HTMLAnchorElement &&
+        target.matches(ANCHOR_SELECTOR)
+      ) {
+        shorten(target);
+      }
     }
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributeFilter: [AUTHORS_ATTRIBUTE],
+  });
 
   return () => {
     observer.disconnect();
