@@ -1,5 +1,5 @@
 import type { SixpackAddon } from '../../core/addons/types';
-import { getSourceDisplayLabel } from '../../core/sources/url';
+import { getSourceLabel } from '../../core/sources/url';
 
 // Shortens source links in the post sidebar to their salient token by rewriting
 // the visible label. The selector takes only http anchors (skipping the janitor
@@ -12,6 +12,8 @@ const STASH = 'sixpackSource';
 const ANCHOR_SELECTOR =
   '.source-link a[href^="http"]:not(.jsv-replacement-anchor)';
 
+const AUTHORS_ATTRIBUTE = 'data-authors';
+
 function sourceAnchors(root: ParentNode): HTMLAnchorElement[] {
   return Array.from(root.querySelectorAll<HTMLAnchorElement>(ANCHOR_SELECTOR));
 }
@@ -20,16 +22,41 @@ function labelNode(anchor: HTMLAnchorElement): HTMLElement {
   return anchor.querySelector('span') ?? anchor;
 }
 
+// The verifier stamps the artists it resolved onto the anchor as JSON, a bare
+// handle for some platforms and a list for others.
+function readAuthors(anchor: HTMLAnchorElement): string[] | undefined {
+  const raw = anchor.getAttribute(AUTHORS_ATTRIBUTE);
+  if (!raw) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed === 'string') return parsed ? [parsed] : undefined;
+    if (Array.isArray(parsed))
+      return parsed.filter((a) => typeof a === 'string');
+  } catch {
+    return undefined;
+  }
+  return undefined;
+}
+
+// The verifier prepends its match icons into the same node, so the label swap
+// has to leave everything but the text alone.
+function setLabel(el: HTMLElement, text: string): void {
+  const node = Array.from(el.childNodes).find(
+    (n): n is Text => n.nodeType === Node.TEXT_NODE,
+  );
+  if (node) node.data = text;
+  else el.appendChild(document.createTextNode(text));
+}
+
 function shorten(anchor: HTMLAnchorElement): void {
   const el = labelNode(anchor);
-  if (el.dataset[STASH] !== undefined) return;
   const href = anchor.getAttribute('href');
   if (!href) return;
-  const label = getSourceDisplayLabel(href);
-  const original = el.textContent ?? '';
-  if (label === original) return;
+  const original = el.dataset[STASH] ?? el.textContent ?? '';
+  const label = getSourceLabel(href, readAuthors(anchor));
+  if (label === el.textContent) return;
   el.dataset[STASH] = original;
-  el.textContent = label;
+  setLabel(el, label);
   anchor.title = original;
 }
 
@@ -37,7 +64,7 @@ function restore(anchor: HTMLAnchorElement): void {
   const el = labelNode(anchor);
   const original = el.dataset[STASH];
   if (original === undefined) return;
-  el.textContent = original;
+  setLabel(el, original);
   delete el.dataset[STASH];
   anchor.removeAttribute('title');
 }
@@ -57,15 +84,28 @@ function applyAll(on: boolean): void {
 function mount(): () => void {
   applyAll(true);
 
-  // The verifier injects its source lists asynchronously; shorten new nodes too.
+  // The verifier injects its source lists asynchronously, and stamps the
+  // authors on anchors we already shortened; relabel on both.
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes) {
         if (node instanceof HTMLElement) shortenWithin(node);
       }
+      const target = mutation.target;
+      if (
+        mutation.attributeName === AUTHORS_ATTRIBUTE &&
+        target instanceof HTMLAnchorElement &&
+        target.matches(ANCHOR_SELECTOR)
+      ) {
+        shorten(target);
+      }
     }
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributeFilter: [AUTHORS_ATTRIBUTE],
+  });
 
   return () => {
     observer.disconnect();

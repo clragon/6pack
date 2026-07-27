@@ -239,7 +239,10 @@ const trimBskyHandle = (handle: string): string =>
 // pximg.net resolve here too). Returns null to fall back to host + path. The
 // favicon already conveys the platform, so known platforms can drop it. The
 // patterns mirror the source-verifier's per-site checkers.
-const DISPLAY_RULES: Record<string, (u: URL) => string | null> = {
+const DISPLAY_RULES: Record<
+  string,
+  (u: URL, author?: string) => string | null
+> = {
   'furaffinity.net': (u) => {
     // Keep the query string: FA carries an uploader hint there.
     const view = u.pathname.match(/\/(?:view|full)\/(\d+)/);
@@ -251,12 +254,13 @@ const DISPLAY_RULES: Record<string, (u: URL) => string | null> = {
     if (cdn) return `${cdn[1]}/${cdn[2]}${u.search}`;
     return null;
   },
-  'twitter.com': (u) => {
-    // `/i/` is a routing shortcut standing in for the handle, with `/i/web/`
-    // preceding the status.
+  'twitter.com': (u, author) => {
+    // `/i/` is a routing shortcut standing in for the handle (and `/i/web/`
+    // precedes the status), so the name has to come from the verifier.
     const status = u.pathname.match(/^\/([^/]+)(?:\/web)?\/status\/(\d+)/);
     if (status) {
-      return status[1] === 'i' ? `#${status[2]}` : `@${status[1]}/${status[2]}`;
+      const raw = status[1] === 'i' ? author : status[1];
+      return raw ? `@${raw}/${status[2]}` : `#${status[2]}`;
     }
     const profile = u.pathname.replace(/^\/+|\/+$/g, '');
     if (!profile || profile.includes('/') || profile === 'i') return null;
@@ -293,12 +297,13 @@ const DISPLAY_RULES: Record<string, (u: URL) => string | null> = {
     if (sub && sub[1] !== 'www') return `@${sub[1]}`;
     return null;
   },
-  'bsky.app': (u) => {
+  'bsky.app': (u, author) => {
     const m = u.pathname.match(/^\/profile\/([^/]+)(?:\/post\/([^/]+))?/);
     if (!m) return null;
-    // A DID carries no name of its own, so the post id reads better.
-    if (m[1].startsWith('did:')) return m[2] ? `#${m[2]}` : m[1];
-    const handle = trimBskyHandle(m[1]);
+    // A DID carries no name of its own, so the verifier's author stands in.
+    const raw = m[1].startsWith('did:') ? author : m[1];
+    if (!raw) return m[2] ? `#${m[2]}` : m[1];
+    const handle = trimBskyHandle(raw);
     return m[2] ? `@${handle}/${m[2]}` : `@${handle}`;
   },
   'mastodon.social': mastodonLabel,
@@ -346,7 +351,7 @@ const DISPLAY_RULES: Record<string, (u: URL) => string | null> = {
     idIn(u.hash, /(\d+)/) ?? idIn(u.pathname, /\/thread\/(\d+)/),
 };
 
-export const getSourceDisplayLabel = (url: string): string => {
+export const getSourceDisplayLabel = (url: string, author?: string): string => {
   let u: URL;
   try {
     u = new URL(url);
@@ -356,7 +361,7 @@ export const getSourceDisplayLabel = (url: string): string => {
 
   const canonical = getHostnameForLink(url);
   if (canonical && DISPLAY_RULES[canonical]) {
-    const label = DISPLAY_RULES[canonical](u);
+    const label = DISPLAY_RULES[canonical](u, author);
     if (label) return label;
   }
 
@@ -375,4 +380,12 @@ export const getSourceDisplayLabel = (url: string): string => {
   const host = u.hostname.replace(/^www\./, '');
   const path = u.pathname.replace(/\/+$/, '');
   return `${host}${path}${u.search}`;
+};
+
+// The verifier resolves artist handles the URL alone cannot yield, so its
+// authors feed the platform rules and prefix bare id labels (#123).
+export const getSourceLabel = (url: string, authors?: string[]): string => {
+  const author = authors?.[0];
+  const label = getSourceDisplayLabel(url, author);
+  return author && label.startsWith('#') ? `${author}${label}` : label;
 };
