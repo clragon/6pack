@@ -5,7 +5,7 @@ import {
 import { readJson, writeJson } from '../storage';
 import { log } from '../log';
 
-const BASE_URL = 'http://127.0.0.1:5837/addons/';
+const BASE_URL = __ADDON_BASE__;
 
 const CACHE_PREFIX = 'addons.code.';
 

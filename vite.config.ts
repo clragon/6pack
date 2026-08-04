@@ -3,13 +3,25 @@ import monkey from 'vite-plugin-monkey';
 
 import { buildAddons } from './scripts/build-addons.mjs';
 
-export default defineConfig(({ mode }) => {
+const REPO = process.env.GITHUB_REPOSITORY ?? 'clragon/6pack';
+const RELEASE = `https://github.com/${REPO}/releases`;
+
+function addonBase(serving: boolean): string {
+  if (serving) return 'http://127.0.0.1:5837/addons/';
+  const tag = process.env.RELEASE_TAG;
+  return tag ? `${RELEASE}/download/${tag}/` : `${RELEASE}/latest/download/`;
+}
+
+export default defineConfig(({ command, mode }) => {
   const fat = mode === 'fat';
   return {
     server: { port: 5837 },
     publicDir: fat ? false : 'public',
     build: { minify: true, emptyOutDir: !fat },
-    define: { __FAT__: JSON.stringify(fat) },
+    define: {
+      __FAT__: JSON.stringify(fat),
+      __ADDON_BASE__: JSON.stringify(addonBase(command === 'serve')),
+    },
     plugins: [
       !fat &&
         ({
@@ -26,6 +38,8 @@ export default defineConfig(({ mode }) => {
           'run-at': 'document-start',
           icon: 'https://em-content.zobj.net/source/microsoft-3D-fluent/433/fire-extinguisher_1f9ef.png',
           match: ['https://e621.net/*', 'https://e926.net/*'],
+          updateURL: `${RELEASE}/latest/download/${fat ? '6pack.fat.user.js' : '6pack.user.js'}`,
+          downloadURL: `${RELEASE}/latest/download/${fat ? '6pack.fat.user.js' : '6pack.user.js'}`,
           // The managed File Upload Helper borrows these grants, so this list
           // mirrors ALLOWED_HOSTS in src/addons/file-upload-helper/download.ts.
           connect: [
@@ -46,6 +60,10 @@ export default defineConfig(({ mode }) => {
             'e926.net',
             '127.0.0.1',
             'localhost',
+            // GitHub redirects a release download to an asset host, and
+            // Tampermonkey checks @connect against the initial and final url.
+            'github.com',
+            'objects.githubusercontent.com',
           ],
         },
       }),
