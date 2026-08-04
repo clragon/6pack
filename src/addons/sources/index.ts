@@ -14,6 +14,12 @@ const ANCHOR_SELECTOR =
 
 const AUTHORS_ATTRIBUTE = 'data-authors';
 
+// e621 clips a source row to one line and lifts the clip while it is hovered,
+// which reveals a long url in full. A shortened label leaves that nothing to
+// reveal, so the original text goes back for as long as the pointer is on the
+// row.
+const SOURCE_ROW = '.source-link';
+
 function sourceAnchors(root: ParentNode): HTMLAnchorElement[] {
   return Array.from(root.querySelectorAll<HTMLAnchorElement>(ANCHOR_SELECTOR));
 }
@@ -60,6 +66,14 @@ function shorten(anchor: HTMLAnchorElement): void {
   anchor.title = original;
 }
 
+// The stash survives, so the short label can be reapplied when the pointer
+// leaves.
+function expand(anchor: HTMLAnchorElement): void {
+  const el = labelNode(anchor);
+  const original = el.dataset[STASH];
+  if (original !== undefined) setLabel(el, original);
+}
+
 function restore(anchor: HTMLAnchorElement): void {
   const el = labelNode(anchor);
   const original = el.dataset[STASH];
@@ -81,8 +95,30 @@ function applyAll(on: boolean): void {
   }
 }
 
+function rowOf(target: EventTarget | null): HTMLElement | null {
+  return target instanceof Element
+    ? target.closest<HTMLElement>(SOURCE_ROW)
+    : null;
+}
+
 function mount(): () => void {
   applyAll(true);
+
+  // mouseenter and mouseleave do not bubble, so the row is resolved from the
+  // bubbling pair instead; a move that stays inside one row reports the same
+  // row on both ends and is ignored.
+  const onOver = (event: MouseEvent): void => {
+    const row = rowOf(event.target);
+    if (!row || row === rowOf(event.relatedTarget)) return;
+    for (const anchor of sourceAnchors(row)) expand(anchor);
+  };
+  const onOut = (event: MouseEvent): void => {
+    const row = rowOf(event.target);
+    if (!row || row === rowOf(event.relatedTarget)) return;
+    for (const anchor of sourceAnchors(row)) shorten(anchor);
+  };
+  document.body.addEventListener('mouseover', onOver);
+  document.body.addEventListener('mouseout', onOut);
 
   // The verifier injects its source lists asynchronously, and stamps the
   // authors on anchors we already shortened; relabel on both.
@@ -109,6 +145,8 @@ function mount(): () => void {
 
   return () => {
     observer.disconnect();
+    document.body.removeEventListener('mouseover', onOver);
+    document.body.removeEventListener('mouseout', onOut);
     applyAll(false);
   };
 }
