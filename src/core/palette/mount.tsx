@@ -1,5 +1,5 @@
 import { render } from 'preact';
-import { useMemo } from 'preact/hooks';
+import { useMemo, useRef } from 'preact/hooks';
 
 import type { Action } from '../actions/types';
 import type { PageContext } from '../context/types';
@@ -23,14 +23,19 @@ function Root({
 }) {
   const open = useToggle(paletteStore);
   const capturing = useToggle(captureStore);
-  // Re-resolve on each open so predicates (e.g. approval mode) stay live.
-  const actions = useMemo(
-    () => (open ? resolveActions() : []),
-    [open, resolveActions],
-  );
+  // Re-resolve on each open so predicates (e.g. approval mode) stay live. The
+  // count rides along as a key, so each open mounts a fresh palette and its
+  // state is set up during render, before the input can be typed into.
+  const session = useRef(0);
+  const actions = useMemo(() => {
+    if (!open) return [];
+    session.current += 1;
+    return resolveActions();
+  }, [open, resolveActions]);
   return (
     <>
       <Palette
+        key={session.current}
         open={open}
         page={page}
         actions={actions}

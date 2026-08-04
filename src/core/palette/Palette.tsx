@@ -61,7 +61,33 @@ function reportRunFailure(action: Action, error: unknown): void {
 }
 
 export function Palette({ open, page, actions, onClose }: PaletteProps) {
-  const [stack, setStack] = useState<Level[]>([{ actions }]);
+  // Opening mounts a fresh palette (see mount.tsx), so the level it starts on is
+  // resolved here: where a dialog sent us back to, the group an inline target
+  // names, else the root.
+  const [stack, setStack] = useState<Level[]>(() => {
+    const restore = takeRestore();
+    const target = takePaletteTarget();
+    if (restore) return [{ actions }, ...restore.slice(1)];
+    if (target) {
+      const group = actions.find((action) => action.id === target);
+      try {
+        const children = group?.submenu?.({ page, close: onClose });
+        if (group && children && !(children instanceof Promise)) {
+          return [
+            { actions },
+            {
+              title: group.title,
+              actions: children,
+              placeholder: group.placeholder,
+            },
+          ];
+        }
+      } catch {
+        // Fall back to root if the group's children can't resolve.
+      }
+    }
+    return [{ actions }];
+  });
   const [filter, setFilter] = useState('');
   const [selected, setSelected] = useState(0);
   const [frecency, setFrecency] = useState(getFrecency);
@@ -104,38 +130,8 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   useEffect(() => {
     if (!open) return;
-    childCache.current.clear();
-    // Reopen where a dialog sent us back to, else at root. Keep a fresh root so
-    // its predicates re-evaluate; reuse the captured deeper levels as-is. An
-    // inline "open at" target instead drills straight into that group.
-    const restore = takeRestore();
-    const target = takePaletteTarget();
-    let next: Level[] = restore
-      ? [{ actions }, ...restore.slice(1)]
-      : [{ actions }];
-    if (target && !restore) {
-      const group = actions.find((action) => action.id === target);
-      try {
-        const children = group?.submenu?.(ctx);
-        if (group && children && !(children instanceof Promise)) {
-          next = [
-            { actions },
-            {
-              title: group.title,
-              actions: children,
-              placeholder: group.placeholder,
-            },
-          ];
-        }
-      } catch {
-        // Fall back to root if the group's children can't resolve.
-      }
-    }
-    setStack(next);
-    setFilter('');
-    setFrecency(getFrecency());
     requestAnimationFrame(() => focusNoScroll(inputRef.current));
-  }, [open, actions, ctx]);
+  }, [open]);
 
   // Ask volatile chip sources (open tickets in other tabs) to refresh on open,
   // and re-render as their state changes while open.
