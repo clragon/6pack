@@ -13,7 +13,9 @@ export default defineConfig(({ mode }) => {
     // A fat build is self-contained, so it carries none of the separately-built
     // add-on artifacts from public/addons.
     publicDir: fat ? false : 'public',
-    build: { minify: true },
+    // The thin build clears dist; the fat one carries a distinct filename and
+    // lands beside it, so a thin-then-fat run leaves both artifacts standing.
+    build: { minify: true, emptyOutDir: !fat },
     define: { __FAT__: JSON.stringify(fat) },
     plugins: [
       // Thin dev serves add-on artifacts from public/addons; build and watch them
