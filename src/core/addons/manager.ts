@@ -1,6 +1,7 @@
 import { AddonHost } from './host';
 import { loadAddon } from './loader';
 import { EMBEDDED } from './embedded';
+import { INBUILT } from './inbuilt';
 import { CATALOG, isEnabled, setEnabled } from './catalog';
 import type { CatalogEntry } from './catalog';
 import type { ActionRegistry } from '../actions/registry';
@@ -31,13 +32,19 @@ class AddonManager {
   }
 
   private load(entry: CatalogEntry): void {
+    const inbuilt = INBUILT[entry.id];
+    if (inbuilt) {
+      this.host?.register(inbuilt);
+      return;
+    }
     if (__FAT__) {
       const addon = EMBEDDED[entry.id];
       if (addon) this.host?.register(addon);
       else log.error(`addon ${entry.id} missing from fat bundle`);
       return;
     }
-    loadAddon(entry.id, entry.file);
+    if (entry.file) loadAddon(entry.id, entry.file);
+    else log.error(`addon ${entry.id} has no artifact`);
   }
 }
 

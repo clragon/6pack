@@ -221,10 +221,6 @@
   border: 1px solid var(--color-table-border, #313d52);
   border-radius: 4px;
 }
-.sp-qr-title-input:focus {
-  outline: none;
-  border-color: var(--color-link, #009be6);
-}
 .sp-qr-chips {
   display: flex;
   flex-wrap: wrap;
@@ -324,7 +320,9 @@
 .sp-qr-more-btn:focus-visible,
 .sp-qr-tool-btn:focus-visible,
 .sp-qr-chip:focus-visible,
-.sp-qr-strip-btn:focus-visible {
+.sp-qr-strip-btn:focus-visible,
+.sp-qr-strip-more:focus-visible,
+.sp-qr-strip-flame:focus-visible {
   outline: 2px solid var(--palette-text-yellow, #ffd666);
   outline-offset: -2px;
 }

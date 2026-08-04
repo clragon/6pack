@@ -17,6 +17,16 @@
   box-sizing: border-box;
 }
 
+.sp-backdrop
+  :is(button, input, select, textarea, a[href]):focus-visible:not(.sp-input) {
+  outline: 2px solid var(--palette-text-yellow, #ffd666);
+  outline-offset: -2px;
+}
+
+.sp-panel:focus {
+  outline: none;
+}
+
 .sp-shell.sp-shell-dialog {
   max-width: 920px;
 }
@@ -152,7 +162,9 @@
   align-items: center;
   background: none;
   border: none;
-  padding: 0 2px;
+  padding: 3px 5px;
+  margin: 0 -3px;
+  border-radius: 4px;
   color: var(--palette-text-yellow, #ffd666);
   cursor: pointer;
 }
@@ -415,10 +427,7 @@ button.sp-crumb:hover {
   color: #fff;
 }
 
-.sp-confirm-input:focus,
-.sp-confirm-option:focus-within,
-.sp-btn:focus {
-  outline: none;
+.sp-confirm-option:focus-within {
   border-color: var(--palette-text-yellow, #ffd666);
   box-shadow: 0 0 0 1px var(--palette-text-yellow, #ffd666);
 }
