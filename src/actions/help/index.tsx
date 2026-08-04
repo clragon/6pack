@@ -85,16 +85,20 @@ function Overview() {
           <dt>Esc</dt>
           <dd>go back a level, or close</dd>
         </div>
+        <div class="sp-man-row">
+          <dt>Alt + Up / Down</dt>
+          <dd>move the row you are on, where a list can be reordered</dd>
+        </div>
       </dl>
       <div class="sp-man-section">Chips</div>
       <p class="sp-man-text">
-        Ambient state shows as chips above the input, like a ticket open in
-        another tab. Open one to act on it without leaving this page.
+        Ambient state shows as chips above the input. Open one to act on it
+        without leaving this page.
       </p>
       <div class="sp-man-section">Add-ons</div>
       <p class="sp-man-text">
-        Add-ons add their own commands to the palette. Turn them on under the
-        Add-ons command; each one has its own page here.
+        Additional functionality can be added to 6pack with so called Add-ons.
+        You can enable add-ons by simply typing the add-on command.
       </p>
     </div>
   );

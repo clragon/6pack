@@ -104,7 +104,8 @@ function mount(): () => void {
 export const sourcesAddon: SixpackAddon = {
   id: 'sources',
   name: 'Source shortener',
-  description: 'Shortens pasted source links to their canonical form.',
+  description:
+    "Each source in a post's sidebar is labeled by its identifying part: the artist's handle, the id, or the filename. The origin of a post, and any duplication among its sources, is therefore apparent without reading the addresses in full. The complete address remains available on hover.",
   when: (page) => page.kind === 'post',
   setup: (ctx) => {
     let disposed = false;

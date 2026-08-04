@@ -35,7 +35,7 @@ export const leanApprovalsAddon: SixpackAddon = {
   id: 'lean-approvals',
   name: 'Lean Approvals',
   description:
-    'Pares the approvals bar down to approve, delete, and disapprove.',
+    'The approval bar on a pending post is reduced to approve, disapprove, and delete, colored green, amber, and red respectively. A deletion reason is selected on the confirmation screen that follows, so the bar remains three buttons wide irrespective of how many reasons are defined.',
   when: (page) => page.kind === 'post',
   setup: (ctx) => {
     const style = document.createElement('style');

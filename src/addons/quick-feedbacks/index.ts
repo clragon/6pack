@@ -30,7 +30,7 @@ export const quickFeedbacksAddon: SixpackAddon = {
   id: 'quick-feedbacks',
   name: 'Quick Feedbacks',
   description:
-    'Composes user feedback records from reusable rules and reasons.',
+    'A user record is assembled from selected parts. On the feedback and ban forms, a saved reason, the rules it breaches quoted from the Code of Conduct, and the supporting links combine into the record body. Submitted evidence is normalized to the form records conventionally take, and the rules cited most often are ranked highest.',
   when: onForm,
   actions: [manageRecords],
   setup: (ctx) => {
