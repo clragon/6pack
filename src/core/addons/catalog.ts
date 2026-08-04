@@ -22,11 +22,11 @@ interface ManifestAddon {
 // The add-on registry: the inbuilt add-ons first, then the managed ones from
 // the manifest the build reads too (scripts/build-addons.mjs).
 export const CATALOG: CatalogEntry[] = [
-  ...Object.values(INBUILT).map(
-    (addon): CatalogEntry => ({
-      id: addon.id,
-      name: addon.name,
-      description: addon.description,
+  ...INBUILT.map(
+    (entry): CatalogEntry => ({
+      id: entry.addon.id,
+      name: entry.addon.name,
+      description: entry.description,
       default: false,
     }),
   ),

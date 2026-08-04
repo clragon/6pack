@@ -174,6 +174,8 @@ function mountDom(): () => void {
 export const betterEditsAddon: SixpackAddon = {
   id: 'better-edits',
   name: 'Better Edits',
+  description:
+    'The edit form is placed beside the artwork, so that the tags and the image occupy the screen together. The image answers the wheel with zoom and the drag with pan, at full resolution, and a double click returns it to fit. A detail is therefore verifiable against the tags while they are being written. Requires a wide window.',
   when: (page) => page.kind === 'post',
   setup: (ctx) => {
     const style = document.createElement('style');

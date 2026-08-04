@@ -1,10 +1,23 @@
 import type { SixpackAddon } from './types';
 import { navbarAddon } from '../../addons/navbar';
 
-// Add-ons compiled into 6pack itself, present in every build and installed
-// straight through the host. Being compiled in lets them import core directly
-// rather than reaching it through the bridge; it does not make them enabled
-// (see the catalog).
-export const INBUILT: Record<string, SixpackAddon> = {
-  navbar: navbarAddon,
-};
+// An add-on compiled into 6pack, paired with the one-line pitch the add-on list
+// shows. The pitch is held here because `SixpackAddon.description` carries the
+// manual, which runs to a paragraph; manifest.json draws the same line for a
+// managed add-on.
+interface InbuiltAddon {
+  addon: SixpackAddon;
+  description: string;
+}
+
+// Compiled in, so present in every build and registered straight through the
+// host with no artifact to fetch. Being compiled in lets them import core
+// directly rather than reaching it through the bridge; it does not make them
+// enabled (see the catalog).
+export const INBUILT: InbuiltAddon[] = [
+  { addon: navbarAddon, description: 'Put your own links in the top bar' },
+];
+
+export function inbuiltAddon(id: string): SixpackAddon | undefined {
+  return INBUILT.find((entry) => entry.addon.id === id)?.addon;
+}

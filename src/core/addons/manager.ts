@@ -1,7 +1,7 @@
 import { AddonHost } from './host';
 import { loadAddon } from './loader';
 import { EMBEDDED } from './embedded';
-import { INBUILT } from './inbuilt';
+import { inbuiltAddon } from './inbuilt';
 import { CATALOG, isEnabled, setEnabled } from './catalog';
 import type { CatalogEntry } from './catalog';
 import type { ActionRegistry } from '../actions/registry';
@@ -36,7 +36,7 @@ class AddonManager {
 
   private load(entry: CatalogEntry): void {
     // Inbuilt: no artifact to fetch or unpack in any build.
-    const inbuilt = INBUILT[entry.id];
+    const inbuilt = inbuiltAddon(entry.id);
     if (inbuilt) {
       this.host?.register(inbuilt);
       return;

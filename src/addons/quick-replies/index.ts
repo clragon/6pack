@@ -99,7 +99,7 @@ export const quickRepliesAddon: SixpackAddon = {
   id: 'quick-replies',
   name: 'Quick Replies',
   description:
-    'Fills the reply box from saved templates for tickets, appeals, and dmails.',
+    'Saved answers for tickets, appeals, and dmails are available from the palette and from a strip above the reply box. A reply may incorporate the reporter, the accused, or the reported content, so that a single template serves every case of its kind. Templates are authored, reordered, and exported by the user.',
   when: onReplyPage,
   actions: CONTEXTS.flatMap(makeActions),
   ticketResponses: provider,
