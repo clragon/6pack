@@ -54,7 +54,11 @@ function runCode(code: string): void {
   );
 }
 
-export function loadAddon(id: string, file: string): void {
+export function loadAddon(
+  id: string,
+  file: string,
+  onFailure: (reason: string) => void,
+): void {
   evictOtherBases();
   const cached = import.meta.env.DEV
     ? null
@@ -63,7 +67,9 @@ export function loadAddon(id: string, file: string): void {
     try {
       runCode(cached);
     } catch (error) {
-      log.error(`addon ${id} cached run failed: ${describe(error)}`);
+      const reason = describe(error);
+      log.error(`addon ${id} cached run failed: ${reason}`);
+      onFailure(reason);
     }
     void revalidate(file);
     return;
@@ -73,9 +79,11 @@ export function loadAddon(id: string, file: string): void {
       writeJson(cacheKey(file), code);
       runCode(code);
     })
-    .catch((error) =>
-      log.error(`addon ${id} failed to load: ${describe(error)}`),
-    );
+    .catch((error: unknown) => {
+      const reason = describe(error);
+      log.error(`addon ${id} failed to load: ${reason}`);
+      onFailure(reason);
+    });
 }
 
 async function revalidate(file: string): Promise<void> {

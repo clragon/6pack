@@ -18,16 +18,19 @@ export const addonsActions: Action[] = [
     hidden: true,
     weight: -1,
     submenu: () =>
-      CATALOG.map((entry) => ({
-        id: `addons.${entry.id}`,
-        title: entry.name,
-        description: entry.description,
-        submenuOnly: true,
-        checked: () => addons.isEnabled(entry.id),
-        run: () => {
-          if (addons.isEnabled(entry.id)) addons.disable(entry.id);
-          else addons.enable(entry);
-        },
-      })),
+      CATALOG.map((entry) => {
+        const failure = addons.failure(entry.id);
+        return {
+          id: `addons.${entry.id}`,
+          title: entry.name,
+          description: failure ? `Not loaded: ${failure}` : entry.description,
+          submenuOnly: true,
+          checked: () => addons.isEnabled(entry.id),
+          run: () => {
+            if (addons.isEnabled(entry.id)) addons.disable(entry.id);
+            else addons.enable(entry);
+          },
+        };
+      }),
   },
 ];

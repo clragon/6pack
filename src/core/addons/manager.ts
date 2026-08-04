@@ -10,6 +10,7 @@ import { log } from '../log';
 
 class AddonManager {
   private host?: AddonHost;
+  private readonly failures = new Map<string, string>();
 
   init(registry: ActionRegistry, page: PageContext): void {
     this.host = new AddonHost(registry, page);
@@ -21,13 +22,19 @@ class AddonManager {
     return isEnabled(id);
   }
 
+  failure(id: string): string | undefined {
+    return this.failures.get(id);
+  }
+
   enable(entry: CatalogEntry): void {
     setEnabled(entry.id, true);
+    this.failures.delete(entry.id);
     this.load(entry);
   }
 
   disable(id: string): void {
     setEnabled(id, false);
+    this.failures.delete(id);
     this.host?.unload(id);
   }
 
@@ -43,8 +50,15 @@ class AddonManager {
       else log.error(`addon ${entry.id} missing from fat bundle`);
       return;
     }
-    if (entry.file) loadAddon(entry.id, entry.file);
-    else log.error(`addon ${entry.id} has no artifact`);
+    if (entry.file) {
+      loadAddon(entry.id, entry.file, (reason) =>
+        this.failures.set(entry.id, reason),
+      );
+    } else {
+      const reason = 'no artifact';
+      log.error(`addon ${entry.id} has ${reason}`);
+      this.failures.set(entry.id, reason);
+    }
   }
 }
 
