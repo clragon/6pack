@@ -1,3 +1,4 @@
+import { expandTokens } from '../../core/template';
 import {
   readAccused,
   readReportedContent,
@@ -65,14 +66,9 @@ export const DMAIL_VARIABLES: TemplateVariable[] = [
   { token: 'me', label: 'Me', resolve: () => currentUserName() ?? '' },
 ];
 
-// Expand every known %token% against the given variable set; an unknown token is
-// left verbatim.
 export function substitute(
   body: string,
   variables: TemplateVariable[],
 ): string {
-  return body.replace(/%(\w+)%/g, (whole, token) => {
-    const variable = variables.find((v) => v.token === token);
-    return variable ? variable.resolve() : whole;
-  });
+  return expandTokens(body, variables);
 }

@@ -1,15 +1,21 @@
+import { expandTokens, type TokenSpec } from '../../core/template';
 import { currentUser } from '../../site/user';
 import { listEntries, type NavEntry } from './store';
 
 // Tokens an entry's url may carry, the same spelling RE621's header tabs use.
-// An unknown token is left verbatim.
+const TOKENS: TokenSpec[] = [
+  { token: 'username', resolve: () => currentUser()?.name ?? null },
+  {
+    token: 'userid',
+    resolve: () => {
+      const user = currentUser();
+      return user ? String(user.id) : null;
+    },
+  },
+];
+
 export function expand(url: string): string {
-  const user = currentUser();
-  return url.replace(/%(\w+)%/g, (whole, token) => {
-    if (token === 'username') return user?.name ?? whole;
-    if (token === 'userid') return String(user?.id ?? whole);
-    return whole;
-  });
+  return expandTokens(url, TOKENS);
 }
 
 export function pinnedEntries(): NavEntry[] {
