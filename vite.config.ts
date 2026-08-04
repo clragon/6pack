@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   return {
     server: { port: 5837 },
     publicDir: fat ? false : 'public',
-    build: { minify: true },
+    build: { minify: true, emptyOutDir: !fat },
     define: { __FAT__: JSON.stringify(fat) },
     plugins: [
       !fat &&
