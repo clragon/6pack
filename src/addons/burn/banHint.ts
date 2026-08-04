@@ -1,15 +1,15 @@
 import { h, render } from 'preact';
 import { Flame } from 'lucide-preact';
-import { massBan } from '../core/bans/massBan';
-import { paletteStore } from '../core/palette/store';
+import { massBan } from './massBan';
+import { paletteStore } from '../../core/palette/store';
 
-export function mountBanHint(): void {
+export function mountBanHint(): () => void {
   const template = massBan.get();
-  if (!template) return;
+  if (!template) return () => {};
   const heading = document.querySelector<HTMLElement>(
     '#c-bans #a-new h1, #c-bans #a-show h1',
   );
-  if (!heading) return;
+  if (!heading) return () => {};
 
   const button = document.createElement('button');
   button.type = 'button';
@@ -24,4 +24,9 @@ export function mountBanHint(): void {
   button.append(icon, label);
   button.addEventListener('click', () => paletteStore.set(true));
   heading.appendChild(button);
+
+  return () => {
+    render(null, icon);
+    button.remove();
+  };
 }

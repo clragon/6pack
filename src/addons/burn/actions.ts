@@ -1,11 +1,11 @@
-import type { Action } from '../core/actions/types';
-import { burnPile, type BurnRef } from '../core/burn';
-import { resourceName } from '../core/resource';
-import { massBan } from '../core/bans/massBan';
-import { navigateTo } from '../core/navigate';
-import { openConfirm } from '../core/palette/confirm';
-import { enqueue } from '../core/jobs/queue';
-import { notify } from '../site/toast';
+import type { Action } from '../../core/actions/types';
+import { burnPile, type BurnRef } from './pile';
+import { resourceName } from '../../core/resource';
+import { massBan } from './massBan';
+import { navigateTo } from '../../core/navigate';
+import { openConfirm } from '../../core/palette/confirm';
+import { enqueue } from './queue';
+import { notify } from '../../site/toast';
 
 async function incinerate(items: BurnRef[], markType?: string): Promise<void> {
   const total = items.length;

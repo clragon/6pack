@@ -1,5 +1,5 @@
-import { hide, markWarning } from '../api/burn';
-import { createBan } from '../api/ban';
+import { hide, markWarning } from './api';
+import { createBan } from '../../core/api/ban';
 import type { Burn } from './queue';
 
 export async function burnTarget(burn: Burn, id: string): Promise<void> {

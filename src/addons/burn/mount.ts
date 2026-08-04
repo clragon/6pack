@@ -1,24 +1,24 @@
 import { h, render } from 'preact';
 import { Shield, ShieldOff } from 'lucide-preact';
-import { burnPile, type BurnRef } from '../core/burn';
+import { burnPile, type BurnRef } from './pile';
 import {
   ensureIconButtonStyles,
   flameButton,
   ICON_BTN_CLASS,
-} from '../core/palette/flame';
+} from '../../core/palette/flame';
 import {
   currentBurnableConfig,
   readBurnables,
   type Burnable,
-} from '../site/burnable';
+} from './burnable';
 import {
   burntCommentsShown,
   burntCount,
   hasBurntComments,
   subscribeBurntComments,
   toggleBurntComments,
-} from '../site/burntComments';
-import { isModeratorPlus, loadCurrentUser } from '../site/user';
+} from './burntComments';
+import { isModeratorPlus, loadCurrentUser } from '../../site/user';
 
 const CHECKBOX_CLASS = 'sixpack-burner';
 const ALL_CLASS = 'sixpack-burner-all';
@@ -131,30 +131,36 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
   return region;
 }
 
-export function mountBurnControls(): void {
+export function mountBurnControls(): () => void {
+  let teardown: (() => void) | undefined;
+  let disposed = false;
   const config = currentBurnableConfig();
-  if (!config) return;
-  if (config.type === 'user') {
+  if (config?.type === 'user') {
     void loadCurrentUser().then(() => {
-      if (isModeratorPlus()) mountControls();
+      if (!disposed && isModeratorPlus()) teardown = mountControls();
     });
-    return;
+  } else if (config) {
+    teardown = mountControls();
   }
-  mountControls();
+  return () => {
+    disposed = true;
+    teardown?.();
+    teardown = undefined;
+  };
 }
 
-function mountControls(): void {
+function mountControls(): (() => void) | undefined {
   const config = currentBurnableConfig();
-  if (!config) return;
+  if (!config) return undefined;
   const items = readBurnables(config);
-  if (items.length === 0) return;
+  if (items.length === 0) return undefined;
 
   for (const item of items) injectCheckbox(item);
   const region = renderRegion(items);
-  if (!region) return;
+  if (!region) return undefined;
   refreshRegion(items, region);
 
-  burnPile.subscribe(() => {
+  const unsubscribe = burnPile.subscribe(() => {
     for (const item of items) {
       const checkbox = item.el.querySelector<HTMLInputElement>(
         `.${CHECKBOX_CLASS}`,
@@ -163,4 +169,11 @@ function mountControls(): void {
     }
     refreshRegion(items, region);
   });
+
+  return () => {
+    unsubscribe();
+    region.remove();
+    for (const item of items)
+      item.el.querySelector(`.${CHECKBOX_CLASS}`)?.remove();
+  };
 }

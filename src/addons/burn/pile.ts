@@ -1,4 +1,4 @@
-import type { BurnableType } from '../site/burnable';
+import type { BurnableType } from './burnable';
 
 export interface BurnRef {
   type: BurnableType;

@@ -1,5 +1,5 @@
 import { progress } from '../../site/toast';
-import { resourceName } from '../resource';
+import { resourceName } from '../../core/resource';
 import {
   getBurn,
   hasPending,
@@ -112,12 +112,19 @@ async function drain(): Promise<void> {
   }
 }
 
-export function installBurnRunner(): void {
+export function installBurnRunner(): () => void {
   installBurnChip();
-  subscribe(() => void drain());
-  setInterval(() => void drain(), WATCH_MS);
-  window.addEventListener('beforeunload', () => {
+  const unsubscribe = subscribe(() => void drain());
+  const timer = setInterval(() => void drain(), WATCH_MS);
+  const release = (): void => {
     if (owned()) writeLease(null);
-  });
+  };
+  window.addEventListener('beforeunload', release);
   void drain();
+  return () => {
+    unsubscribe();
+    clearInterval(timer);
+    window.removeEventListener('beforeunload', release);
+    release();
+  };
 }

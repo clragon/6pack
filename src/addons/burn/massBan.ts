@@ -1,4 +1,4 @@
-import { readJson, writeJson } from '../storage';
+import { readJson, writeJson } from '../../core/storage';
 
 const KEY = 'sp.massban';
 

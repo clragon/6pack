@@ -1,5 +1,5 @@
-import { transport } from '../auth';
-import type { BurnableType } from '../../site/burnable';
+import { transport } from '../../core/auth';
+import type { BurnableType } from './burnable';
 
 function base(type: BurnableType, id: string): string {
   return type === 'comment' ? `/comments/${id}` : `/forum_posts/${id}`;
