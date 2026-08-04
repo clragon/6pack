@@ -1,4 +1,4 @@
-import type { BurnableType } from '../site/burnable';
+import type { BurnableType } from './burnable';
 
 // A reference to one burnable item: enough to act on it (the DOM element is read
 // live when needed, so refs survive re-renders).

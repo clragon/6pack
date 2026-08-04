@@ -1,24 +1,24 @@
 import { h, render } from 'preact';
 import { Shield, ShieldOff } from 'lucide-preact';
-import { burnPile, type BurnRef } from '../core/burn';
+import { burnPile, type BurnRef } from './pile';
 import {
   ensureIconButtonStyles,
   flameButton,
   ICON_BTN_CLASS,
-} from '../core/palette/flame';
+} from '../../core/palette/flame';
 import {
   currentBurnableConfig,
   readBurnables,
   type Burnable,
-} from '../site/burnable';
+} from './burnable';
 import {
   burntCommentsShown,
   burntCount,
   hasBurntComments,
   subscribeBurntComments,
   toggleBurntComments,
-} from '../site/burntComments';
-import { isModeratorPlus, loadCurrentUser } from '../site/user';
+} from './burntComments';
+import { isModeratorPlus, loadCurrentUser } from '../../site/user';
 
 // Page-DOM injection (not the shadow root): a checkbox per burnable item plus a
 // control region, both styled with e621's own classes/vars so they sit native.
@@ -142,34 +142,40 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
   return region;
 }
 
-export function mountBurnControls(): void {
+export function mountBurnControls(): () => void {
+  let teardown: (() => void) | undefined;
+  let disposed = false;
   const config = currentBurnableConfig();
-  if (!config) return;
   // Banning users is moderator+, and the level only lands after the async user
   // fetch, so gate the user-row controls on it. Other burnables follow e621's own
   // visibility (the server rejects what the viewer can't do).
-  if (config.type === 'user') {
+  if (config?.type === 'user') {
     void loadCurrentUser().then(() => {
-      if (isModeratorPlus()) mountControls();
+      if (!disposed && isModeratorPlus()) teardown = mountControls();
     });
-    return;
+  } else if (config) {
+    teardown = mountControls();
   }
-  mountControls();
+  return () => {
+    disposed = true;
+    teardown?.();
+    teardown = undefined;
+  };
 }
 
-function mountControls(): void {
+function mountControls(): (() => void) | undefined {
   const config = currentBurnableConfig();
-  if (!config) return;
+  if (!config) return undefined;
   const items = readBurnables(config);
-  if (items.length === 0) return;
+  if (items.length === 0) return undefined;
 
   for (const item of items) injectCheckbox(item);
   const region = renderRegion(items);
-  if (!region) return;
+  if (!region) return undefined;
   refreshRegion(items, region);
 
   // Keep the page UI in step with the pile (e.g. a palette "Clear" or select-all).
-  burnPile.subscribe(() => {
+  const unsubscribe = burnPile.subscribe(() => {
     for (const item of items) {
       const checkbox = item.el.querySelector<HTMLInputElement>(
         `.${CHECKBOX_CLASS}`,
@@ -178,4 +184,11 @@ function mountControls(): void {
     }
     refreshRegion(items, region);
   });
+
+  return () => {
+    unsubscribe();
+    region.remove();
+    for (const item of items)
+      item.el.querySelector(`.${CHECKBOX_CLASS}`)?.remove();
+  };
 }

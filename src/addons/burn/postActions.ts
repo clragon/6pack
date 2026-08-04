@@ -3,7 +3,7 @@ import {
   burntCommentsShown,
   hasBurntComments,
   toggleBurntComments,
-} from '../../site/burntComments';
+} from './burntComments';
 
 export const burntComments: Action = {
   id: 'post.burnt-comments',

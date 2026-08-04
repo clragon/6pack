@@ -1,4 +1,4 @@
-import { readJson, writeJson } from '../storage';
+import { readJson, writeJson } from '../../core/storage';
 
 // A pending mass-ban: the users picked on /users, plus the ban[*] fields captured
 // from the first ban's form once it's submitted. Persisted so it survives the

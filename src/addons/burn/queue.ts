@@ -1,8 +1,8 @@
 // The burn queue: batches of throttled burning, persisted and mirrored across tabs.
 // One burn is a single resource type and the IDs to burn.
-import { readJson, writeJson } from '../storage';
-import { openChannel } from '../tabs/channel';
-import type { BurnableType } from '../../site/burnable';
+import { readJson, writeJson } from '../../core/storage';
+import { openChannel } from '../../core/tabs/channel';
+import type { BurnableType } from './burnable';
 
 export type TargetStatus = 'pending' | 'done' | 'failed';
 

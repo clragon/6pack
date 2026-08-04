@@ -1,9 +1,9 @@
-import type { Action } from '../actions/types';
-import { registerChipSource, type Chip } from '../palette/chips';
-import { openConfirm } from '../palette/confirm';
-import { navigateTo } from '../navigate';
+import type { Action } from '../../core/actions/types';
+import { registerChipSource, type Chip } from '../../core/palette/chips';
+import { openConfirm } from '../../core/palette/confirm';
+import { navigateTo } from '../../core/navigate';
 import { readBanSubjectUser } from '../../site/ban';
-import { enqueue } from '../jobs/queue';
+import { enqueue } from './queue';
 import { massBan, type MassBan } from './massBan';
 
 async function banOthers(fields: Record<string, string>, exclude: number) {

@@ -10,7 +10,6 @@ import { deepActiveElement, isEditableElement } from './core/palette/focus';
 import { captureStore, paletteStore } from './core/palette/store';
 import { log } from './core/log';
 import { whenReady } from './core/ready';
-import { mountBurnControls } from './burn/mount';
 import {
   canComposeResponse,
   prefetchReportedDestination,
@@ -22,10 +21,6 @@ import { listTicketResponses } from './core/tickets/providers';
 import { publishOpenTicket } from './core/tickets/registry';
 import { installTicketCommandHandler } from './core/tickets/commands';
 import { installTicketChips } from './core/tickets/chipSource';
-import { installMassBanChip } from './core/bans/chip';
-import { installBurnRunner } from './core/jobs/runner';
-import { captureBanForm } from './site/banCapture';
-import { mountBanHint } from './site/banHint';
 import { loadCurrentUser } from './site/user';
 import { allActions } from './actions';
 
@@ -40,16 +35,8 @@ addons.init(registry, page);
 
 // The rest reads or mounts into the page, so it waits for the parse.
 whenReady(() => {
-  // Both chip sources register on every page.
+  // Registers on every page: the chips report tickets open in other tabs.
   installTicketChips();
-  installMassBanChip();
-  // Drains any persisted burn queue and installs its chip.
-  installBurnRunner();
-
-  // On the new-ban form, capture the submitted ban fields for the pending template.
-  if (location.pathname === '/bans/new') captureBanForm();
-  // On any ban page, hint at the pending template with a flame by the heading.
-  if (/^\/bans\//.test(location.pathname)) mountBanHint();
 
   // Warm the permission cache so level-gated actions resolve on first open, and
   // record the resolved user as clean diagnostic rows.
@@ -79,9 +66,6 @@ whenReady(() => {
       installTicketCommandHandler();
     }
   }
-
-  // Inject the burn checkboxes + controls on pages with burnable items.
-  mountBurnControls();
 
   mountPalette(page, () => registry.available(page));
 

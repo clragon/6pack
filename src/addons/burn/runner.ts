@@ -3,7 +3,7 @@
 // owner so open tabs don't double-fire, and an idle watcher takes over a dead
 // owner's lease so it never stalls.
 import { progress } from '../../site/toast';
-import { resourceName } from '../resource';
+import { resourceName } from '../../core/resource';
 import {
   getBurn,
   hasPending,
@@ -124,13 +124,22 @@ async function drain(): Promise<void> {
   }
 }
 
-export function installBurnRunner(): void {
+export function installBurnRunner(): () => void {
   installBurnChip();
   // Enqueue, target completion, and abort all land here; each nudges the drainer.
-  subscribe(() => void drain());
-  setInterval(() => void drain(), WATCH_MS);
-  window.addEventListener('beforeunload', () => {
+  const unsubscribe = subscribe(() => void drain());
+  const timer = setInterval(() => void drain(), WATCH_MS);
+  const release = (): void => {
     if (owned()) writeLease(null);
-  });
+  };
+  window.addEventListener('beforeunload', release);
   void drain();
+  // The chip source stays registered, having no removal path; it lists nothing
+  // once the queue is empty.
+  return () => {
+    unsubscribe();
+    clearInterval(timer);
+    window.removeEventListener('beforeunload', release);
+    release();
+  };
 }

@@ -1,5 +1,4 @@
 import type { Action } from '../../core/actions/types';
-import { burntComments } from './burntComments';
 import { deletePostGroup } from './delete';
 import { flipRelationship } from './flip';
 import { searchBy, searchPendingBy } from './searchBy';
@@ -14,5 +13,4 @@ export const postActions: Action[] = [
   flipRelationship,
   undelete,
   undeleteAndUnapprove,
-  burntComments,
 ];

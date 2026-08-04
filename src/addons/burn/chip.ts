@@ -1,6 +1,6 @@
-import type { Action } from '../actions/types';
-import { registerChipSource, type Chip } from '../palette/chips';
-import { resourceName } from '../resource';
+import type { Action } from '../../core/actions/types';
+import { registerChipSource, type Chip } from '../../core/palette/chips';
+import { resourceName } from '../../core/resource';
 import { listBurns, removeBurn, subscribe, type Burn } from './queue';
 
 function handled(burn: Burn): number {

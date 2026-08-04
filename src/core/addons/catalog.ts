@@ -27,7 +27,7 @@ export const CATALOG: CatalogEntry[] = [
       id: entry.addon.id,
       name: entry.addon.name,
       description: entry.description,
-      default: false,
+      default: entry.default ?? false,
     }),
   ),
   ...(manifest.addons as ManifestAddon[]).map(
