@@ -1,5 +1,5 @@
 import { render } from 'preact';
-import { useMemo } from 'preact/hooks';
+import { useMemo, useRef } from 'preact/hooks';
 
 import type { Action } from '../actions/types';
 import type { PageContext } from '../context/types';
@@ -23,13 +23,16 @@ function Root({
 }) {
   const open = useToggle(paletteStore);
   const capturing = useToggle(captureStore);
-  const actions = useMemo(
-    () => (open ? resolveActions() : []),
-    [open, resolveActions],
-  );
+  const session = useRef(0);
+  const actions = useMemo(() => {
+    if (!open) return [];
+    session.current += 1;
+    return resolveActions();
+  }, [open, resolveActions]);
   return (
     <>
       <Palette
+        key={session.current}
         open={open}
         page={page}
         actions={actions}
