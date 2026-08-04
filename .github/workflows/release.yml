@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag, defaulting to v<version> from package.json'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+
+      - name: Resolve the tag
+        id: meta
+        run: |
+          tag='${{ inputs.tag }}'
+          if [ -z "$tag" ]; then
+            tag="v$(node -p "require('./package.json').version")"
+          fi
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "release $tag already exists" >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      # The thin build empties dist and copies public/ into it, so the add-on
+      # artifacts have to exist before it runs and the fat build after.
+      - name: Build
+        env:
+          RELEASE_TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          npm run build:addons
+          npm run build
+          npm run build:fat
+
+      - name: Check the artifacts the loader expects are all present
+        run: |
+          node -e '
+            const { readdirSync, existsSync } = require("node:fs");
+            const { addons } = require("./src/addons/manifest.json");
+            const missing = addons.map(a => a.file).filter(f => !existsSync("dist/addons/" + f));
+            if (missing.length) {
+              console.error("missing artifacts: " + missing.join(", "));
+              process.exit(1);
+            }
+            console.log(`${addons.length} add-on artifacts present`);
+          '
+          test -s dist/6pack.user.js
+          test -s dist/6pack.fat.user.js
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create '${{ steps.meta.outputs.tag }}' \
+            --title '${{ steps.meta.outputs.tag }}' \
+            --generate-notes \
+            dist/6pack.user.js \
+            dist/6pack.fat.user.js \
+            dist/addons/*.user.js
