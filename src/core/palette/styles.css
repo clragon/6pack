@@ -19,6 +19,22 @@
   box-sizing: border-box;
 }
 
+/* Native focus is the cursor: the control the keyboard is on wears the accent
+   ring. Inset, since e621's containers and the palette's own scrolling lists
+   clip an outer one. Controls only, and never the panel's own field, which
+   holds focus for as long as the palette is open. */
+.sp-backdrop
+  :is(button, input, select, textarea, a[href]):focus-visible:not(.sp-input) {
+  outline: 2px solid var(--palette-text-yellow, #ffd666);
+  outline-offset: -2px;
+}
+
+/* Focused to put the keyboard inside an opening dialog, which is not a cursor
+   position: no ring, ours or the browser's. */
+.sp-panel:focus {
+  outline: none;
+}
+
 .sp-shell.sp-shell-dialog {
   max-width: 920px;
 }
@@ -170,7 +186,11 @@
   align-items: center;
   background: none;
   border: none;
-  padding: 0 2px;
+  /* Padding leaves room for the inset ring; the negative margin cancels it out
+     of the layout. */
+  padding: 3px 5px;
+  margin: 0 -3px;
+  border-radius: 4px;
   color: var(--palette-text-yellow, #ffd666);
   cursor: pointer;
 }
@@ -436,12 +456,9 @@ button.sp-crumb:hover {
   color: #fff;
 }
 
-/* Native focus is the cursor: whichever control the keyboard is on gets a clear
-   accent ring, matching the command list's selected row. */
-.sp-confirm-input:focus,
-.sp-confirm-option:focus-within,
-.sp-btn:focus {
-  outline: none;
+/* An option is a label wrapping its checkbox, so the ring would land on the box
+   rather than the row the keyboard is on. The row takes the accent instead. */
+.sp-confirm-option:focus-within {
   border-color: var(--palette-text-yellow, #ffd666);
   box-shadow: 0 0 0 1px var(--palette-text-yellow, #ffd666);
 }

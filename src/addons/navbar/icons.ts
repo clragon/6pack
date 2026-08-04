@@ -1,0 +1,99 @@
+import {
+  Bell,
+  BookOpen,
+  Bookmark,
+  Brush,
+  Calendar,
+  Clock,
+  Compass,
+  Download,
+  Eye,
+  FileText,
+  Flag,
+  Flame,
+  Folder,
+  Gavel,
+  Globe,
+  Group,
+  Hash,
+  Heart,
+  Home,
+  Images,
+  Inbox,
+  Lectern,
+  Library,
+  Link,
+  Megaphone,
+  MessageSquare,
+  Pencil,
+  Scale,
+  ScrollText,
+  Search,
+  Settings,
+  Shield,
+  Star,
+  Tags,
+  Ticket,
+  TrendingUp,
+  Upload,
+  User,
+  Users,
+  Wrench,
+} from 'lucide-preact';
+
+type IconComponent = typeof Link;
+
+export interface NavIcon {
+  key: string;
+  label: string;
+  Icon: IconComponent;
+}
+
+// What the picker offers. The first eight are the glyphs e621 puts on its own
+// bar, which the mobile drawer shows.
+export const ICONS: NavIcon[] = [
+  { key: 'brush', label: 'Brush', Icon: Brush },
+  { key: 'images', label: 'Images', Icon: Images },
+  { key: 'library', label: 'Library', Icon: Library },
+  { key: 'group', label: 'Group', Icon: Group },
+  { key: 'tags', label: 'Tags', Icon: Tags },
+  { key: 'megaphone', label: 'Megaphone', Icon: Megaphone },
+  { key: 'message', label: 'Message', Icon: MessageSquare },
+  { key: 'lectern', label: 'Lectern', Icon: Lectern },
+  { key: 'home', label: 'Home', Icon: Home },
+  { key: 'trending', label: 'Trending', Icon: TrendingUp },
+  { key: 'book', label: 'Book', Icon: BookOpen },
+  { key: 'upload', label: 'Upload', Icon: Upload },
+  { key: 'download', label: 'Download', Icon: Download },
+  { key: 'heart', label: 'Heart', Icon: Heart },
+  { key: 'star', label: 'Star', Icon: Star },
+  { key: 'flame', label: 'Flame', Icon: Flame },
+  { key: 'flag', label: 'Flag', Icon: Flag },
+  { key: 'user', label: 'User', Icon: User },
+  { key: 'users', label: 'Users', Icon: Users },
+  { key: 'clock', label: 'Clock', Icon: Clock },
+  { key: 'calendar', label: 'Calendar', Icon: Calendar },
+  { key: 'ticket', label: 'Ticket', Icon: Ticket },
+  { key: 'inbox', label: 'Inbox', Icon: Inbox },
+  { key: 'scale', label: 'Scale', Icon: Scale },
+  { key: 'gavel', label: 'Gavel', Icon: Gavel },
+  { key: 'shield', label: 'Shield', Icon: Shield },
+  { key: 'scroll', label: 'Scroll', Icon: ScrollText },
+  { key: 'file', label: 'File', Icon: FileText },
+  { key: 'folder', label: 'Folder', Icon: Folder },
+  { key: 'bookmark', label: 'Bookmark', Icon: Bookmark },
+  { key: 'search', label: 'Search', Icon: Search },
+  { key: 'eye', label: 'Eye', Icon: Eye },
+  { key: 'bell', label: 'Bell', Icon: Bell },
+  { key: 'hash', label: 'Hash', Icon: Hash },
+  { key: 'globe', label: 'Globe', Icon: Globe },
+  { key: 'compass', label: 'Compass', Icon: Compass },
+  { key: 'pencil', label: 'Pencil', Icon: Pencil },
+  { key: 'wrench', label: 'Wrench', Icon: Wrench },
+  { key: 'settings', label: 'Settings', Icon: Settings },
+  { key: 'link', label: 'Link', Icon: Link },
+];
+
+export function iconFor(key: string | undefined): IconComponent {
+  return ICONS.find((icon) => icon.key === key)?.Icon ?? Link;
+}

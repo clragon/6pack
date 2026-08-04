@@ -1,6 +1,7 @@
 import { AddonHost } from './host';
 import { loadAddon } from './loader';
 import { EMBEDDED } from './embedded';
+import { INBUILT } from './inbuilt';
 import { CATALOG, isEnabled, setEnabled } from './catalog';
 import type { CatalogEntry } from './catalog';
 import type { ActionRegistry } from '../actions/registry';
@@ -34,6 +35,12 @@ class AddonManager {
   }
 
   private load(entry: CatalogEntry): void {
+    // Inbuilt: no artifact to fetch or unpack in any build.
+    const inbuilt = INBUILT[entry.id];
+    if (inbuilt) {
+      this.host?.register(inbuilt);
+      return;
+    }
     // Fat build: the add-on is compiled in, so register its object straight
     // through the host with no fetch. The branch is dropped from a thin build,
     // which tree-shakes the embedded add-on code out with it.
@@ -44,7 +51,8 @@ class AddonManager {
       return;
     }
     // Relies on publish() having run so the artifact finds unsafeWindow.sixpack.
-    loadAddon(entry.id, entry.file);
+    if (entry.file) loadAddon(entry.id, entry.file);
+    else log.error(`addon ${entry.id} has no artifact`);
   }
 }
 

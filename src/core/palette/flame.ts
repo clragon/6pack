@@ -16,7 +16,10 @@ export function ensureIconButtonStyles(): void {
   style.id = STYLE_ID;
   style.textContent =
     `.${ICON_BTN_CLASS} { background: none; padding: 4px; border-radius: 4px; transition: background-color 0.15s ease; }` +
-    `.${ICON_BTN_CLASS}:hover { background: var(--color-section-lighten-10, #2a3852); }`;
+    `.${ICON_BTN_CLASS}:hover { background: var(--color-section-lighten-10, #2a3852); }` +
+    // Inside the button: e621 sits these in tight, clipping containers, which
+    // cut an outer ring off.
+    `.${ICON_BTN_CLASS}:focus-visible { outline: 2px solid var(--palette-text-yellow, #ffd666); outline-offset: -2px; }`;
   document.head.appendChild(style);
 }
 

@@ -1,11 +1,12 @@
 import { readJson, writeJson } from '../storage';
+import { INBUILT } from './inbuilt';
 import manifest from '../../addons/manifest.json';
 
 export interface CatalogEntry {
   id: string;
   name: string;
   description?: string;
-  file: string; // artifact filename under the add-on base url
+  file?: string; // artifact filename under the add-on base url; inbuilt has none
   // Whether a fresh user starts with the add-on on.
   default: boolean;
 }
@@ -18,17 +19,27 @@ interface ManifestAddon {
   default?: boolean;
 }
 
-// The add-on registry, derived from the manifest the build reads too
-// (scripts/build-addons.mjs).
-export const CATALOG: CatalogEntry[] = (manifest.addons as ManifestAddon[]).map(
-  (addon) => ({
-    id: addon.id,
-    name: addon.name,
-    description: addon.description,
-    file: addon.file,
-    default: addon.default ?? false,
-  }),
-);
+// The add-on registry: the inbuilt add-ons first, then the managed ones from
+// the manifest the build reads too (scripts/build-addons.mjs).
+export const CATALOG: CatalogEntry[] = [
+  ...Object.values(INBUILT).map(
+    (addon): CatalogEntry => ({
+      id: addon.id,
+      name: addon.name,
+      description: addon.description,
+      default: false,
+    }),
+  ),
+  ...(manifest.addons as ManifestAddon[]).map(
+    (addon): CatalogEntry => ({
+      id: addon.id,
+      name: addon.name,
+      description: addon.description,
+      file: addon.file,
+      default: addon.default ?? false,
+    }),
+  ),
+];
 
 const KEY = 'sp.addons.state';
 
