@@ -63,6 +63,7 @@ export default defineConfig(({ command, mode }) => {
             // GitHub redirects a release download to an asset host, and
             // Tampermonkey checks @connect against the initial and final url.
             'github.com',
+            'release-assets.githubusercontent.com',
             'objects.githubusercontent.com',
           ],
         },
