@@ -9,6 +9,26 @@ const BASE_URL = __ADDON_BASE__;
 
 const CACHE_PREFIX = 'addons.code.';
 
+function cacheKey(file: string): string {
+  return CACHE_PREFIX + BASE_URL + file;
+}
+
+let evicted = false;
+function evictOtherBases(): void {
+  if (evicted) return;
+  evicted = true;
+  try {
+    const keep = CACHE_PREFIX + BASE_URL;
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith(CACHE_PREFIX) && !key.startsWith(keep)) {
+        localStorage.removeItem(key);
+      }
+    }
+  } catch {
+    // Unavailable storage holds no cache, so there is nothing to drop.
+  }
+}
+
 function fetchCode(file: string): Promise<string> {
   return new Promise((resolve, reject) => {
     GM_xmlhttpRequest({
@@ -35,9 +55,10 @@ function runCode(code: string): void {
 }
 
 export function loadAddon(id: string, file: string): void {
+  evictOtherBases();
   const cached = import.meta.env.DEV
     ? null
-    : readJson<string | null>(CACHE_PREFIX + file, null);
+    : readJson<string | null>(cacheKey(file), null);
   if (cached) {
     try {
       runCode(cached);
@@ -49,7 +70,7 @@ export function loadAddon(id: string, file: string): void {
   }
   void fetchCode(file)
     .then((code) => {
-      writeJson(CACHE_PREFIX + file, code);
+      writeJson(cacheKey(file), code);
       runCode(code);
     })
     .catch((error) =>
@@ -59,8 +80,10 @@ export function loadAddon(id: string, file: string): void {
 
 async function revalidate(file: string): Promise<void> {
   try {
-    writeJson(CACHE_PREFIX + file, await fetchCode(file));
-  } catch {}
+    writeJson(cacheKey(file), await fetchCode(file));
+  } catch {
+    // Offline or a failing server keeps the cached copy that already ran.
+  }
 }
 
 function describe(error: unknown): string {
