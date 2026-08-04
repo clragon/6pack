@@ -80,9 +80,11 @@ export default defineConfig(({ command, mode }) => {
             '127.0.0.1',
             'localhost',
             // Release: where a thin build fetches those artifacts instead. A
-            // release download answers from github.com with a redirect to
-            // objects.githubusercontent.com, so the grant covers both.
+            // release download answers from github.com with a redirect to a
+            // separate asset host, and the grant is checked against the target
+            // of that redirect as well as the original url.
             'github.com',
+            'release-assets.githubusercontent.com',
             'objects.githubusercontent.com',
           ],
         },
