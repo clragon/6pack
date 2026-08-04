@@ -1,3 +1,4 @@
+import { expandTokens } from '../../core/template';
 import {
   readAccused,
   readReportedContent,
@@ -65,8 +66,5 @@ export function substitute(
   body: string,
   variables: TemplateVariable[],
 ): string {
-  return body.replace(/%(\w+)%/g, (whole, token) => {
-    const variable = variables.find((v) => v.token === token);
-    return variable ? variable.resolve() : whole;
-  });
+  return expandTokens(body, variables);
 }
