@@ -10,7 +10,32 @@ import { log } from '../log';
 const BASE_URL = __ADDON_BASE__;
 
 // Stashed artifact code, so a return visit runs the add-on without a refetch.
+// The base is part of the key, so an artifact cached against one release is a
+// miss under the next: an update refetches rather than running the previous
+// release's add-on against this one's bridge.
 const CACHE_PREFIX = 'addons.code.';
+
+function cacheKey(file: string): string {
+  return CACHE_PREFIX + BASE_URL + file;
+}
+
+// Artifacts stashed against any other base are unreachable once the base moves,
+// so they are dropped on the first load that needs one.
+let evicted = false;
+function evictOtherBases(): void {
+  if (evicted) return;
+  evicted = true;
+  try {
+    const keep = CACHE_PREFIX + BASE_URL;
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith(CACHE_PREFIX) && !key.startsWith(keep)) {
+        localStorage.removeItem(key);
+      }
+    }
+  } catch {
+    // storage unavailable: nothing cached, so nothing to drop
+  }
+}
 
 function fetchCode(file: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -46,11 +71,12 @@ function runCode(code: string): void {
 // synchronously, so it can register before first paint, then revalidates in the
 // background; an uncached one fetches first, so only its first-ever load lags.
 export function loadAddon(id: string, file: string): void {
+  evictOtherBases();
   // Dev serves a watched, freshly-built artifact, so a cached copy would just
   // re-run last reload's code; always refetch instead.
   const cached = import.meta.env.DEV
     ? null
-    : readJson<string | null>(CACHE_PREFIX + file, null);
+    : readJson<string | null>(cacheKey(file), null);
   if (cached) {
     try {
       runCode(cached);
@@ -62,7 +88,7 @@ export function loadAddon(id: string, file: string): void {
   }
   void fetchCode(file)
     .then((code) => {
-      writeJson(CACHE_PREFIX + file, code);
+      writeJson(cacheKey(file), code);
       runCode(code);
     })
     .catch((error) =>
@@ -73,7 +99,7 @@ export function loadAddon(id: string, file: string): void {
 // Refresh the stash for the next load; a failure keeps the stale copy.
 async function revalidate(file: string): Promise<void> {
   try {
-    writeJson(CACHE_PREFIX + file, await fetchCode(file));
+    writeJson(cacheKey(file), await fetchCode(file));
   } catch {
     // offline or server down: the cached copy still ran, so just wait it out
   }
