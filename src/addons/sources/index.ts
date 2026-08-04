@@ -8,6 +8,8 @@ const ANCHOR_SELECTOR =
 
 const AUTHORS_ATTRIBUTE = 'data-authors';
 
+const SOURCE_ROW = '.source-link';
+
 function sourceAnchors(root: ParentNode): HTMLAnchorElement[] {
   return Array.from(root.querySelectorAll<HTMLAnchorElement>(ANCHOR_SELECTOR));
 }
@@ -50,6 +52,12 @@ function shorten(anchor: HTMLAnchorElement): void {
   anchor.title = original;
 }
 
+function expand(anchor: HTMLAnchorElement): void {
+  const el = labelNode(anchor);
+  const original = el.dataset[STASH];
+  if (original !== undefined) setLabel(el, original);
+}
+
 function restore(anchor: HTMLAnchorElement): void {
   const el = labelNode(anchor);
   const original = el.dataset[STASH];
@@ -71,8 +79,27 @@ function applyAll(on: boolean): void {
   }
 }
 
+function rowOf(target: EventTarget | null): HTMLElement | null {
+  return target instanceof Element
+    ? target.closest<HTMLElement>(SOURCE_ROW)
+    : null;
+}
+
 function mount(): () => void {
   applyAll(true);
+
+  const onOver = (event: MouseEvent): void => {
+    const row = rowOf(event.target);
+    if (!row || row === rowOf(event.relatedTarget)) return;
+    for (const anchor of sourceAnchors(row)) expand(anchor);
+  };
+  const onOut = (event: MouseEvent): void => {
+    const row = rowOf(event.target);
+    if (!row || row === rowOf(event.relatedTarget)) return;
+    for (const anchor of sourceAnchors(row)) shorten(anchor);
+  };
+  document.body.addEventListener('mouseover', onOver);
+  document.body.addEventListener('mouseout', onOut);
 
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
@@ -97,6 +124,8 @@ function mount(): () => void {
 
   return () => {
     observer.disconnect();
+    document.body.removeEventListener('mouseover', onOver);
+    document.body.removeEventListener('mouseout', onOut);
     applyAll(false);
   };
 }
