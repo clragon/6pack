@@ -70,7 +70,11 @@ function runCode(code: string): void {
 // Load an add-on, stashing its code for next time. A cached artifact runs
 // synchronously, so it can register before first paint, then revalidates in the
 // background; an uncached one fetches first, so only its first-ever load lags.
-export function loadAddon(id: string, file: string): void {
+export function loadAddon(
+  id: string,
+  file: string,
+  onFailure: (reason: string) => void,
+): void {
   evictOtherBases();
   // Dev serves a watched, freshly-built artifact, so a cached copy would just
   // re-run last reload's code; always refetch instead.
@@ -81,7 +85,9 @@ export function loadAddon(id: string, file: string): void {
     try {
       runCode(cached);
     } catch (error) {
-      log.error(`addon ${id} cached run failed: ${describe(error)}`);
+      const reason = describe(error);
+      log.error(`addon ${id} cached run failed: ${reason}`);
+      onFailure(reason);
     }
     void revalidate(file);
     return;
@@ -91,9 +97,11 @@ export function loadAddon(id: string, file: string): void {
       writeJson(cacheKey(file), code);
       runCode(code);
     })
-    .catch((error) =>
-      log.error(`addon ${id} failed to load: ${describe(error)}`),
-    );
+    .catch((error: unknown) => {
+      const reason = describe(error);
+      log.error(`addon ${id} failed to load: ${reason}`);
+      onFailure(reason);
+    });
 }
 
 // Refresh the stash for the next load; a failure keeps the stale copy.

@@ -21,16 +21,21 @@ export const addonsActions: Action[] = [
     hidden: true,
     weight: -1,
     submenu: () =>
-      CATALOG.map((entry) => ({
-        id: `addons.${entry.id}`,
-        title: entry.name,
-        description: entry.description,
-        submenuOnly: true,
-        checked: () => addons.isEnabled(entry.id),
-        run: () => {
-          if (addons.isEnabled(entry.id)) addons.disable(entry.id);
-          else addons.enable(entry);
-        },
-      })),
+      CATALOG.map((entry) => {
+        // An add-on that is on but not running says so in place of its pitch,
+        // which is otherwise the only sign that the switch and reality differ.
+        const failure = addons.failure(entry.id);
+        return {
+          id: `addons.${entry.id}`,
+          title: entry.name,
+          description: failure ? `Not loaded: ${failure}` : entry.description,
+          submenuOnly: true,
+          checked: () => addons.isEnabled(entry.id),
+          run: () => {
+            if (addons.isEnabled(entry.id)) addons.disable(entry.id);
+            else addons.enable(entry);
+          },
+        };
+      }),
   },
 ];

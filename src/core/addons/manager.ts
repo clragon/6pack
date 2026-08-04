@@ -13,6 +13,10 @@ import { log } from '../log';
 // can reach it without threading the host through every call site.
 class AddonManager {
   private host?: AddonHost;
+  // Why an enabled add-on is not running, keyed by id. Enablement records what
+  // the user asked for, so a failure is held beside it rather than flipping it
+  // off: a network that recovers should not have cost them the choice.
+  private readonly failures = new Map<string, string>();
 
   init(registry: ActionRegistry, page: PageContext): void {
     this.host = new AddonHost(registry, page);
@@ -24,13 +28,19 @@ class AddonManager {
     return isEnabled(id);
   }
 
+  failure(id: string): string | undefined {
+    return this.failures.get(id);
+  }
+
   enable(entry: CatalogEntry): void {
     setEnabled(entry.id, true);
+    this.failures.delete(entry.id);
     this.load(entry);
   }
 
   disable(id: string): void {
     setEnabled(id, false);
+    this.failures.delete(id);
     this.host?.unload(id);
   }
 
@@ -51,8 +61,15 @@ class AddonManager {
       return;
     }
     // Relies on publish() having run so the artifact finds unsafeWindow.sixpack.
-    if (entry.file) loadAddon(entry.id, entry.file);
-    else log.error(`addon ${entry.id} has no artifact`);
+    if (entry.file) {
+      loadAddon(entry.id, entry.file, (reason) =>
+        this.failures.set(entry.id, reason),
+      );
+    } else {
+      const reason = 'no artifact';
+      log.error(`addon ${entry.id} has ${reason}`);
+      this.failures.set(entry.id, reason);
+    }
   }
 }
 
