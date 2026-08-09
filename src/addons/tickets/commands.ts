@@ -1,6 +1,6 @@
-import { openChannel } from '../tabs/channel';
-import { claimTicket, closeTicket, unclaimTicket } from '../api/tickets';
-import { composeTicketResponse } from './providers';
+import { openChannel } from '../../core/tabs/channel';
+import { claimTicket, closeTicket, unclaimTicket } from './api';
+import { composeTicketResponse } from '../../core/tickets/providers';
 import { localTabId } from './registry';
 
 // Run a ticket action (close, claim, unclaim) on the tab that owns the ticket.

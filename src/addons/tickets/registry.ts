@@ -1,5 +1,5 @@
-import { openChannel } from '../tabs/channel';
-import type { TicketResponse } from './providers';
+import { openChannel } from '../../core/tabs/channel';
+import type { TicketResponse } from '../../core/tickets/providers';
 
 // A live, reactive map of the tickets open in the user's other tabs. A backgrounded
 // tab throttles timers but still runs message handlers, so liveness is poll/announce:

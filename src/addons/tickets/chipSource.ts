@@ -1,6 +1,6 @@
-import type { Action } from '../actions/types';
-import { registerChipSource, type Chip } from '../palette/chips';
-import { openConfirm } from '../palette/confirm';
+import type { Action } from '../../core/actions/types';
+import { registerChipSource, type Chip } from '../../core/palette/chips';
+import { openConfirm } from '../../core/palette/confirm';
 import { notifyError, progress } from '../../site/toast';
 import { currentUserId } from '../../site/user';
 import { requestClaim, requestClose, requestUnclaim } from './commands';

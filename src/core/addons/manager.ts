@@ -1,7 +1,7 @@
 import { AddonHost } from './host';
 import { loadAddon } from './loader';
 import { EMBEDDED } from './embedded';
-import { inbuiltAddon } from './inbuilt';
+import { ESSENTIAL, inbuiltAddon } from './inbuilt';
 import { CATALOG, isEnabled, setEnabled } from './catalog';
 import type { CatalogEntry } from './catalog';
 import type { ActionRegistry } from '../actions/registry';
@@ -21,6 +21,7 @@ class AddonManager {
   init(registry: ActionRegistry, page: PageContext): void {
     this.host = new AddonHost(registry, page);
     this.host.publish();
+    for (const addon of ESSENTIAL) this.host.register(addon);
     for (const entry of CATALOG) if (isEnabled(entry.id)) this.load(entry);
   }
 

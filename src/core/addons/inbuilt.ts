@@ -1,6 +1,12 @@
 import type { SixpackAddon } from './types';
 import { burnAddon } from '../../addons/burn';
 import { navbarAddon } from '../../addons/navbar';
+import { ticketsAddon } from '../../addons/tickets';
+
+// 6pack itself, wearing the add-on contract so its actions, settings and DOM
+// lifecycle travel the one path everything else does. No catalog entry, so no
+// switch, no stored state and no unload. The Help manual still lists it.
+export const ESSENTIAL: SixpackAddon[] = [ticketsAddon];
 
 // An add-on compiled into 6pack, paired with the one-line pitch the add-on list
 // shows. The pitch is held here because `SixpackAddon.description` carries the

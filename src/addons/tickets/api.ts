@@ -1,4 +1,4 @@
-import { transport } from '../auth';
+import { transport } from '../../core/auth';
 
 // Closing a ticket is the `approved` status (the lone closed state; pending and
 // partial are both open). The update is moderator-gated server-side and the
