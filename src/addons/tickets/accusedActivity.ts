@@ -1,7 +1,7 @@
 import type { Action } from '../../core/actions/types';
 import { openInNewTab } from '../../core/navigate';
 import { readAccused, readReportedContent } from '../../site/ticket';
-import { activityListings } from '../activity';
+import { activityListings } from '../../actions/activity';
 
 export const accusedActivity: Action = {
   id: 'ticket.accused-activity',

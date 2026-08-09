@@ -1,5 +1,5 @@
-import { openChannel } from '../tabs/channel';
-import type { TicketResponse } from './providers';
+import { openChannel } from '../../core/tabs/channel';
+import type { TicketResponse } from '../../core/tickets/providers';
 
 export interface OpenTicket {
   tabId: string;

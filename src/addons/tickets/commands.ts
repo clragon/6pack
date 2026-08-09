@@ -1,6 +1,6 @@
-import { openChannel } from '../tabs/channel';
-import { claimTicket, closeTicket, unclaimTicket } from '../api/tickets';
-import { composeTicketResponse } from './providers';
+import { openChannel } from '../../core/tabs/channel';
+import { claimTicket, closeTicket, unclaimTicket } from './api';
+import { composeTicketResponse } from '../../core/tickets/providers';
 import { localTabId } from './registry';
 
 export type TicketOp =
@@ -60,11 +60,14 @@ async function performClose(
   const response = composeTicketResponse(providerId, optionId);
   if (response == null)
     throw new Error('That response is no longer available on the ticket tab');
+  // e621's Ticket validates the response at a minimum length of 2 on update.
   if (response.trim().length < 2)
     throw new Error('The composed response is empty');
   const result = (await closeTicket(ticketId, response, { forceClaim })) as {
     status?: string;
   } | null;
+  // Without force_claim, e621 answers a ticket claimed by someone else with a
+  // redirect and a 200, so the status in the body is the proof.
   if (
     result &&
     typeof result.status === 'string' &&
@@ -102,6 +105,8 @@ function requestAction(
   ticketId: number,
   action: TicketOp,
 ): Promise<void> {
+  // BroadcastChannel never delivers a message to the tab that posted it, so the
+  // local tab is served directly.
   if (targetTabId === localTabId) {
     return perform(ticketId, action).then(reloadAfterAction);
   }

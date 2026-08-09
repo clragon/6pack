@@ -1,4 +1,4 @@
-import { transport } from '../auth';
+import { transport } from '../../core/auth';
 
 export function closeTicket(
   id: number,
@@ -6,6 +6,8 @@ export function closeTicket(
   options: { forceClaim?: boolean } = {},
 ): Promise<unknown> {
   return transport.put(`/tickets/${id}.json`, {
+    // e621's Ticket status enum is pending, partial and approved, and approved
+    // is the only closed one.
     'ticket[status]': 'approved',
     'ticket[response]': response,
     force_claim: options.forceClaim ? 'true' : undefined,

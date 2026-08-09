@@ -1,6 +1,9 @@
 import type { SixpackAddon } from './types';
 import { burnAddon } from '../../addons/burn';
 import { navbarAddon } from '../../addons/navbar';
+import { ticketsAddon } from '../../addons/tickets';
+
+export const ESSENTIAL: SixpackAddon[] = [ticketsAddon];
 
 interface InbuiltAddon {
   addon: SixpackAddon;
