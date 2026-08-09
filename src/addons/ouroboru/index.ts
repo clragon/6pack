@@ -70,7 +70,12 @@ function mount(): () => void {
     const page = pageOf(nextHref);
     setState('loading', 'Loading more…');
     try {
-      const res = await fetch(nextHref, { credentials: 'same-origin' });
+      const res = await fetch(nextHref, {
+        credentials: 'same-origin',
+        // FavoritesController declares respond_to json before html, so a
+        // wildcard Accept gets json there.
+        headers: { Accept: 'text/html' },
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const doc = new DOMParser().parseFromString(
         await res.text(),
