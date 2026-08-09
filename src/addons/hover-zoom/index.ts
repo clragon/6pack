@@ -274,7 +274,12 @@ function mount(settings: SettingsApi): () => void {
   document.addEventListener('keyup', onKey);
   window.addEventListener('blur', onLost);
   window.addEventListener('contextmenu', onLost);
-  window.addEventListener('scroll', onScroll, { passive: true });
+  // e621 scrolls an inner element, not the window, and a scroll event does not
+  // bubble. Capture on the document reaches it wherever it comes from.
+  document.addEventListener('scroll', onScroll, {
+    capture: true,
+    passive: true,
+  });
 
   return () => {
     hide();
@@ -285,7 +290,7 @@ function mount(settings: SettingsApi): () => void {
     document.removeEventListener('mousemove', onMove);
     window.removeEventListener('blur', onLost);
     window.removeEventListener('contextmenu', onLost);
-    window.removeEventListener('scroll', onScroll);
+    document.removeEventListener('scroll', onScroll, { capture: true });
     panel.remove();
     style.remove();
   };

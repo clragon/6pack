@@ -9,6 +9,7 @@ async function fetchForumPostUrl(id: number): Promise<string | null> {
   try {
     const res = await fetch(`/forum_posts/${id}`, {
       credentials: 'same-origin',
+      headers: { Accept: 'text/html' },
     });
     if (!res.ok) return null;
     const html = await res.text();

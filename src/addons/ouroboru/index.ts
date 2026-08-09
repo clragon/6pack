@@ -25,10 +25,6 @@ function nextHrefIn(root: ParentNode): string | null {
   return href ? new URL(href, location.href).href : null;
 }
 
-function pageOf(href: string): string {
-  return new URL(href, location.href).searchParams.get('page') || '1';
-}
-
 function mount(): () => void {
   const container = document.querySelector('section.posts-container');
   if (!container) return () => {};
@@ -43,7 +39,7 @@ function mount(): () => void {
   );
 
   const firstHere = container.querySelector<HTMLElement>('article.thumbnail');
-  if (firstHere) firstHere.dataset.obPage = pageOf(location.href);
+  if (firstHere) firstHere.dataset.obHref = location.href;
 
   const style = document.createElement('style');
   style.textContent = OUROBORU_CSS;
@@ -70,7 +66,7 @@ function mount(): () => void {
   const loadNext = async () => {
     if (loading || !nextHref) return;
     loading = true;
-    const page = pageOf(nextHref);
+    const from = nextHref;
     setState('loading', 'Loading more…');
     try {
       // The favorites controller declares json ahead of html, so `*/*` answers
@@ -94,7 +90,7 @@ function mount(): () => void {
         const id = post.dataset.id;
         if (id && seen.has(id)) continue;
         if (id) seen.add(id);
-        if (added.length === 0) post.dataset.obPage = page;
+        if (added.length === 0) post.dataset.obHref = from;
         container.appendChild(post);
         added.push(post);
       }
@@ -143,28 +139,31 @@ function mount(): () => void {
     queued = false;
     let current: string | undefined;
     for (const marker of container.querySelectorAll<HTMLElement>(
-      'article.thumbnail[data-ob-page]',
+      'article.thumbnail[data-ob-href]',
     )) {
       if (marker.getBoundingClientRect().top > 80) break;
-      current = marker.dataset.obPage;
+      current = marker.dataset.obHref;
     }
-    if (!current) return;
-    const url = new URL(location.href);
-    if (current === '1') url.searchParams.delete('page');
-    else url.searchParams.set('page', current);
-    if (url.href !== location.href)
-      history.replaceState(history.state, '', url.href);
+    // A marker holds the whole address its batch came from. A listing need not
+    // paginate by page number. /popular paginates by date.
+    if (!current || current === location.href) return;
+    history.replaceState(history.state, '', current);
   };
   const onScroll = () => {
     if (queued) return;
     queued = true;
     requestAnimationFrame(syncUrl);
   };
-  window.addEventListener('scroll', onScroll, { passive: true });
+  // e621 scrolls an inner element, not the window, and a scroll event does not
+  // bubble. Capture on the document reaches it wherever it comes from.
+  document.addEventListener('scroll', onScroll, {
+    capture: true,
+    passive: true,
+  });
 
   return () => {
     observer.disconnect();
-    window.removeEventListener('scroll', onScroll);
+    document.removeEventListener('scroll', onScroll, { capture: true });
     button.removeEventListener('click', onClick);
     tail.remove();
     style.remove();
