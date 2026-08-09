@@ -260,9 +260,10 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
 
   // The leaf a group resolves to without drilling: a query match, or a group's
   // single reachable leaf (drilling into a one-item menu is pointless). Shown as
-  // "Group → Child" and run on select. A match that is itself a group has no leaf
-  // handler to run, so it falls through to the group row's drill.
+  // "Group › Child" and run on select. A match that is itself a group has no leaf
+  // handler to run, so the group row's drill applies instead.
   const surfacedChild = (action: Action): Action | undefined => {
+    if (action.drillOnly) return undefined;
     const match = childMatchOf(action);
     if (match && !match.submenu) return match;
     const children = reachableChildren(action);
@@ -456,14 +457,16 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
       // Only a reached-in leaf becomes a runnable row; a match (or surfaced child)
       // that is itself a group is left for the group row to drill into, since
       // running it would hit an absent leaf handler.
-      const match = childMatchOf(action);
+      const match = action.drillOnly ? undefined : childMatchOf(action);
       const shown = new Set<string>();
       const childRows: Row[] = [];
       if (match && !match.submenu) {
         childRows.push(childRow(match));
         shown.add(match.id);
       }
-      for (const child of reachableChildren(action) ?? []) {
+      for (const child of action.drillOnly
+        ? []
+        : (reachableChildren(action) ?? [])) {
         if (child.surface && !child.submenu && !shown.has(child.id)) {
           childRows.push(childRow(child));
           shown.add(child.id);
@@ -480,7 +483,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
         return [
           {
             id: action.id,
-            title: `${action.title} → ${single.title}`,
+            title: `${action.title} › ${single.title}`,
             detail: action.description,
             isGroup: true,
             onSelect: () => runAction(single, action),

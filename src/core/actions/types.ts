@@ -27,6 +27,9 @@ export interface Action {
   // (surfaced or reached into via search), where the submenu's context is absent.
   // The short `title` still applies inside the submenu. Falls back to `title`.
   surfaceTitle?: string;
+  // A group whose children are reached by drilling alone: a query match, a lone
+  // child and a `surface` child are all kept inside the submenu.
+  drillOnly?: boolean;
   // Leaf behaviour. A group (one with `submenu`) may omit this.
   run?: (ctx: ActionContext) => void | Promise<void>;
   // Marks a toggle: its current on/off state. When present the row shows a switch
