@@ -8,6 +8,7 @@ import { quickRepliesAddon } from '../../addons/quick-replies';
 import { quickFeedbacksAddon } from '../../addons/quick-feedbacks';
 import { fileUploadHelperAddon } from '../../addons/file-upload-helper';
 import { compareReplacementsAddon } from '../../addons/compare-replacements';
+import { hoverZoomAddon } from '../../addons/hover-zoom';
 
 export const EMBEDDED: Record<string, SixpackAddon> = {
   sources: sourcesAddon,
@@ -19,4 +20,5 @@ export const EMBEDDED: Record<string, SixpackAddon> = {
   'quick-feedbacks': quickFeedbacksAddon,
   'file-upload-helper': fileUploadHelperAddon,
   'compare-replacements': compareReplacementsAddon,
+  'hover-zoom': hoverZoomAddon,
 };
