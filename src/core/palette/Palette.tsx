@@ -236,6 +236,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   };
 
   const surfacedChild = (action: Action): Action | undefined => {
+    if (action.drillOnly) return undefined;
     const match = childMatchOf(action);
     if (match && !match.submenu) return match;
     const children = reachableChildren(action);
@@ -404,14 +405,16 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
         toggle: child.checked?.(),
         onSelect: () => activateLeaf(child, action),
       });
-      const match = childMatchOf(action);
+      const match = action.drillOnly ? undefined : childMatchOf(action);
       const shown = new Set<string>();
       const childRows: Row[] = [];
       if (match && !match.submenu) {
         childRows.push(childRow(match));
         shown.add(match.id);
       }
-      for (const child of reachableChildren(action) ?? []) {
+      for (const child of action.drillOnly
+        ? []
+        : (reachableChildren(action) ?? [])) {
         if (child.surface && !child.submenu && !shown.has(child.id)) {
           childRows.push(childRow(child));
           shown.add(child.id);
@@ -425,7 +428,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
         return [
           {
             id: action.id,
-            title: `${action.title} → ${single.title}`,
+            title: `${action.title} › ${single.title}`,
             detail: action.description,
             isGroup: true,
             onSelect: () => runAction(single, action),

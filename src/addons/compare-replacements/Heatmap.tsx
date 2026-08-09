@@ -96,7 +96,7 @@ export function Heatmap({
           label="Δ pixels"
           value={
             diff
-              ? `${pixels(diff.currentPixels)} → ${pixels(diff.candidatePixels)}`
+              ? `${pixels(diff.currentPixels)} to ${pixels(diff.candidatePixels)}`
               : EMPTY
           }
           small

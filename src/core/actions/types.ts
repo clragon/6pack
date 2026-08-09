@@ -18,6 +18,7 @@ export interface Action {
   submenuOnly?: boolean;
   surface?: boolean;
   surfaceTitle?: string;
+  drillOnly?: boolean;
   run?: (ctx: ActionContext) => void | Promise<void>;
   checked?: () => boolean;
   submenu?: (ctx: ActionContext) => Action[] | Promise<Action[]>;
