@@ -73,7 +73,12 @@ function mount(): () => void {
     const page = pageOf(nextHref);
     setState('loading', 'Loading more…');
     try {
-      const res = await fetch(nextHref, { credentials: 'same-origin' });
+      // The favorites controller declares json ahead of html, so `*/*` answers
+      // json there. Parsing needs the page itself.
+      const res = await fetch(nextHref, {
+        credentials: 'same-origin',
+        headers: { Accept: 'text/html' },
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const doc = new DOMParser().parseFromString(
         await res.text(),
