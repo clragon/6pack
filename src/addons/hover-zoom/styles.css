@@ -1,0 +1,42 @@
+.sp-hz {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3000;
+  display: none;
+  flex-direction: column;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.25em 1.5em rgb(0 0 0 / 50%);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sp-hz[data-open='true'] {
+  display: flex;
+}
+
+.sp-hz img,
+.sp-hz video {
+  display: block;
+}
+
+.sp-hz article.thumbnail:empty {
+  display: none;
+}
+
+.sp-hz article.thumbnail {
+  display: block;
+  width: auto;
+}
+
+/* More specific than e621's `article.thumbnail .thm-desc`, whose width is sized
+   for a thumbnail. */
+.sp-hz article.thumbnail .thm-desc {
+  width: 100%;
+  max-width: none;
+  border-radius: 0;
+}
+
+.sp-hz article.thumbnail .thm-desc-a {
+  border-radius: 0;
+}
