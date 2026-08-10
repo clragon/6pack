@@ -20,8 +20,9 @@ interface PostResponse {
   };
 }
 
-// The post's live file, straight from the API so a deleted/limited row on the
-// listing never leaves us guessing. Null when the file is withheld from us.
+// The post's live file, straight from the API so a deleted or limited card on
+// the listing never leaves us guessing. Null when the file is withheld from the
+// viewer.
 async function fetchCurrent(postId: number): Promise<CompareImage | null> {
   const res = await fetch(`/posts/${postId}.json`, {
     credentials: 'same-origin',
@@ -47,8 +48,8 @@ async function fetchCurrent(postId: number): Promise<CompareImage | null> {
 }
 
 function humanToBytes(text: string): number | null {
-  // Video rows append the duration ("5.2 MB, 3s"), so match the leading size
-  // token rather than the whole string.
+  // A video's line appends the duration ("5.2 MB, 3s"), so match the leading
+  // size token rather than the whole string.
   const match = text.trim().match(/([\d.]+)\s*([KMGT]?B)\b/i);
   if (!match) return null;
   const value = Number(match[1]);
@@ -64,41 +65,50 @@ function humanToBytes(text: string): number | null {
   return factor && Number.isFinite(value) ? Math.round(value * factor) : null;
 }
 
-// The replacement's own image line, wherever it sits in the row. Pending rows
-// prefix it with "Replacement:" and also carry a "Current:" line. The dimension
-// pattern skips both prefixes, so read the row's replacement dd directly.
-function readInfo(row: HTMLElement): {
+// The replacement's own file, not the post's. A pending card states both in one
+// "Image info" field, "New:" then "Old:", so keep the New half. Every other card
+// states only its own.
+function readInfo(card: HTMLElement): {
   width: number;
   height: number;
   ext: string;
   size: number | null;
 } | null {
-  const dds = Array.from(row.querySelectorAll<HTMLElement>('dd'));
-  for (const dd of dds) {
-    const text = dd.textContent ?? '';
-    if (/current:/i.test(text)) continue;
-    const match = text.match(INFO);
-    if (match) {
-      return {
-        width: Number(match[1]),
-        height: Number(match[2]),
-        ext: match[3],
-        size: humanToBytes(match[4]),
-      };
-    }
-  }
-  return null;
+  const fields = Array.from(
+    card.querySelectorAll<HTMLElement>('.replacement-field'),
+  );
+  const field = fields.find(
+    (entry) =>
+      entry
+        .querySelector('.replacement-field-label')
+        ?.textContent?.trim()
+        .toLowerCase() === 'image info',
+  );
+  const text =
+    field?.querySelector('.replacement-field-value')?.textContent ?? '';
+  const start = text.search(/new:/i);
+  const old = text.search(/old:/i);
+  const own =
+    start >= 0 ? text.slice(start, old > start ? old : undefined) : text;
+  const match = own.match(INFO);
+  if (!match) return null;
+  return {
+    width: Number(match[1]),
+    height: Number(match[2]),
+    ext: match[3],
+    size: humanToBytes(match[4]),
+  };
 }
 
-function readCandidate(row: HTMLElement): CompareImage | null {
-  if (row.classList.contains('replacement-current-row')) return null;
-  const img = row.querySelector<HTMLImageElement>('img.replacement-thumb');
+function readCandidate(card: HTMLElement): CompareImage | null {
+  if (card.classList.contains('is-current')) return null;
+  const img = card.querySelector<HTMLImageElement>('img.replacement-thumb');
   if (!img) return null;
   const anchor = img.closest('a');
   const thumb = img.src;
   const full = anchor?.getAttribute('href') || thumb;
-  const info = readInfo(row);
-  const id = row.id.replace('replacement-', '');
+  const info = readInfo(card);
+  const id = card.id.replace('replacement-', '');
   return {
     key: `replacement-${id}`,
     label: `Replacement #${id}`,
@@ -108,25 +118,25 @@ function readCandidate(row: HTMLElement): CompareImage | null {
     height: info?.height ?? 0,
     ext: info?.ext ?? '',
     size: info?.size ?? null,
-    href: `#${row.id}`,
+    href: `#${card.id}`,
     video: info ? VIDEO_EXT.test(info.ext) : false,
   };
 }
 
-// Every non-current replacement on the page, pending ones first, so the panel
-// defaults to the version actually awaiting review.
+// Pending replacements sort first, so the panel defaults to the version
+// awaiting review.
 function readCandidates(root: ParentNode): CompareImage[] {
-  const rows = Array.from(
-    root.querySelectorAll<HTMLElement>('tr[id^="replacement-"]'),
+  const cards = Array.from(
+    root.querySelectorAll<HTMLElement>('.replacement-card[id^="replacement-"]'),
   );
-  const items = rows
-    .map((row) => ({ row, image: readCandidate(row) }))
-    .filter((entry): entry is { row: HTMLElement; image: CompareImage } =>
+  const items = cards
+    .map((card) => ({ card, image: readCandidate(card) }))
+    .filter((entry): entry is { card: HTMLElement; image: CompareImage } =>
       Boolean(entry.image),
     );
   items.sort((a, b) => {
-    const ap = a.row.classList.contains('replacement-pending-row') ? 0 : 1;
-    const bp = b.row.classList.contains('replacement-pending-row') ? 0 : 1;
+    const ap = a.card.classList.contains('is-pending') ? 0 : 1;
+    const bp = b.card.classList.contains('is-pending') ? 0 : 1;
     return ap - bp;
   });
   return items.map((entry) => entry.image);

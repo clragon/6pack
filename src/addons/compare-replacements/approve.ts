@@ -9,12 +9,14 @@ interface ApprovalTarget {
   penalize: boolean;
 }
 
-// The pending row carries the id and penalize flag e621's own Approve link posts,
-// so read them straight off it. Absent when nothing is pending or the viewer
-// can't approve (the link only renders then).
+// The pending card carries the id and penalize flag e621's own Approve link
+// posts, so read them straight off it. Absent when nothing is pending or the
+// viewer cannot approve, since the link only renders then. "Reset To" shares
+// the class and renders only on non-pending cards, so the card scope separates
+// them.
 function firstPendingTarget(): ApprovalTarget | null {
   const link = document.querySelector<HTMLElement>(
-    'tr.replacement-pending-row a.replacement-approve-action',
+    '.replacement-card.is-pending a.replacement-approve-action',
   );
   if (!link) return null;
   const id = Number(link.dataset.replacementId);
