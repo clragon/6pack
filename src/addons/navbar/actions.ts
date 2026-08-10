@@ -4,7 +4,7 @@ import { openConfirm } from '../../core/palette/confirm';
 import { notify } from '../../site/toast';
 import { MANAGER_TITLE, openNavManager } from './manager';
 import { expand } from './resolve';
-import { addEntry, listEntries } from './store';
+import { navStore } from './store';
 import { toPath } from './url';
 
 const jumpTo: Action = {
@@ -14,7 +14,7 @@ const jumpTo: Action = {
   keywords: ['jump', 'go', 'goto', 'navigate', 'nav', 'open'],
   weight: 1,
   submenu: () =>
-    listEntries().map((entry) => ({
+    navStore.list().map((entry) => ({
       id: `nav.go:${entry.id}`,
       title: entry.title || entry.url,
       description: toPath(expand(entry.url)),
@@ -41,7 +41,7 @@ const pinThisPage: Action = {
     if (!raw) return;
     const url = toPath(raw);
     const label = result.fields.label.trim() || url;
-    addEntry(label, url, true);
+    navStore.add({ title: label, url, pinned: true });
     notify(`Pinned ${label}`);
   },
 };

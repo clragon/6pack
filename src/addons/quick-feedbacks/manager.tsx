@@ -9,31 +9,25 @@ import {
   Plus,
   Trash2,
   Upload,
+  X,
 } from 'lucide-preact';
 
 import type { DialogCrumb } from '../../core/palette/dialog';
 import { buildDTextEditor } from '../../core/palette/dtextEditor';
 import { deepActiveElement } from '../../core/palette/focus';
 import { spawnDialog } from '../../core/palette/spawnDialog';
+import { exportJson, importJson } from '../../core/transfer';
 import { RULES } from './rules';
 import { RuleGroups } from './ruleGroups';
 import { rove } from '../../core/palette/rove';
-import {
-  addRecord,
-  listRecords,
-  moveRecord,
-  removeRecord,
-  setRecords,
-  subscribe,
-  updateRecord,
-  type RecordCategory,
-  type RecordTemplate,
-} from './store';
-import { STYLES } from './styles';
+import { recordStore, type RecordCategory, type RecordTemplate } from './store';
+import { ensureStyles, STYLES } from './styles';
 
 // Opens the template manager (a palette dialog when 6pack is present, a standalone
 // modal otherwise).
 export function openRecordsManager(): void {
+  // The slotted editor is light DOM, so it needs the sheet in document.head.
+  ensureStyles();
   spawnDialog({
     trail: [{ title: 'Manage quick feedbacks' }],
     styles: STYLES,
@@ -45,60 +39,31 @@ export function openRecordsManager(): void {
 }
 
 function exportToFile(): void {
-  const json = JSON.stringify(listRecords(), null, 2);
-  const url = URL.createObjectURL(
-    new Blob([json], { type: 'application/json' }),
-  );
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'quick-feedbacks.json';
-  a.click();
-  URL.revokeObjectURL(url);
+  exportJson('quick-feedbacks', recordStore.list());
 }
 
 function importFromFile(): void {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'application/json,.json';
-  input.addEventListener('change', () => {
-    void input.files?.[0]?.text().then((text) => {
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(text);
-      } catch {
-        return;
-      }
-      if (!Array.isArray(parsed)) return;
-      const incoming = parsed
-        .filter(
-          (v): v is Record<string, unknown> =>
-            !!v &&
-            typeof v === 'object' &&
-            typeof (v as Record<string, unknown>).title === 'string' &&
-            typeof (v as Record<string, unknown>).reason === 'string',
-        )
-        .map((v): RecordTemplate => {
-          const rules = v.rules;
-          return {
+  importJson<RecordTemplate>(
+    (v) =>
+      typeof v.title === 'string' && typeof v.reason === 'string'
+        ? {
             id: crypto.randomUUID(),
-            title: v.title as string,
-            reason: v.reason as string,
-            rules: Array.isArray(rules)
-              ? rules.filter((r): r is string => typeof r === 'string')
+            title: v.title,
+            reason: v.reason,
+            rules: Array.isArray(v.rules)
+              ? v.rules.filter((r): r is string => typeof r === 'string')
               : [],
             pinned: v.pinned === true,
-          };
-        });
-      setRecords([...listRecords(), ...incoming]);
-    });
-  });
-  input.click();
+          }
+        : null,
+    (incoming) => recordStore.set([...recordStore.list(), ...incoming]),
+  );
 }
 
 function useRecords(): RecordTemplate[] {
   const [, force] = useState(0);
-  useEffect(() => subscribe(() => force((n) => n + 1)), []);
-  return listRecords();
+  useEffect(() => recordStore.subscribe(() => force((n) => n + 1)), []);
+  return recordStore.list();
 }
 
 function useNarrow(): boolean {
@@ -152,14 +117,14 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
   const reorderTo = (targetId: string): void => {
     const from = dragId.current;
     if (!from || from === targetId) return;
-    const list = listRecords();
+    const list = recordStore.list();
     const fromIndex = list.findIndex((t) => t.id === from);
     const toIndex = list.findIndex((t) => t.id === targetId);
     if (fromIndex < 0 || toIndex < 0) return;
     const next = [...list];
     const [moved] = next.splice(fromIndex, 1);
     next.splice(toIndex, 0, moved);
-    setRecords(next);
+    recordStore.set(next);
   };
 
   // Reflect the collapsed detail view in the breadcrumb, so it can go back.
@@ -225,7 +190,7 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
       const delta = event.key === 'ArrowDown' ? 1 : -1;
       const id = active.dataset.id;
       if (event.altKey && id) {
-        moveRecord(id, delta);
+        recordStore.move(id, delta);
         requestAnimationFrame(() =>
           focusMember(
             listRef.current?.querySelector<HTMLElement>(
@@ -300,7 +265,9 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
               type="button"
               class="sp-qf-add"
               tabIndex={records.length ? -1 : 0}
-              onClick={() => select(addRecord('', '', []).id)}
+              onClick={() =>
+                select(recordStore.add({ title: '', reason: '', rules: [] }).id)
+              }
             >
               <Plus size={16} />
               <span>New</span>
@@ -309,10 +276,11 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
               type="button"
               class="sp-qf-more-btn"
               tabIndex={-1}
-              title="Import or export"
+              title={menuOpen ? 'Close' : 'Import or export'}
+              aria-expanded={menuOpen ? 'true' : 'false'}
               onClick={() => setMenuOpen((o) => !o)}
             >
-              <MoreHorizontal size={16} />
+              {menuOpen ? <X size={16} /> : <MoreHorizontal size={16} />}
             </button>
           </div>
           {menuOpen && (
@@ -343,8 +311,8 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
             key={selected.id}
             template={selected}
             onDelete={() => {
-              removeRecord(selected.id);
-              setSelectedId(listRecords()[0]?.id);
+              recordStore.remove(selected.id);
+              setSelectedId(recordStore.list()[0]?.id);
               if (narrow) showList();
             }}
           />
@@ -387,7 +355,7 @@ function Editor({
       className: 'sp-qf-reason-editor',
       rows: 5,
       placeholder: 'Reason',
-      onInput: (value) => updateRecord(id, { reason: value }),
+      onInput: (value) => recordStore.update(id, { reason: value }),
     });
     const root = container.getRootNode();
     const shadowHost =
@@ -444,7 +412,7 @@ function Editor({
     const next = new Set(template.rules);
     if (next.has(key)) next.delete(key);
     else next.add(key);
-    updateRecord(id, { rules: [...next] });
+    recordStore.update(id, { rules: [...next] });
   };
 
   return (
@@ -481,13 +449,15 @@ function Editor({
             class="sp-qf-input"
             placeholder="Title"
             value={template.title}
-            onInput={(e) => updateRecord(id, { title: e.currentTarget.value })}
+            onInput={(e) =>
+              recordStore.update(id, { title: e.currentTarget.value })
+            }
           />
           <button
             type="button"
             class={'sp-qf-icon-btn' + (template.pinned ? ' sp-qf-pinned' : '')}
             title={template.pinned ? 'Shown on the strip' : 'Show on the strip'}
-            onClick={() => updateRecord(id, { pinned: !template.pinned })}
+            onClick={() => recordStore.update(id, { pinned: !template.pinned })}
           >
             <Pin size={16} fill={template.pinned ? 'currentColor' : 'none'} />
           </button>
@@ -522,7 +492,7 @@ function Editor({
             'sp-qf-pill sp-qf-cat-none' +
             (!template.category ? ' sp-qf-on' : '')
           }
-          onClick={() => updateRecord(id, { category: undefined })}
+          onClick={() => recordStore.update(id, { category: undefined })}
         >
           None
         </button>
@@ -536,7 +506,7 @@ function Editor({
               category.value +
               (template.category === category.value ? ' sp-qf-on' : '')
             }
-            onClick={() => updateRecord(id, { category: category.value })}
+            onClick={() => recordStore.update(id, { category: category.value })}
           >
             {category.label}
           </button>
@@ -562,7 +532,9 @@ function Editor({
                   'sp-qf-pill' +
                   (template.duration === option.value ? ' sp-qf-on' : '')
                 }
-                onClick={() => updateRecord(id, { duration: option.value })}
+                onClick={() =>
+                  recordStore.update(id, { duration: option.value })
+                }
               >
                 {option.label}
               </button>
@@ -576,7 +548,7 @@ function Editor({
               value={template.duration != null ? String(template.duration) : ''}
               onInput={(e) => {
                 const value = e.currentTarget.value;
-                updateRecord(id, {
+                recordStore.update(id, {
                   duration: value === '' ? undefined : Number(value),
                 });
               }}
@@ -588,7 +560,7 @@ function Editor({
             aria-checked={template.preventLogin ? 'true' : 'false'}
             class="sp-qf-switch-row"
             onClick={() =>
-              updateRecord(id, { preventLogin: !template.preventLogin })
+              recordStore.update(id, { preventLogin: !template.preventLogin })
             }
           >
             <span>Prevent login</span>

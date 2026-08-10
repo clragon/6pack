@@ -280,7 +280,7 @@
   flex: 1;
 }
 .sp-qf-list {
-  width: 210px;
+  width: 220px;
   flex: none;
   border-right: 1px solid var(--color-table-border, #313d52);
   padding: 8px;
@@ -389,8 +389,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px;
-  min-width: 28px;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   background: none;
   border: none;
   color: inherit;
@@ -405,6 +407,17 @@
 }
 .sp-qf-danger:hover {
   color: #ff6b6b;
+}
+/* The slotted editor is light DOM, so these reach it from document.head. */
+.sp-qf-reason-editor {
+  width: 100%;
+  box-sizing: border-box;
+}
+.sp-qf-reason-editor textarea,
+.sp-qf-reason-editor .dtext-formatter {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .sp-qf-confirm {
   display: flex;

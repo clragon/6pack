@@ -1,5 +1,5 @@
 import type { SixpackAddon } from './types';
-import { sourcesAddon } from '../../addons/sources';
+import { sourcesAddon } from '../../addons/source-shortener';
 import { ouroboruAddon } from '../../addons/ouroboru';
 import { betterEditsAddon } from '../../addons/better-edits';
 import { leanApprovalsAddon } from '../../addons/lean-approvals';
@@ -15,7 +15,7 @@ import { hoverZoomAddon } from '../../addons/hover-zoom';
 // fat build needs no add-on server. The thin build (__FAT__ false) tree-shakes
 // this whole module out, since its only reference sits behind a dropped branch.
 export const EMBEDDED: Record<string, SixpackAddon> = {
-  sources: sourcesAddon,
+  'source-shortener': sourcesAddon,
   ouroboru: ouroboruAddon,
   'better-edits': betterEditsAddon,
   'lean-approvals': leanApprovalsAddon,

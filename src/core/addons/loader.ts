@@ -13,7 +13,7 @@ const BASE_URL = __ADDON_BASE__;
 // The base is part of the key, so an artifact cached against one release is a
 // miss under the next: an update refetches rather than running the previous
 // release's add-on against this one's bridge.
-const CACHE_PREFIX = 'addons.code.';
+const CACHE_PREFIX = 'sp.addons.code.';
 
 function cacheKey(file: string): string {
   return CACHE_PREFIX + BASE_URL + file;

@@ -1,6 +1,6 @@
 import { expandTokens, type TokenSpec } from '../../core/template';
 import { currentUser } from '../../site/user';
-import { listEntries, type NavEntry } from './store';
+import { navStore, type NavEntry } from './store';
 
 // Tokens an entry's url may carry, the same spelling RE621's header tabs use.
 const TOKENS: TokenSpec[] = [
@@ -19,7 +19,7 @@ export function expand(url: string): string {
 }
 
 export function pinnedEntries(): NavEntry[] {
-  return listEntries().filter((entry) => entry.pinned);
+  return navStore.pinned();
 }
 
 // e621 marks the tab for the section you are in. Matching on the path alone

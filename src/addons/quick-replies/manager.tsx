@@ -7,6 +7,7 @@ import {
   Plus,
   Trash2,
   Upload,
+  X,
 } from 'lucide-preact';
 
 import type { DialogCrumb } from '../../core/palette/dialog';
@@ -14,6 +15,7 @@ import { buildDTextEditor } from '../../core/palette/dtextEditor';
 import { deepActiveElement } from '../../core/palette/focus';
 import { rove } from '../../core/palette/rove';
 import { spawnDialog } from '../../core/palette/spawnDialog';
+import { exportJson, importJson } from '../../core/transfer';
 import type { ReplyContext } from './context';
 import { type Template } from './store';
 import { ensureStyles, STYLES } from './styles';
@@ -23,7 +25,7 @@ export function openManager(context: ReplyContext, initialBody?: string): void {
   ensureStyles();
   const initialId =
     initialBody !== undefined
-      ? context.store.add('', initialBody).id
+      ? context.store.add({ title: '', body: initialBody }).id
       : undefined;
   spawnDialog({
     trail: [{ title: context.manageTitle }],
@@ -61,50 +63,22 @@ function useNarrow(): boolean {
 }
 
 function exportToFile(context: ReplyContext): void {
-  const json = JSON.stringify(context.store.list(), null, 2);
-  const url = URL.createObjectURL(
-    new Blob([json], { type: 'application/json' }),
-  );
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = context.exportName;
-  a.click();
-  URL.revokeObjectURL(url);
+  exportJson(`quick-replies-${context.id}`, context.store.list());
 }
 
 function importFromFile(context: ReplyContext): void {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'application/json,.json';
-  input.addEventListener('change', () => {
-    void input.files?.[0]?.text().then((text) => {
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(text);
-      } catch {
-        return;
-      }
-      if (!Array.isArray(parsed)) return;
-      const incoming = parsed
-        .filter(
-          (v): v is Record<string, unknown> =>
-            !!v &&
-            typeof v === 'object' &&
-            typeof (v as Record<string, unknown>).title === 'string' &&
-            typeof (v as Record<string, unknown>).body === 'string',
-        )
-        .map(
-          (v): Template => ({
+  importJson<Template>(
+    (v) =>
+      typeof v.title === 'string' && typeof v.body === 'string'
+        ? {
             id: crypto.randomUUID(),
-            title: v.title as string,
-            body: v.body as string,
+            title: v.title,
+            body: v.body,
             pinned: v.pinned === true,
-          }),
-        );
-      context.store.set([...context.store.list(), ...incoming]);
-    });
-  });
-  input.click();
+          }
+        : null,
+    (incoming) => context.store.set([...context.store.list(), ...incoming]),
+  );
 }
 
 function Manager({
@@ -297,7 +271,7 @@ function Manager({
               type="button"
               class="sp-qr-add"
               tabIndex={templates.length ? -1 : 0}
-              onClick={() => select(store.add('', '').id)}
+              onClick={() => select(store.add({ title: '', body: '' }).id)}
             >
               <Plus size={16} />
               <span>{context.addLabel}</span>
@@ -306,10 +280,11 @@ function Manager({
               type="button"
               class="sp-qr-more-btn"
               tabIndex={-1}
-              title="Import or export"
+              title={menuOpen ? 'Close' : 'Import or export'}
+              aria-expanded={menuOpen ? 'true' : 'false'}
               onClick={() => setMenuOpen((o) => !o)}
             >
-              <MoreHorizontal size={16} />
+              {menuOpen ? <X size={16} /> : <MoreHorizontal size={16} />}
             </button>
           </div>
           {menuOpen && (

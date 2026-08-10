@@ -15,8 +15,13 @@ interface ManifestAddon {
   id: string;
   name: string;
   description: string;
-  file: string;
   default?: boolean;
+}
+
+// An add-on's artifact is named after it, so the manifest carries no filename to
+// drift from the id. scripts/build-addons.mjs writes the same name.
+export function artifactFile(id: string): string {
+  return `${id}.user.js`;
 }
 
 // The add-on registry: the inbuilt add-ons first, then the managed ones from
@@ -35,7 +40,7 @@ export const CATALOG: CatalogEntry[] = [
       id: addon.id,
       name: addon.name,
       description: addon.description,
-      file: addon.file,
+      file: artifactFile(addon.id),
       default: addon.default ?? false,
     }),
   ),

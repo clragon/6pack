@@ -4,7 +4,7 @@ import { readJson, writeJson } from '../../core/storage';
 // from the first ban's form once it's submitted. Persisted so it survives the
 // navigation from /users to /bans/new to /bans/<id>, and reactive so the chip
 // tracks it.
-const KEY = 'sp.massban';
+const KEY = 'sp.burn.massban';
 
 export interface MassBan {
   userIds: number[];

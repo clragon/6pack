@@ -43,7 +43,7 @@ export async function buildAddons({ watch = false } = {}) {
       plugins: [
         monkey({
           entry: addon.entry,
-          build: { fileName: addon.file },
+          build: { fileName: `${addon.id}.user.js` },
           userscript: {
             // Prefix so it's identifiable among installed scripts; the catalog
             // shows the bare name.
