@@ -9,9 +9,9 @@ import { installBurnRunner } from './runner';
 
 // Inbuilt: compiled into 6pack itself rather than fetched as an artifact, so it
 // may import core directly (see core/addons/inbuilt).
-export const burnAddon: SixpackAddon = {
-  id: 'burn',
-  name: 'Burner',
+export const flamethrowerAddon: SixpackAddon = {
+  id: 'flamethrower',
+  name: 'Flamethrower',
   description:
     'Comments, forum posts, blips and users are selected with a checkbox and acted on together. The pile survives while a page is read, and the palette holds the commands that work it: incinerate, mark, copy, clear. Work runs through a throttled queue that persists across reloads and is shared between tabs, so a long run continues where it stopped and reports what failed.',
   actions: [burnable, burntComments],

@@ -46,7 +46,7 @@ export const CATALOG: CatalogEntry[] = [
   ),
 ];
 
-const KEY = 'sp.addons.state';
+const KEY = 'sp.core.addons.state';
 
 // Explicit per-add-on choices. A missing id means the user never chose, so its
 // catalog default decides.

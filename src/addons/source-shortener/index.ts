@@ -7,7 +7,7 @@ import { getSourceLabel } from '../../core/sources/url';
 // anchor, which wraps an icon rather than text.
 
 // Marks an already-shortened node and stashes its original text for restore.
-const STASH = 'sixpackSource';
+const STASH = 'spSrcOriginal';
 
 const ANCHOR_SELECTOR =
   '.source-link a[href^="http"]:not(.jsv-replacement-anchor)';

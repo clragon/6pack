@@ -27,7 +27,7 @@ export interface SettingsApi {
 // reactive so a toggle from the palette reflects on the page live. Specs are
 // registered at boot (by core and add-ons); values are stored under their keys.
 // A value with no surviving spec (an add-on that went away) just lies dormant.
-const KEY = 'sp.settings';
+const KEY = 'sp.core.settings';
 
 const specs = new Map<string, SettingSpec>();
 let values: Record<string, boolean> = readJson<Record<string, boolean>>(

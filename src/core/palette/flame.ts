@@ -7,8 +7,8 @@ import { openPaletteAt } from './store';
 // given action group.
 
 // Page-DOM icon buttons need a real :hover rule, not inline styles.
-export const ICON_BTN_CLASS = 'sixpack-icon-btn';
-const STYLE_ID = 'sixpack-icon-btn-style';
+export const ICON_BTN_CLASS = 'sp-icon-btn';
+const STYLE_ID = 'sp-icon-btn-style';
 
 export function ensureIconButtonStyles(): void {
   if (document.getElementById(STYLE_ID)) return;

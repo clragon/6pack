@@ -27,10 +27,10 @@ export interface Lease {
   heartbeat: number;
 }
 
-const BURNS_KEY = 'sp.burn.pile';
+const BURNS_KEY = 'sp.flamethrower.pile';
 // A separate key so frequent heartbeats don't churn the burns blob or wake other
 // tabs; only real mutations announce.
-const LEASE_KEY = 'sp.burn.lease';
+const LEASE_KEY = 'sp.flamethrower.lease';
 
 interface Stored {
   burns: Burn[];

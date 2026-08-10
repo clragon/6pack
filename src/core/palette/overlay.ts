@@ -49,7 +49,7 @@ function engage(keep: Element | null): void {
 export function engageOverlay(keep?: Element | null): () => void {
   count += 1;
   if (count === 1) {
-    engage(keep ?? document.getElementById('sixpack-palette-host'));
+    engage(keep ?? document.getElementById('sp-palette-host'));
   }
   let released = false;
   return () => {

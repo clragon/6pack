@@ -22,10 +22,10 @@ import { isModeratorPlus, loadCurrentUser } from '../../site/user';
 
 // Page-DOM injection (not the shadow root): a checkbox per burnable item plus a
 // control region, both styled with e621's own classes/vars so they sit native.
-const CHECKBOX_CLASS = 'sixpack-burner';
-const ALL_CLASS = 'sixpack-burner-all';
-const COUNT_CLASS = 'sixpack-burner-count';
-const REGION_ID = 'sixpack-burner-controls';
+const CHECKBOX_CLASS = 'sp-ft-check';
+const ALL_CLASS = 'sp-ft-all';
+const COUNT_CLASS = 'sp-ft-count';
+const REGION_ID = 'sp-ft-controls';
 
 function refOf(item: Burnable): BurnRef {
   return { type: item.type, id: item.id };

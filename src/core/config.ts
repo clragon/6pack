@@ -8,7 +8,7 @@ export interface TriggerConfig {
   shift?: boolean;
 }
 
-const STORAGE_KEY = 'sp.palette.trigger';
+const STORAGE_KEY = 'sp.core.palette.trigger';
 
 // Alt+Q: free on e621 (its hotkeys define no Alt combos) and unclaimed by the
 // browser, unlike Ctrl/Cmd+K (Firefox search bar) or Ctrl/Cmd+Q (quits Firefox
