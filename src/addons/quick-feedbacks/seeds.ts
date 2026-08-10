@@ -1,13 +1,13 @@
-import type { RecordTemplate } from './store';
+import type { FeedbackTemplate } from './store';
 
-export function seedRecords(): RecordTemplate[] {
+export function seedTemplates(): FeedbackTemplate[] {
   const make = (
     title: string,
     reason: string,
     rules: string[],
     pinned: boolean,
-    extra: Partial<RecordTemplate> = {},
-  ): RecordTemplate => ({
+    extra: Partial<FeedbackTemplate> = {},
+  ): FeedbackTemplate => ({
     id: crypto.randomUUID(),
     title,
     reason,

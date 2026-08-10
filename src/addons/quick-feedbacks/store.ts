@@ -1,17 +1,17 @@
 import { createListStore, type ListItem } from '../../core/store';
-import { seedRecords } from './seeds';
+import { seedTemplates } from './seeds';
 
-export type RecordCategory = 'positive' | 'neutral' | 'negative' | 'ban';
+export type FeedbackCategory = 'positive' | 'neutral' | 'negative' | 'ban';
 
-export interface RecordTemplate extends ListItem {
+export interface FeedbackTemplate extends ListItem {
   reason: string;
   rules: string[];
-  category?: RecordCategory;
+  category?: FeedbackCategory;
   duration?: number;
   preventLogin?: boolean;
 }
 
-export const recordStore = createListStore<RecordTemplate>(
-  'sp.quick-feedbacks.records',
-  seedRecords,
+export const templateStore = createListStore<FeedbackTemplate>(
+  'sp.quick-feedbacks.templates',
+  seedTemplates,
 );

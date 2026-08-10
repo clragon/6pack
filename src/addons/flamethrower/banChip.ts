@@ -66,7 +66,7 @@ function actions(template: MassBan): Action[] {
 
 function toChip(template: MassBan): Chip {
   return {
-    id: 'chip.massban',
+    id: 'massban',
     label: `Ban template (${template.userIds.length})`,
     open: () => actions(template),
   };

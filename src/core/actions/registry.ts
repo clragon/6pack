@@ -4,9 +4,17 @@ import { log } from '../log';
 
 export class ActionRegistry {
   private readonly actions: Action[] = [];
+  private readonly ids = new Set<string>();
 
   register(...actions: Action[]): void {
-    this.actions.push(...actions);
+    for (const action of actions) {
+      if (this.ids.has(action.id)) {
+        log.warn(`action ${action.id} already registered, ignoring`);
+        continue;
+      }
+      this.ids.add(action.id);
+      this.actions.push(action);
+    }
   }
 
   available(page: PageContext): Action[] {

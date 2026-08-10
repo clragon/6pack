@@ -1,7 +1,7 @@
 import { navigateTo } from '../../core/navigate';
 import { assembleRecord } from './compositor';
 import { recordRuleUse } from './ruleFrecency';
-import type { RecordTemplate } from './store';
+import type { FeedbackTemplate } from './store';
 
 interface PickApi {
   setReason: (reason: string) => void;
@@ -11,10 +11,10 @@ interface PickApi {
 export interface EmbedTarget {
   field: string;
   outputLabel: string;
-  pick: (template: RecordTemplate, api: PickApi) => void;
+  pick: (template: FeedbackTemplate, api: PickApi) => void;
 }
 
-function redirectToBan(template: RecordTemplate): void {
+function redirectToBan(template: FeedbackTemplate): void {
   const userName =
     document.querySelector<HTMLInputElement>(
       'input[name="user_feedback[user_name]"]',
