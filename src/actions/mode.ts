@@ -2,7 +2,7 @@ import type { Action } from '../core/actions/types';
 import { readModes, setMode } from '../site/mode';
 import { notify } from '../site/toast';
 
-// Modes that reach in to the parent list; the rest are drill-only (submenuOnly).
+// Modes that reach in to the parent list. The rest are drill-only (submenuOnly).
 const IMPORTANT = new Set(['approve', 'delete', 'view']);
 
 export const mode: Action = {

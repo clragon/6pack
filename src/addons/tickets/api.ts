@@ -1,7 +1,7 @@
 import { transport } from '../../core/auth';
 
-// Closing a ticket is the `approved` status (the lone closed state; pending and
-// partial are both open). The update is moderator-gated server-side and the
+// Closing a ticket is the `approved` status (the lone closed state, with pending
+// and partial both open). The update is moderator-gated server-side and the
 // response must be at least 2 chars. force_claim overrides a claim held by
 // another handler, mirroring e621's "submit again to force" resubmit.
 export function closeTicket(

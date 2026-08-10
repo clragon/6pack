@@ -6,8 +6,8 @@ import type {
 import { probe } from '../../core/diag';
 
 // Presents RE621 Mod Tools' response chips as a ticket response provider. RE621
-// renders one chip per template above the response textarea; this is the only
-// module that knows that shape. RE621 gives the chips no id, so the option id is
+// renders one chip per template above the response textarea, a shape known here
+// and nowhere else. RE621 gives the chips no id, so the option id is
 // the chip position, which compose resolves back to the chip.
 
 const TEMPLATE_CHIP =
@@ -20,7 +20,7 @@ function templateChips(): HTMLButtonElement[] {
   );
 }
 
-// The chip's text is the title; its `title` attribute is the raw body (RE621 sets
+// The chip's text is the title, and its `title` attribute the raw body (RE621 sets
 // it only when the body is non-empty). The faithful text, with the greeting and
 // %reporterName% applied, is recovered at compose time.
 const options = probe('templates', (): TicketResponseOption[] =>
@@ -30,7 +30,7 @@ const options = probe('templates', (): TicketResponseOption[] =>
   })),
 );
 
-// RE621's chip fills the response field with its own transform; read it back.
+// RE621's chip fills the response field with its own transform, so read it back.
 // Null when the chip or field is missing.
 function compose(optionId: string): string | null {
   const field = document.querySelector<HTMLTextAreaElement>(RESPONSE_FIELD);

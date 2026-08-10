@@ -10,7 +10,7 @@ export const ESSENTIAL: SixpackAddon[] = [ticketsAddon];
 
 // An add-on compiled into 6pack, paired with the one-line pitch the add-on list
 // shows. The pitch is held here because `SixpackAddon.description` carries the
-// manual, which runs to a paragraph; manifest.json draws the same line for a
+// manual, which runs to a paragraph. manifest.json draws the same line for a
 // managed add-on.
 interface InbuiltAddon {
   addon: SixpackAddon;

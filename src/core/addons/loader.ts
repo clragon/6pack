@@ -57,7 +57,7 @@ function fetchCode(file: string): Promise<string> {
 // against the global scope, not 6pack's grant closure, so the bindings the
 // artifact compiled against are passed in: unsafeWindow to reach the published
 // bridge, and GM_xmlhttpRequest so its `typeof` guard finds the granted function.
-// The userscript header is inert comments here; managed add-ons inherit 6pack's
+// The userscript header is inert comments here, and managed add-ons inherit 6pack's
 // grants and add none. Running in-process (not as a separate userscript) keeps
 // the add-on lifecycle-owned: it loads only while enabled and dies with 6pack.
 function runCode(code: string): void {
@@ -69,7 +69,7 @@ function runCode(code: string): void {
 
 // Load an add-on, stashing its code for next time. A cached artifact runs
 // synchronously, so it can register before first paint, then revalidates in the
-// background; an uncached one fetches first, so only its first-ever load lags.
+// background, and an uncached one fetches first, so only its first load lags.
 export function loadAddon(
   id: string,
   file: string,
@@ -77,7 +77,7 @@ export function loadAddon(
 ): void {
   evictOtherBases();
   // Dev serves a watched, freshly-built artifact, so a cached copy would just
-  // re-run last reload's code; always refetch instead.
+  // re-run last reload's code, so always refetch instead.
   const cached = import.meta.env.DEV
     ? null
     : readJson<string | null>(cacheKey(file), null);
@@ -104,7 +104,7 @@ export function loadAddon(
     });
 }
 
-// Refresh the stash for the next load; a failure keeps the stale copy.
+// Refresh the stash for the next load, where a failure keeps the stale copy.
 async function revalidate(file: string): Promise<void> {
   try {
     writeJson(cacheKey(file), await fetchCode(file));

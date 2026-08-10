@@ -17,7 +17,7 @@ export interface Action {
   keywords?: string[];
   // Gate visibility on the current page. Absent means always available.
   when?: (page: PageContext) => boolean;
-  // Omit from the list when the search box is empty; still surfaces when matched.
+  // Omit from the list when the search box is empty, still surfacing on a match.
   hidden?: boolean;
   // Matched only by a query equal to the title or to one of the keywords.
   // `hidden` still surfaces on an approximate match, and nothing approximate
@@ -46,7 +46,7 @@ export interface Action {
   // and the switch flips) instead of closing like a normal command.
   checked?: () => boolean;
   // Makes this a group: resolves child actions lazily when needed. Children may
-  // be a Promise (e.g. an API call); sync children additionally enable query
+  // be a Promise (e.g. an API call), and sync children also enable query
   // reach-in, matching and pre-selecting a child from the parent list.
   submenu?: (ctx: ActionContext) => Action[] | Promise<Action[]>;
   // Placeholder for the input once this group's submenu level is open. Omit for

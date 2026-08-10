@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { RefObject } from 'preact';
 
-// Fine drift is corrected by nudging the follower's rate; only a gross gap (a
+// Fine drift is corrected by nudging the follower's rate, and only a gross gap (a
 // stall, a tab-away) is worth a hard seek, since seeking mid-play resets decode
 // and, done every frame, freezes the follower outright.
 const NUDGE_BAND = 0.04;

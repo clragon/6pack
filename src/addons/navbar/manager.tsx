@@ -44,7 +44,7 @@ function exportToFile(): void {
   exportJson('navbar', navStore.list());
 }
 
-// Imported entries join the list rather than replace it; the store puts the
+// Imported entries join the list rather than replace it, and the store puts the
 // pinned ones back in front. Anything without a title and url is not an entry.
 function importFromFile(): void {
   importJson<NavEntry>(
@@ -115,7 +115,7 @@ function IconPicker({
       ref={ref}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {
-          // The dialog closes on Escape too; the picker takes it first.
+          // The dialog closes on Escape too, so the picker takes it first.
           event.stopPropagation();
           onDismiss();
           return;

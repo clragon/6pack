@@ -22,7 +22,7 @@ export function DialogHost() {
 
   if (!spec) return null;
 
-  // The overlay shields e621's hotkeys; this just closes on Escape.
+  // The overlay shields e621's hotkeys, so this just closes on Escape.
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       event.preventDefault();

@@ -4,8 +4,8 @@ import {
   type ListStore,
 } from '../../core/store';
 
-// A saved reply. The same shape backs every context (ticket, appeal, dmail); each
-// context keeps its own list under its own key.
+// A saved reply. The same shape backs every context (ticket, appeal, dmail), and
+// each context keeps its own list under its own key.
 export interface Template extends ListItem {
   body: string;
 }

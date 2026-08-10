@@ -110,8 +110,8 @@ async function serve(
   }
 }
 
-// Ask the owning tab to run the action; resolves on its reply, rejects on failure
-// or silence. A ticket open in this very tab is handled in-process, since
+// Ask the owning tab to run the action, resolving on its reply and rejecting on
+// failure or silence. A ticket open in this very tab is handled in-process, since
 // BroadcastChannel does not deliver a tab's own messages.
 function requestAction(
   targetTabId: string,

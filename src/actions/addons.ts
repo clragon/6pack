@@ -2,9 +2,9 @@ import type { Action } from '../core/actions/types';
 import { addons } from '../core/addons/manager';
 import { CATALOG } from '../core/addons/catalog';
 
-// Hidden until searched. Lists known add-ons as switches; flipping one installs
-// it (load now) or removes it (tear down now). State persists, so an enabled
-// add-on loads on its own next visit.
+// Hidden until searched. Lists known add-ons as switches, where flipping one
+// installs it (load now) or removes it (tear down now). State persists, so an
+// enabled add-on loads on its own next visit.
 export const addonsActions: Action[] = [
   {
     id: 'addons',

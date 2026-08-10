@@ -1,5 +1,6 @@
 /* The | and • between buttons are bare text nodes, so zeroing the font on the
-   bar is the only way to collapse them; each surviving button restores its size. */
+   bar is the only way to collapse them, and each surviving button restores its
+   size. */
 #pending-approval-notice .quick-mod {
   display: flex;
   flex-wrap: wrap;

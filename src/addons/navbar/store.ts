@@ -6,8 +6,8 @@ import { seedEntries } from './seeds';
 // expanded at render time.
 export interface NavEntry extends ListItem {
   url: string;
-  // Key into the icon catalog; an unknown or absent key falls back to the link
-  // glyph.
+  // Key into the icon catalog, where an unknown or absent key falls back to the
+  // link glyph.
   icon?: string;
 }
 

@@ -29,7 +29,7 @@ export interface Lease {
 
 const BURNS_KEY = 'sp.flamethrower.pile';
 // A separate key so frequent heartbeats don't churn the burns blob or wake other
-// tabs; only real mutations announce.
+// tabs, so only real mutations announce.
 const LEASE_KEY = 'sp.flamethrower.lease';
 
 interface Stored {
@@ -104,7 +104,7 @@ export function subscribe(listener: () => void): () => void {
   };
 }
 
-// Lease is read/written raw; staleness is the runner's call.
+// Lease is read/written raw, and staleness is the runner's call.
 export function readLease(): Lease | null {
   return readJson<Lease | null>(LEASE_KEY, null);
 }

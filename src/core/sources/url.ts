@@ -229,8 +229,8 @@ const mastodonLabel = (u: URL): string | null => {
   return profile ? `@${profile[1]}` : null;
 };
 
-// A default *.bsky.social handle reads better trimmed; a custom domain handle is
-// the identity, so it stays whole.
+// A default *.bsky.social handle reads better trimmed, but a custom domain handle
+// is the identity, so it stays whole.
 const trimBskyHandle = (handle: string): string =>
   handle.replace(/\.bsky\.social$/, '');
 

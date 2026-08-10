@@ -1,6 +1,6 @@
 // One image side of the comparison: enough to display it and to fetch its bytes
 // for the diff. `full` is the highest resolution the viewer may see (a signed
-// replacement url, or a post's file url); `thumb` is the always-available
+// replacement url, or a post's file url), and `thumb` is the always-available
 // preview used as a fallback and as the low-cost first paint.
 export interface CompareImage {
   key: string;

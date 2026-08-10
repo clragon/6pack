@@ -59,7 +59,7 @@ function standalone(spec: DialogSpec): () => void {
   closeBtn.addEventListener('click', close);
   header.append(crumbs, closeBtn);
 
-  // onClick crumbs navigate within the dialog; target crumbs are palette-only.
+  // onClick crumbs navigate within the dialog, and target crumbs are palette-only.
   const renderCrumbs = (trail: DialogSpec['trail']): void => {
     crumbs.replaceChildren();
     trail.forEach((crumb, index) => {

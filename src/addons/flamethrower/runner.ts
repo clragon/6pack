@@ -21,7 +21,7 @@ import { installBurnChip } from './chip';
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const THROTTLE_MS = 500;
-// A lease older than this is treated as a dead owner; another tab may claim it.
+// A lease older than this is treated as a dead owner, free for another tab to claim.
 const LEASE_TTL_MS = 3000;
 // How often an idle tab re-checks for pending work or a stale lease.
 const WATCH_MS = 1500;
@@ -37,8 +37,8 @@ function heartbeat(): void {
   writeLease({ tabId: localTabId, heartbeat: Date.now() });
 }
 
-// Two tabs opening at once both see no lease and both claim; the jittered recheck
-// lets the last writer win and the others back off, so only one tab drains.
+// Two tabs opening at once both see no lease and both claim, so the jittered
+// recheck lets the last writer win and the others back off, and only one drains.
 async function acquire(): Promise<boolean> {
   const lease = readLease();
   const stale = !lease || Date.now() - lease.heartbeat > LEASE_TTL_MS;
@@ -85,7 +85,7 @@ async function drainBurn(id: string): Promise<boolean> {
       fire.finish(
         `Burned ${done} ${noun(done)}.${failed ? ` ${failed} failed.` : ''}`,
       );
-      // A clean burn clears itself; failures linger as a chip for a Dismiss.
+      // A clean burn clears itself, and failures linger as a chip for a Dismiss.
       if (failed === 0) removeBurn(id);
       return true;
     }
@@ -126,7 +126,7 @@ async function drain(): Promise<void> {
 
 export function installBurnRunner(): () => void {
   installBurnChip();
-  // Enqueue, target completion, and abort all land here; each nudges the drainer.
+  // Enqueue, target completion, and abort all arrive here, each nudging the drainer.
   const unsubscribe = subscribe(() => void drain());
   const timer = setInterval(() => void drain(), WATCH_MS);
   const release = (): void => {
@@ -134,7 +134,7 @@ export function installBurnRunner(): () => void {
   };
   window.addEventListener('beforeunload', release);
   void drain();
-  // The chip source stays registered, having no removal path; it lists nothing
+  // The chip source stays registered, having no removal path, and lists nothing
   // once the queue is empty.
   return () => {
     unsubscribe();

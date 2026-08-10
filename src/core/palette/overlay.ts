@@ -14,7 +14,7 @@ function engage(keep: Element | null): void {
   const scrollbar = window.innerWidth - document.documentElement.clientWidth;
   const prevOverflow = scroller.style.overflow;
   const prevPadding = scroller.style.paddingRight;
-  // Hide the scroller's overflow so it can't scroll; compensate the scrollbar so
+  // Hide the scroller's overflow so it can't scroll, compensate the scrollbar so
   // the page doesn't shift, and pin the position in case overflow:hidden resets it.
   scroller.style.overflow = 'hidden';
   if (scrollbar > 0) scroller.style.paddingRight = `${scrollbar}px`;
@@ -44,8 +44,8 @@ function engage(keep: Element | null): void {
   };
 }
 
-// Imperative form for the standalone modal. `keep` stays interactive; defaults to
-// the palette host.
+// Imperative form for the standalone modal. `keep` stays interactive, and
+// defaults to the palette host.
 export function engageOverlay(keep?: Element | null): () => void {
   count += 1;
   if (count === 1) {

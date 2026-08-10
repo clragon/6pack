@@ -1,5 +1,5 @@
 // The authenticated-request seam. The cookie + CSRF implementation hits e621's
-// same-origin endpoints; an API-key implementation can replace it without
+// same-origin endpoints, and an API-key implementation can replace it without
 // touching callers.
 type Body = Record<string, string | number | boolean | null | undefined>;
 

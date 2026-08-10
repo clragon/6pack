@@ -18,7 +18,7 @@ interface Formatter {
   updatePreview: () => void;
 }
 
-// e6 stashes its formatter on the wrapper; reach it to drive the preview.
+// e6 stashes its formatter on the wrapper, so reach it to drive the preview.
 function getFormatter(anchor: Element): Formatter | null {
   const page = unsafeWindow as unknown as {
     jQuery?: (el: unknown) => { data: (key: string) => unknown };
@@ -171,7 +171,7 @@ function Embed({
       return [...a, key];
     });
 
-  // Ranked once per open so the pills don't shuffle mid-edit; picks feed back in.
+  // Ranked once per open so the pills hold still mid-edit. Picks feed back in.
   const frequentRules = useMemo(
     () => rankRules(Object.keys(RULES)).slice(0, 8),
     [],

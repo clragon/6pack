@@ -1,5 +1,5 @@
 /* The 80rem breakpoint is mirrored by BREAKPOINT in index.ts (matchMedia needs
-   it too); keep the two in sync. e621 shows/hides #edit via inline display, so
+   it too), so keep the two in sync. e621 shows/hides #edit via inline display, so
    :has() on that style attribute leaves the page untouched until you edit. */
 @media (min-width: 80rem) {
   .post-display > .content:has(> #edit:not([style*='display: none'])) {
@@ -31,7 +31,7 @@
     height: calc(100vh - 2rem);
   }
 
-  /* e621 ships #image-container as fit-content; override so there's room to
+  /* e621 sets #image-container to fit-content, so override for room to
      center and zoom into. */
   .post-display
     > .content:has(> #edit:not([style*='display: none']))

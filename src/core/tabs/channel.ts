@@ -1,5 +1,6 @@
 // A same-origin message bus across the user's open e621 tabs, over BroadcastChannel.
-// Generic over the message union so each domain owns its own protocol; transport-only.
+// Generic over the message union so each domain owns its own protocol. Transport
+// only.
 
 export interface Channel<M> {
   // Broadcast to every other tab on this channel. The sender does not hear its

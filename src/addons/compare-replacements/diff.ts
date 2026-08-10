@@ -1,14 +1,14 @@
 import { GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client';
 
 // Longest edge of the diff canvas. Moonshine computes its heatmap server-side
-// with sharp; this runs on the page thread, so a lower cap keeps the per-pixel
-// pass responsive.
+// with sharp, but this runs on the page thread, so a lower cap keeps the
+// per-pixel pass responsive.
 const MAX_DIM = 1024;
 
 // CIE76 (plain Lab distance) rather than Moonshine's CIEDE2000: the perceptual
 // gain over raw RGB is the Lab space itself, and CIEDE2000's hue/chroma
 // corrections cost ~15x per pixel, which stalls a browser thread. 2.3 is the
-// just-noticeable-difference; below it recompression noise never registers.
+// just-noticeable-difference, and below it recompression noise never registers.
 const DE_THRESHOLD = 2.3;
 const INTENSITY_SCALE = 16;
 
@@ -91,7 +91,7 @@ function deltaE(
 
 // e621's static host sends no CORS headers, so a remote <img>/<video> drawn to
 // canvas taints it and blocks getImageData. Pull the bytes with the userscript's
-// cross-origin grant instead; the blob is same-origin and stays readable.
+// cross-origin grant instead, since the blob is same-origin and stays readable.
 function fetchBlob(url: string): Promise<Blob> {
   return new Promise((resolve, reject) => {
     GM_xmlhttpRequest<'blob'>({
@@ -124,7 +124,7 @@ const objectUrlCache = new Map<string, Promise<string>>();
 
 // A same-origin object URL for a media file. Replacement files carry no CORS
 // header, so a <video> pointed at one can neither stream crossorigin nor feed the
-// heatmap canvas; routing it through a blob does both. Cached for the page.
+// heatmap canvas, and routing it through a blob does both. Cached for the page.
 export function fetchObjectUrl(url: string): Promise<string> {
   const hit = objectUrlCache.get(url);
   if (hit) return hit;

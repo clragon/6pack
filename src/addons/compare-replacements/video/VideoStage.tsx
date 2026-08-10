@@ -67,7 +67,7 @@ export function VideoStage({
     let raf = 0;
     let lastDiffed = -1;
     // Pause-to-diff: only once both frames have settled onto the same time, and
-    // only once per frame (a scrub re-diffs; sitting still doesn't).
+    // only once per frame (a scrub re-diffs, sitting still does not).
     const loop = () => {
       raf = requestAnimationFrame(loop);
       if (av.readyState < 2 || bv.readyState < 2) return;

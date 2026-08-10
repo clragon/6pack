@@ -41,7 +41,8 @@
 
 .sp-shell.sp-shell-dialog .sp-panel {
   /* Anchored 12vh from the top, so keep it a contained size and let the list
-     scroll inside past this; a big viewport fraction grows a lopsided slab. */
+     scroll inside past this, because a big viewport fraction grows a lopsided
+     slab. */
   max-height: min(560px, 76vh);
 }
 
@@ -132,13 +133,13 @@
   font-size: 12px;
   line-height: 1.4;
   padding: 4px 12px;
-  /* Open at the bottom into the panel; rounded only at the top, like a browser
+  /* Open at the bottom into the panel, rounded only at the top, like a browser
      tab above a window. */
   border: 1px solid var(--color-table-border, #313d52);
   border-bottom: none;
   border-radius: 6px 6px 0 0;
   /* Filled with the panel's surface so each tab reads as the dialog growing
-     upward; the row around the chips stays transparent. */
+     upward, and the row around the chips stays transparent. */
   background-color: var(--color-section, #1b2433);
   background-image: var(--image-foreground, none);
   color: var(--color-text-muted, #9aa6bd);
@@ -186,7 +187,7 @@
   align-items: center;
   background: none;
   border: none;
-  /* Padding leaves room for the inset ring; the negative margin cancels it out
+  /* Padding leaves room for the inset ring, and the negative margin cancels it out
      of the layout. */
   padding: 3px 5px;
   margin: 0 -3px;

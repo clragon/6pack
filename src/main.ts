@@ -54,7 +54,7 @@ whenReady(() => {
         return;
       if (!matchesTrigger(event)) return;
       // A modifier-less trigger (e.g. plain "Q") must not hijack typing in a
-      // field; close with Esc instead.
+      // field, so it closes with Esc instead.
       if (triggerIsModless() && isEditableElement(deepActiveElement())) return;
       event.preventDefault();
       // Stop e621's own hotkey handler from also seeing this key (its search-focus

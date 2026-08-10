@@ -43,7 +43,7 @@ const CONFIGS: BurnableConfig[] = [
     },
   },
   {
-    // The user index; not /users/<id> (a single profile, nothing to bulk-select).
+    // The user index, not /users/<id> (a single profile, nothing to bulk-select).
     match: /^\/users(?:[?.]|\/(?!\d)|$)/,
     selector: '#c-users tbody tr',
     type: 'user',

@@ -1,4 +1,4 @@
-// Reduce a same-origin URL to its path; a relative or foreign-origin URL is
+// Reduce a same-origin URL to its path. A relative or foreign-origin URL is
 // returned unchanged.
 export function toPath(url: string): string {
   try {

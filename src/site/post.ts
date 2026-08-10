@@ -92,7 +92,7 @@ export function readUploaderName(): string | null {
   return name || null;
 }
 
-// The post's parent id, if any. The edit form keeps it in a hidden field; the
+// The post's parent id, if any. The edit form keeps it in a hidden field, and the
 // "has parent" notice (.notice-child) links to the parent as a fallback.
 export const readParentId = probe('parent id', (): number | null => {
   const field = document.querySelector<HTMLInputElement>('#post_old_parent_id');

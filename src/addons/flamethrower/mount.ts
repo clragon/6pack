@@ -44,8 +44,8 @@ function injectCheckbox(item: Burnable): void {
     burnPile.toggle(ref, checkbox.checked),
   );
 
-  // A user row is a table row, so the box rides in its own cell; comments and
-  // forum posts are article grids, where it drops into the 3rd column.
+  // A user row is a table row, so the box rides in its own cell, while comments
+  // and forum posts are article grids, where it drops into the 3rd column.
   const isRow = item.el.tagName === 'TR';
   const cell = document.createElement(isRow ? 'td' : 'div');
   cell.style.cssText = isRow
@@ -91,7 +91,7 @@ function renderRegion(items: Burnable[]): HTMLElement | null {
   region.style.cssText =
     'display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin: 10px;';
 
-  // Flame opens the palette drilled into the burn actions (onboarding); the
+  // Flame opens the palette drilled into the burn actions (onboarding), and the
   // counter beside it shows how many are on the pile.
   const burn = flameButton('burnable', { title: 'Incinerate selection' });
   const count = document.createElement('span');

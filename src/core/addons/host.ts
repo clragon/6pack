@@ -65,7 +65,7 @@ export class AddonHost {
   }
 
   // Tear down an add-on's DOM lifecycle so a disable takes effect now. Its
-  // actions linger in the registry until the next page load; settings stay
+  // actions linger in the registry until the next page load, and settings stay
   // defined (a harmless dormant switch) which keeps the contract simple.
   unload(id: string): void {
     const teardown = this.teardowns.get(id);

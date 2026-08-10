@@ -25,7 +25,7 @@ export interface SettingsApi {
 
 // Persisted user preferences, shared across all e621 pages via localStorage, and
 // reactive so a toggle from the palette reflects on the page live. Specs are
-// registered at boot (by core and add-ons); values are stored under their keys.
+// registered at boot (by core and add-ons), and values stored under their keys.
 // A value with no surviving spec (an add-on that went away) just lies dormant.
 const KEY = 'sp.core.settings';
 
@@ -42,7 +42,7 @@ function notify(): void {
 
 export const settings: SettingsApi = {
   // Register a spec. Re-registering the same key keeps the first definition (the
-  // owner won the race); the stored value is untouched either way.
+  // owner won the race), and the stored value is untouched either way.
   define(spec: SettingSpec): void {
     if (specs.has(spec.key)) return;
     specs.set(spec.key, spec);

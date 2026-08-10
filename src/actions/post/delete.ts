@@ -9,7 +9,7 @@ import { DELETE_REASONS, type DeleteReason } from './deleteReasons';
 async function runDelete(id: number, choice: DeleteReason): Promise<void> {
   const parentId = readParentId();
 
-  // needsId reasons reference a post; default it to the parent when one exists.
+  // needsId reasons reference a post, defaulting to the parent when one exists.
   const fields = choice.needsId
     ? [
         {

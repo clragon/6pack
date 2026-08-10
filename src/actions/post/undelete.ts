@@ -41,7 +41,7 @@ async function runUndeleteAndUnapprove(id: number): Promise<void> {
   if (!confirmed) return;
   try {
     await undeletePost(id);
-    // Undelete made us the approver; unapprove drops it back to pending.
+    // Undelete made us the approver, so unapprove drops it back to pending.
     await unapprovePost(id);
     notify(`Undeleted and unapproved post #${id}`);
     window.location.reload();

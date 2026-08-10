@@ -28,7 +28,7 @@ export const viewCommentInContext: Action = {
   ],
   weight: 1,
   // The post id is rendered alongside the comment link, so a comment ticket
-  // always carries it; require it rather than carry a fallback fetch.
+  // always carries it, so require it rather than carry a fallback fetch.
   when: (page) =>
     page.kind === 'ticket' && reportedOfType('comment')?.postId != null,
   run: () => {
@@ -59,8 +59,8 @@ export const viewForumPostInContext: Action = {
     const content = reportedOfType('forum');
     if (!content || content.id == null) return;
     // Keep the ticket open: open the forum post in its topic in a new tab. The
-    // prefetch usually has the URL ready, so open straight at it; otherwise open
-    // blank now and redirect once the resolve lands.
+    // prefetch usually has the URL ready, so open straight at it, and otherwise
+    // open blank now and redirect once the resolve lands.
     const ready = cachedForumPostUrl(content.id);
     if (ready) {
       openInNewTab(ready);

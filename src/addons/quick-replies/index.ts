@@ -81,8 +81,8 @@ function makeActions(context: ReplyContext): Action[] {
   ];
 }
 
-// Offers the saved ticket replies as ticket close responses; compose expands a
-// template against this ticket, the same text the strip would insert.
+// Offers the saved ticket replies as ticket close responses, where compose
+// expands a template against this ticket, the same text the strip would insert.
 const provider: TicketResponseProvider = {
   id: 'quick-replies',
   list: (): TicketResponseOption[] =>

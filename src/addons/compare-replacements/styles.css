@@ -290,7 +290,7 @@
   opacity: 0.5;
 }
 
-/* Kept in flow so it decodes for sampling, but never shown; the canvas above
+/* Kept in flow so it decodes for sampling, but never shown, since the canvas above
    carries the diff. */
 .sp-cmp-heat-sample {
   opacity: 0;

@@ -105,8 +105,8 @@ function mount(): () => void {
   applyAll(true);
 
   // mouseenter and mouseleave do not bubble, so the row is resolved from the
-  // bubbling pair instead; a move that stays inside one row reports the same
-  // row on both ends and is ignored.
+  // bubbling pair instead, where a move that stays inside one row reports the
+  // same row on both ends and is ignored.
   const onOver = (event: MouseEvent): void => {
     const row = rowOf(event.target);
     if (!row || row === rowOf(event.relatedTarget)) return;
@@ -121,7 +121,7 @@ function mount(): () => void {
   document.body.addEventListener('mouseout', onOut);
 
   // The verifier injects its source lists asynchronously, and stamps the
-  // authors on anchors we already shortened; relabel on both.
+  // authors on anchors we already shortened, so relabel on both.
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       for (const node of mutation.addedNodes) {

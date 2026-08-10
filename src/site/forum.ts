@@ -3,7 +3,7 @@
 // server-side (ForumPost#forum_topic_page) and renders the finished link on the
 // standalone /forum_posts/<id> page, so we scrape that link rather than recompute
 // the pagination (which would need a record count the JSON API doesn't expose).
-// An original post redirects to its topic; that page carries the same
+// An original post redirects to its topic, and that page holds the same
 // self-anchored link, so one selector covers both cases.
 async function fetchForumPostUrl(id: number): Promise<string | null> {
   try {

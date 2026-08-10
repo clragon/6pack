@@ -16,7 +16,7 @@ export interface AddonContext {
 }
 
 // The one contract every contributor registers through: core, first-party
-// add-ons, and third-party hooks alike. There is no privileged path; the only
+// add-ons, and third-party hooks alike. No path is privileged, and the sole
 // difference between them is how their code reaches the host (runtime loaded by
 // the manager, or a separate userscript bridging in via unsafeWindow.sixpack).
 export interface SixpackAddon {
@@ -28,7 +28,7 @@ export interface SixpackAddon {
   // carry their own `when`, so this gates the DOM lifecycle, not the commands.
   when?: (page: PageContext) => boolean;
   actions?: Action[];
-  // Preferences the add-on owns; each becomes a switch in the settings submenu.
+  // Preferences the add-on owns, each becoming a switch in the settings submenu.
   settings?: SettingSpec[];
   // A source of ticket close responses, folded into the registry the close flow
   // reads. Declared like actions: the host registers it, and the provider stays

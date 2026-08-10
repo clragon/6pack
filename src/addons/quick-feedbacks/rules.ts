@@ -238,7 +238,7 @@ export const RULES: Record<string, CocRule> = {
 };
 
 // Render one rule as the quoted [section] block a record embeds. A line starting
-// with "*" is a subline (kept as-is); an empty line is a blank separator.
+// with "*" is a subline (kept as-is), and an empty line is a blank separator.
 export function renderRuleBlock(key: string): string {
   const rule = RULES[key];
   if (!rule) return '';

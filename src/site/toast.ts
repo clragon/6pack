@@ -45,7 +45,7 @@ export function notifyError(message: string): void {
 export interface Progress {
   // Rewrite the live toast (e.g. "Burning 3 of 10...").
   update: (message: string) => void;
-  // Final message; lets the toast time out.
+  // Final message, which lets the toast time out.
   finish: (message: string) => void;
 }
 

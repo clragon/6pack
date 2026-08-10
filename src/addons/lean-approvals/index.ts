@@ -18,7 +18,7 @@ function reorderBar(): () => void {
     groups.find((g) => g.querySelector(selector)) ?? null;
 
   // Approve first, then the reject pair mild to harsh, so delete sits furthest
-  // from approve. CSS `order` proved unreliable here; move the nodes instead.
+  // from approve. CSS `order` proved unreliable here, so move the nodes instead.
   const ordered = [
     groupWith('#approve-post'),
     groupWith('.detailed-rejection-link'),
@@ -26,7 +26,7 @@ function reorderBar(): () => void {
   ].filter((g): g is HTMLElement => g !== null);
   for (const group of ordered) bar.appendChild(group);
 
-  // A CSS ::after label threw off the button's height; set the text directly.
+  // A CSS ::after label threw off the button's height, so set the text directly.
   const next = bar.querySelector<HTMLElement>('#approve-post-next');
   const nextLabel = next?.textContent ?? null;
   if (next) next.textContent = '+ Next';

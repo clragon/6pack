@@ -28,8 +28,8 @@ function mountDom(): () => void {
   const active = () =>
     wide.matches && !!edit && getComputedStyle(edit).display !== 'none';
 
-  // Size the frame to the space below its own top; the header and notice rows
-  // vary, so the CSS can't know the offset.
+  // Size the frame to the space below its own top, since the header and notice
+  // rows vary, so the CSS can't know the offset.
   const sizeFrame = () => {
     if (!active()) {
       frame.style.height = '';
@@ -65,7 +65,8 @@ function mountDom(): () => void {
     img.style.cursor = '';
   };
 
-  // Swallow clicks while active; RE621 rigs the image to swap versions on click.
+  // Swallow clicks while active, because RE621 rigs the image to swap versions
+  // on click.
   const onClick = (e: Event) => {
     if (active()) e.stopPropagation();
   };

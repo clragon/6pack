@@ -22,7 +22,7 @@ export const diagnostics: Action = {
   secret: true,
   weight: -5,
   submenu: () => {
-    // Retry the permission fetch if the startup load failed; a later open then
+    // Retry the permission fetch if the startup load failed, so a later open
     // records the resolved user.
     void loadCurrentUser();
     const readings = diagReadings();

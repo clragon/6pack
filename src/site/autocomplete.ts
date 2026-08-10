@@ -1,7 +1,7 @@
 import type { SearchSuggestion } from '../core/actions/types';
 
-// e621 ships the metatag/category vocabularies as <meta> tags; we read the same
-// ones so our autocomplete matches the site's.
+// e621 publishes the metatag/category vocabularies as <meta> tags, and we read
+// the same ones so our autocomplete matches the site's.
 function metaList(name: string): string[] {
   const content =
     document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`)?.content ??
@@ -200,7 +200,7 @@ export async function suggestTagQuery(
   const parsed = parseActiveToken(query);
   if (!parsed) return [];
   const { metatag, term, prefix } = parsed;
-  // Plain tags need a few characters; metatag values can show immediately.
+  // Plain tags need a few characters, and metatag values can show immediately.
   if (!metatag && term.length < 3) return [];
 
   let results = metatag

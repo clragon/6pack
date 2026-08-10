@@ -6,7 +6,7 @@ import type { TicketResponse } from '../../core/tickets/providers';
 // re-announce on demand, treat silence as gone.
 
 export interface OpenTicket {
-  // Unique per tab/page-load; the address a close command is routed to.
+  // Unique per tab/page-load, the address a close command is routed to.
   tabId: string;
   ticketId: number;
   // pending | partial | approved. Lets the chip skip an already-closed ticket.

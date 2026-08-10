@@ -1,8 +1,8 @@
 import type { Action, ActionContext } from '../actions/types';
 
 // Context chips: affordances above the palette input for ambient state not tied to
-// the current page. Sources register chips here; the palette renders the union and
-// re-renders when a source changes.
+// the current page. Sources register chips here, and the palette renders the
+// union, re-rendering when a source changes.
 
 export interface Chip {
   id: string;

@@ -4,7 +4,7 @@ import { whenReady } from '../core/ready';
 import { selfHost } from './selfhost';
 
 // The pre-publish stub only queues registrations, so it carries version/register
-// plus the queue; 6pack's real api (with openDialog) replaces it on publish.
+// plus the queue, and 6pack's real api (with openDialog) replaces it on publish.
 type Bridge = Pick<SixpackApi, 'version' | 'register'> & {
   queue?: SixpackAddon[];
   openDialog?: SixpackApi['openDialog'];

@@ -1,8 +1,8 @@
 // A per-page-load record of values the app actually read, keyed by label (latest
 // wins). The userscript re-runs on every full navigation, so this map is
-// naturally scoped to the current load; nothing is persisted (that's the log's
-// job). It backs the Diagnostics view, which shows what the tools observed rather
-// than re-deriving a parallel snapshot.
+// naturally scoped to the current load, and nothing is persisted (that's the
+// log's job). It backs the Diagnostics view, which shows what the tools observed
+// rather than re-deriving a parallel snapshot.
 const readings = new Map<string, string>();
 
 // A scalar's readable form. Objects expand into separate rows (see record), so
@@ -17,8 +17,9 @@ function scalar(value: unknown): string {
 
 // Record a value under a label and return it, for inline use at a read site. An
 // object expands into one row per field ("accused id", "accused name", ...) so
-// compound readings stay scannable; undefined fields are dropped. Pass `format`
-// when only the callsite knows the meaningful shape (e.g. tags -> their names).
+// compound readings stay scannable, and undefined fields are dropped. Pass
+// `format` when only the callsite knows the meaningful shape (e.g. tags -> their
+// names).
 export function record<T>(
   label: string,
   value: T,

@@ -2,8 +2,8 @@
 // GM_xmlhttpRequest, which runs from the user's browser (their IP, no CORS) so
 // hotlink-protected hosts that block e621's server-side downloader respond. The
 // host allowlist mirrors the @connect grants for this add-on (manifest.json) and
-// 6pack's own header (vite.config.ts, for the managed path); keep the three lists
-// in sync.
+// 6pack's own header (vite.config.ts, for the managed path). Keep the three
+// lists in sync.
 import { GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client';
 
 // Base domains we may download from, matched against a host or any subdomain.
@@ -66,7 +66,7 @@ function contentType(blob: Blob, headers: string): string {
   );
 }
 
-// A filename for the form preview; cosmetic, since e621 derives the real
+// A filename for the form preview, cosmetic since e621 derives the real
 // extension from the bytes. Twitter et al. carry the real format in ?format=.
 function fileName(url: string, type: string): string {
   let base = 'upload';
@@ -77,7 +77,7 @@ function fileName(url: string, type: string): string {
     const format = parsed.searchParams.get('format');
     if (format && !base.includes('.')) base = `${base}.${format}`;
   } catch {
-    // Keep the default name; the bytes are what matter.
+    // Keep the default name, since the bytes are what matter.
   }
   if (!base.includes('.')) {
     const ext = type.split('/')[1]?.split('+')[0];

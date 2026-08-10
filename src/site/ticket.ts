@@ -196,7 +196,7 @@ export function readTicketType(): ReportedType | null {
   return readReportedContent()?.type ?? null;
 }
 
-// pending and partial are open; approved is closed. The status row's value cell
+// pending and partial are open, and approved is closed. The status row's value cell
 // carries a `<status>-ticket` class, which is the stable machine-readable source
 // (the visible text is prettified).
 export type TicketStatus = 'pending' | 'partial' | 'approved';

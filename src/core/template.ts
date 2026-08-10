@@ -10,7 +10,7 @@ function quote(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// Expand the given tokens; any other %word% is left verbatim. The pattern is
+// Expand the given tokens, leaving any other %word% verbatim. The pattern is
 // built from the token names because a percent-encoded byte opens like a token:
 // `%(\w+)%` over `user%3A%username%` matches `%3A%` and strands the name.
 export function expandTokens(

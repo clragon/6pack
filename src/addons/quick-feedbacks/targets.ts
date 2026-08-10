@@ -59,7 +59,7 @@ export const feedbackTarget: EmbedTarget = {
 };
 
 // Drives the duration through e621's preset radios, which copy the value into the
-// hidden ban[duration] field; a value off the presets goes through Custom.
+// hidden ban[duration] field, and a value off the presets goes through Custom.
 function setBanDuration(days: number): void {
   const preset = document.querySelector<HTMLInputElement>(
     `input[name='ban_preset'][value='${days}']`,
@@ -99,8 +99,8 @@ export const banTarget: EmbedTarget = {
   field: "textarea[name='ban[reason]']",
   outputLabel: 'Reason',
   pick(template, { setReason, setActive }) {
-    // Every template seeds the ban reason; a ban template also sets the terms, so
-    // a plain record can be upgraded to a ban in place.
+    // Every template seeds the ban reason, and a ban template also sets the
+    // terms, so a plain record can be upgraded to a ban in place.
     setReason(template.reason);
     setActive([...template.rules]);
     recordRuleUse(template.rules);

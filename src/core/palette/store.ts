@@ -34,7 +34,7 @@ export function openPaletteAt(actionId: string): void {
   paletteStore.set(true);
 }
 
-// Consumed by the palette when it opens; null means open at root as usual.
+// Consumed by the palette when it opens, where null means open at root as usual.
 export function takePaletteTarget(): string | null {
   const target = pendingTarget;
   pendingTarget = null;

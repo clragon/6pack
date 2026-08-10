@@ -123,7 +123,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const activeChip = displayChips.find((c) => c.id === activeChipId) ?? null;
   const chipById = new Map(displayChips.map((chip) => [chip.id, chip]));
   // Chips ride into the root's row list as group actions so search and the
-  // keyboard reach them; drilling one funnels back through openChip.
+  // keyboard reach them, and drilling one funnels back through openChip.
   const chipActions = chips.map(chipToAction);
   // Chips show at the root, and stay (with the active one marked) while inside a
   // chip's own menu, never over an unrelated submenu.
@@ -463,7 +463,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
       // filtered submenu.
       const childRow = (child: Action): Row => ({
         id: `${action.id}::${child.id}`,
-        // Explicit title at the parent level; the submenu's short title otherwise.
+        // Explicit title at the parent level, or the submenu's short title.
         title: child.surfaceTitle ?? child.title,
         // The subtitle names the group it reaches into, for context and weight.
         detail: `from ${action.title}`,
@@ -471,7 +471,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
         toggle: child.checked?.(),
         onSelect: () => activateLeaf(child, action),
       });
-      // Only a reached-in leaf becomes a runnable row; a match (or surfaced child)
+      // Only a reached-in leaf becomes a runnable row, and a match (or surfaced child)
       // that is itself a group is left for the group row to drill into, since
       // running it would hit an absent leaf handler.
       const match = action.drillOnly ? undefined : childMatchOf(action);
@@ -491,7 +491,7 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
       }
       if (childRows.length > 0) return [...childRows, groupRow];
       // Nothing reached in: a single-leaf group surfaces its sole child (drilling
-      // a one-item menu is pointless); otherwise a plain drill-in group. Chips
+      // a one-item menu is pointless), or a plain drill-in group otherwise. Chips
       // always drill so their menu shows the info facts before you act.
       const single = chipById.has(action.id)
         ? undefined

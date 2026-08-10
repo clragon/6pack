@@ -7,9 +7,9 @@ export type FeedbackCategory = 'positive' | 'neutral' | 'negative' | 'ban';
 // default. The compositor assembles these into the record body.
 export interface FeedbackTemplate extends ListItem {
   reason: string;
-  // Rule keys; each renders as a quoted Code of Conduct section.
+  // Rule keys, each rendering as a quoted Code of Conduct section.
   rules: string[];
-  // Presets the feedback category when applied; unset lets the mod pick.
+  // Presets the feedback category when applied, and unset lets the mod pick.
   category?: FeedbackCategory;
   // Ban outcome, used when category is 'ban': duration in days (-1 permanent).
   duration?: number;

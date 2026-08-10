@@ -65,7 +65,7 @@ function humanToBytes(text: string): number | null {
 }
 
 // The replacement's own image line, wherever it sits in the row. Pending rows
-// prefix it with "Replacement:" and also carry a "Current:" line; the dimension
+// prefix it with "Replacement:" and also carry a "Current:" line. The dimension
 // pattern skips both prefixes, so read the row's replacement dd directly.
 function readInfo(row: HTMLElement): {
   width: number;

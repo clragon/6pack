@@ -4,7 +4,7 @@ const KEY = 'sp.core.palette.frecency';
 
 // Half-life of a single use's contribution. Within a session, decay over minutes
 // is negligible, so ranking is effectively by frequency (a one-off can't jump a
-// tool you use often); across days, unused tools fade so they stop crowding the
+// tool you use often). Across days, unused tools fade so they stop crowding the
 // top. Tunable.
 const HALF_LIFE_MS = 7 * 24 * 60 * 60 * 1000;
 

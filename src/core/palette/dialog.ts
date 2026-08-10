@@ -3,7 +3,7 @@ import { useEffect, useState } from 'preact/hooks';
 export interface DialogCrumb {
   title: string;
   // Going back a level: `onClick` navigates within the dialog (e.g. a master
-  // detail view returning to its list); `target` (a palette action id) leaves the
+  // detail view returning to its list), and `target` (a palette action id) leaves the
   // dialog for the palette. The current (last) crumb omits both.
   onClick?: () => void;
   target?: string;
