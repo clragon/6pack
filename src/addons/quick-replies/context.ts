@@ -15,7 +15,6 @@ export interface ReplyContext {
   id: string;
   label: string;
   manageTitle: string;
-  exportName: string;
   addLabel: string;
   emptyHint: string;
   bodyPlaceholder: string;
@@ -28,7 +27,6 @@ export const ticketContext: ReplyContext = {
   id: 'ticket',
   label: 'Quick replies',
   manageTitle: 'Manage quick replies',
-  exportName: 'quick-replies.json',
   addLabel: 'New reply',
   emptyHint: 'Select a reply, or add a new one.',
   bodyPlaceholder: 'Body. Click a variable below to insert it.',
@@ -44,7 +42,6 @@ export const appealContext: ReplyContext = {
   id: 'appeal',
   label: 'Quick appeals',
   manageTitle: 'Manage quick appeals',
-  exportName: 'quick-appeals.json',
   addLabel: 'New reply',
   emptyHint: 'Select a reply, or add a new one.',
   bodyPlaceholder: 'Body. Click a variable below to insert it.',
@@ -60,7 +57,6 @@ export const dmailContext: ReplyContext = {
   id: 'dmail',
   label: 'Quick dmails',
   manageTitle: 'Manage quick dmails',
-  exportName: 'quick-dmails.json',
   addLabel: 'New dmail',
   emptyHint: 'Select a template, or add a new one.',
   bodyPlaceholder: 'Body. Click a variable below to insert it.',

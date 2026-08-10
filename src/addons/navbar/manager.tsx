@@ -15,19 +15,9 @@ import {
 
 import { rove } from '../../core/palette/rove';
 import { spawnDialog } from '../../core/palette/spawnDialog';
+import { exportJson, importJson } from '../../core/transfer';
 import { ICONS, iconFor } from './icons';
-import {
-  addEntry,
-  listEntries,
-  moveEntryTo,
-  removeEntry,
-  resetEntries,
-  setEntries,
-  setPinned,
-  subscribe,
-  updateEntry,
-  type NavEntry,
-} from './store';
+import { navStore, type NavEntry } from './store';
 import { toPath } from './url';
 import STYLES from './styles.css?inline';
 
@@ -47,54 +37,24 @@ type Caret = 'start' | 'end';
 
 type ToolMode = 'tools' | 'menu' | 'confirm';
 
-const EXPORT_NAME = '6pack-jumps.json';
-
 function exportToFile(): void {
-  const json = JSON.stringify(listEntries(), null, 2);
-  const url = URL.createObjectURL(
-    new Blob([json], { type: 'application/json' }),
-  );
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = EXPORT_NAME;
-  anchor.click();
-  URL.revokeObjectURL(url);
+  exportJson('navbar', navStore.list());
 }
 
 function importFromFile(): void {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'application/json,.json';
-  input.addEventListener('change', () => {
-    void input.files?.[0]?.text().then((text) => {
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(text);
-      } catch {
-        return;
-      }
-      if (!Array.isArray(parsed)) return;
-      const incoming = parsed
-        .filter(
-          (value): value is Record<string, unknown> =>
-            !!value &&
-            typeof value === 'object' &&
-            typeof (value as Record<string, unknown>).title === 'string' &&
-            typeof (value as Record<string, unknown>).url === 'string',
-        )
-        .map(
-          (value): NavEntry => ({
+  importJson<NavEntry>(
+    (value) =>
+      typeof value.title === 'string' && typeof value.url === 'string'
+        ? {
             id: crypto.randomUUID(),
-            title: value.title as string,
-            url: value.url as string,
+            title: value.title,
+            url: value.url,
             icon: typeof value.icon === 'string' ? value.icon : undefined,
             pinned: value.pinned === true,
-          }),
-        );
-      if (incoming.length) setEntries([...listEntries(), ...incoming]);
-    });
-  });
-  input.click();
+          }
+        : null,
+    (incoming) => navStore.set([...navStore.list(), ...incoming]),
+  );
 }
 
 function atEdge(element: HTMLElement, delta: number): boolean {
@@ -117,8 +77,8 @@ export function openNavManager(): void {
 
 function useEntries(): NavEntry[] {
   const [, force] = useState(0);
-  useEffect(() => subscribe(() => force((n) => n + 1)), []);
-  return listEntries();
+  useEffect(() => navStore.subscribe(() => force((n) => n + 1)), []);
+  return navStore.list();
 }
 
 function IconPicker({
@@ -233,7 +193,7 @@ function Row({
           aria-label="Name"
           tabIndex={tab(1)}
           onInput={(event) =>
-            updateEntry(entry.id, { title: event.currentTarget.value })
+            navStore.update(entry.id, { title: event.currentTarget.value })
           }
         />
         <input
@@ -245,7 +205,7 @@ function Row({
           spellcheck={false}
           tabIndex={tab(2)}
           onInput={(event) =>
-            updateEntry(entry.id, { url: event.currentTarget.value })
+            navStore.update(entry.id, { url: event.currentTarget.value })
           }
         />
         <button
@@ -257,9 +217,9 @@ function Row({
           aria-label="Pinned"
           aria-pressed={entry.pinned ? 'true' : 'false'}
           tabIndex={tab(3)}
-          onClick={() => setPinned(entry.id, !entry.pinned)}
+          onClick={() => navStore.setPinned(entry.id, !entry.pinned)}
         >
-          <Pin size={16} />
+          <Pin size={16} fill={entry.pinned ? 'currentColor' : 'none'} />
         </button>
         <button
           type="button"
@@ -276,7 +236,7 @@ function Row({
         <IconPicker
           selected={entry.icon}
           onPick={(icon) => {
-            updateEntry(entry.id, { icon });
+            navStore.update(entry.id, { icon });
             closePicker();
           }}
           onDismiss={closePicker}
@@ -321,8 +281,8 @@ function Manager() {
 
   useEffect(
     () => () => {
-      for (const entry of listEntries())
-        if (!entry.title.trim() && !entry.url.trim()) removeEntry(entry.id);
+      for (const entry of navStore.list())
+        if (!entry.title.trim() && !entry.url.trim()) navStore.remove(entry.id);
     },
     [],
   );
@@ -392,7 +352,7 @@ function Manager() {
       const next = order[index + delta]?.dataset.id;
       if (!next) return;
       if (event.altKey) {
-        if (moveEntryTo(at.id, next)) focusAfterRender(at.id, at.column);
+        if (navStore.moveTo(at.id, next)) focusAfterRender(at.id, at.column);
         return;
       }
       focusCell(next, at.column);
@@ -416,7 +376,7 @@ function Manager() {
     const column = order[index] ? controls(order[index]).length - 1 : 0;
     const neighbour =
       order[index + 1]?.dataset.id ?? order[index - 1]?.dataset.id;
-    removeEntry(id);
+    navStore.remove(id);
     if (neighbour) focusAfterRender(neighbour, column);
     else addRef.current?.focus();
   };
@@ -451,7 +411,12 @@ function Manager() {
           type="button"
           class="sp-nav-tool"
           ref={addRef}
-          onClick={() => focusAfterRender(addEntry('', '').id, NAME_COLUMN)}
+          onClick={() =>
+            focusAfterRender(
+              navStore.add({ title: '', url: '' }).id,
+              NAME_COLUMN,
+            )
+          }
         >
           <Plus size={16} />
           <span>Add a jump</span>
@@ -461,7 +426,11 @@ function Manager() {
           class="sp-nav-tool"
           onClick={() =>
             focusAfterRender(
-              addEntry(document.title, toPath(location.href), true).id,
+              navStore.add({
+                title: document.title,
+                url: toPath(location.href),
+                pinned: true,
+              }).id,
               NAME_COLUMN,
             )
           }
@@ -521,7 +490,7 @@ function Manager() {
           type="button"
           class="sp-nav-tool sp-nav-confirm-yes"
           onClick={() => {
-            resetEntries();
+            navStore.reset();
             setMode('tools');
           }}
         >
@@ -566,7 +535,7 @@ function Manager() {
           event.preventDefault();
           const row = (event.target as HTMLElement).closest<HTMLElement>(ROW);
           const id = row?.dataset.id;
-          if (id && dragId && canDropOn(id)) moveEntryTo(dragId, id);
+          if (id && dragId && canDropOn(id)) navStore.moveTo(dragId, id);
           setDragId(null);
           setOverId(null);
         }}

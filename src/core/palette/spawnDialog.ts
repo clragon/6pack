@@ -16,7 +16,7 @@ export function spawnDialog(spec: DialogSpec): () => void {
   return standalone(spec);
 }
 
-const CHROME_ID = 'sixpack-standalone-dialog-style';
+const CHROME_ID = 'sp-standalone-dialog-style';
 
 function ensureChrome(): void {
   if (document.getElementById(CHROME_ID)) return;

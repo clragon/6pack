@@ -35,7 +35,7 @@ export async function buildAddons({ watch = false } = {}) {
       plugins: [
         monkey({
           entry: addon.entry,
-          build: { fileName: addon.file },
+          build: { fileName: `${addon.id}.user.js` },
           userscript: {
             name: `6pack add-on: ${addon.name}`,
             description: addon.description,

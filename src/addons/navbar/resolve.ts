@@ -1,6 +1,6 @@
 import { expandTokens, type TokenSpec } from '../../core/template';
 import { currentUser } from '../../site/user';
-import { listEntries, type NavEntry } from './store';
+import { navStore, type NavEntry } from './store';
 
 const TOKENS: TokenSpec[] = [
   { token: 'username', resolve: () => currentUser()?.name ?? null },
@@ -18,7 +18,7 @@ export function expand(url: string): string {
 }
 
 export function pinnedEntries(): NavEntry[] {
-  return listEntries().filter((entry) => entry.pinned);
+  return navStore.pinned();
 }
 
 export function isActive(url: string): boolean {

@@ -14,8 +14,13 @@ interface ManifestAddon {
   id: string;
   name: string;
   description: string;
-  file: string;
   default?: boolean;
+}
+
+export function artifactFile(id: string): string {
+  // buildAddons in scripts/build-addons.mjs writes each artifact under this
+  // same name.
+  return `${id}.user.js`;
 }
 
 export const CATALOG: CatalogEntry[] = [
@@ -32,7 +37,7 @@ export const CATALOG: CatalogEntry[] = [
       id: addon.id,
       name: addon.name,
       description: addon.description,
-      file: addon.file,
+      file: artifactFile(addon.id),
       default: addon.default ?? false,
     }),
   ),

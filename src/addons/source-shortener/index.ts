@@ -8,6 +8,8 @@ const ANCHOR_SELECTOR =
 
 const AUTHORS_ATTRIBUTE = 'data-authors';
 
+// e621's posts.scss clips .source-link to one line and lifts the clip on hover
+// above 50rem, so the full text goes back while the row is hovered.
 const SOURCE_ROW = '.source-link';
 
 function sourceAnchors(root: ParentNode): HTMLAnchorElement[] {
@@ -131,8 +133,8 @@ function mount(): () => void {
 }
 
 export const sourcesAddon: SixpackAddon = {
-  id: 'sources',
-  name: 'Source shortener',
+  id: 'source-shortener',
+  name: 'Source Shortener',
   description:
     "Each source in a post's sidebar is labeled by its identifying part: the artist's handle, the id, or the filename. The origin of a post, and any duplication among its sources, is therefore apparent without reading the addresses in full. The complete address remains available on hover.",
   when: (page) => page.kind === 'post',

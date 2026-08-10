@@ -9,7 +9,7 @@ import { RULES } from './rules';
 import { RuleGroups } from './ruleGroups';
 import { rove } from '../../core/palette/rove';
 import { rankRules, recordRuleUse } from './ruleFrecency';
-import { listRecords, subscribe, type RecordTemplate } from './store';
+import { recordStore, type RecordTemplate } from './store';
 import { STYLES } from './styles';
 import type { EmbedTarget } from './targets';
 
@@ -30,8 +30,8 @@ function getFormatter(anchor: Element): Formatter | null {
 
 function useRecords(): RecordTemplate[] {
   const [, force] = useState(0);
-  useEffect(() => subscribe(() => force((n) => n + 1)), []);
-  return listRecords();
+  useEffect(() => recordStore.subscribe(() => force((n) => n + 1)), []);
+  return recordStore.list();
 }
 
 function SourceFields({

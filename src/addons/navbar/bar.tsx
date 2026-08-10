@@ -3,7 +3,7 @@ import { useEffect, useState } from 'preact/hooks';
 
 import { iconFor } from './icons';
 import { domId, expand, isActive, pinnedEntries } from './resolve';
-import { subscribe, type NavEntry } from './store';
+import { navStore, type NavEntry } from './store';
 
 // e621's mobile drawer shows this same menu element, so the tabs keep the li
 // and a markup the site styles.
@@ -16,7 +16,7 @@ const FORUM_PATH = '/forum_topics';
 
 function usePinned(): NavEntry[] {
   const [, force] = useState(0);
-  useEffect(() => subscribe(() => force((n) => n + 1)), []);
+  useEffect(() => navStore.subscribe(() => force((n) => n + 1)), []);
   return pinnedEntries();
 }
 

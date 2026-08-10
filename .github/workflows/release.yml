@@ -58,7 +58,7 @@ jobs:
           node -e '
             const { readdirSync, existsSync } = require("node:fs");
             const { addons } = require("./src/addons/manifest.json");
-            const missing = addons.map(a => a.file).filter(f => !existsSync("dist/addons/" + f));
+            const missing = addons.map(a => a.id + ".user.js").filter(f => !existsSync("dist/addons/" + f));
             if (missing.length) {
               console.error("missing artifacts: " + missing.join(", "));
               process.exit(1);

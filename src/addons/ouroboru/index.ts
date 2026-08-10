@@ -36,16 +36,16 @@ function mount(): () => void {
   );
 
   const firstHere = container.querySelector<HTMLElement>('article.thumbnail');
-  if (firstHere) firstHere.dataset.obHref = location.href;
+  if (firstHere) firstHere.dataset.spObHref = location.href;
 
   const style = document.createElement('style');
   style.textContent = OUROBORU_CSS;
   document.head.appendChild(style);
 
   const tail = document.createElement('div');
-  tail.className = 'ob-tail';
+  tail.className = 'sp-ob-tail';
   const status = document.createElement('span');
-  status.className = 'ob-status';
+  status.className = 'sp-ob-status';
   const button = document.createElement('button');
   button.type = 'button';
   button.textContent = 'Load more';
@@ -87,7 +87,7 @@ function mount(): () => void {
         const id = post.dataset.id;
         if (id && seen.has(id)) continue;
         if (id) seen.add(id);
-        if (added.length === 0) post.dataset.obHref = from;
+        if (added.length === 0) post.dataset.spObHref = from;
         container.appendChild(post);
         added.push(post);
       }
@@ -134,10 +134,10 @@ function mount(): () => void {
     queued = false;
     let current: string | undefined;
     for (const marker of container.querySelectorAll<HTMLElement>(
-      'article.thumbnail[data-ob-href]',
+      'article.thumbnail[data-sp-ob-href]',
     )) {
       if (marker.getBoundingClientRect().top > 80) break;
-      current = marker.dataset.obHref;
+      current = marker.dataset.spObHref;
     }
     if (!current || current === location.href) return;
     history.replaceState(history.state, '', current);

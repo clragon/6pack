@@ -120,7 +120,7 @@ const PINNED = [
   'forum',
 ];
 
-export function defaultEntries(): NavEntry[] {
+export function seedEntries(): NavEntry[] {
   const level = currentUser()?.level ?? 0;
   return SEEDS.filter((seed) => level >= (seed.level ?? 0)).map(
     (seed): NavEntry => ({

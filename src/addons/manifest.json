@@ -1,46 +1,40 @@
 {
   "addons": [
     {
-      "id": "sources",
-      "name": "Source shortener",
+      "id": "source-shortener",
+      "name": "Source Shortener",
       "description": "Source links you can read at a glance",
-      "entry": "src/addons/sources/entry.ts",
-      "file": "source-shortener.user.js"
+      "entry": "src/addons/source-shortener/entry.ts"
     },
     {
       "id": "ouroboru",
       "name": "Ouroboru",
       "description": "The snakes never stop. Infinite pages for posts",
-      "entry": "src/addons/ouroboru/entry.ts",
-      "file": "ouroboru.user.js"
+      "entry": "src/addons/ouroboru/entry.ts"
     },
     {
       "id": "better-edits",
       "name": "Better Edits",
       "description": "Roomier post editing",
-      "entry": "src/addons/better-edits/entry.ts",
-      "file": "better-edits.user.js"
+      "entry": "src/addons/better-edits/entry.ts"
     },
     {
       "id": "lean-approvals",
       "name": "Lean Approvals",
       "description": "You dont actually need all those deletion reasons",
-      "entry": "src/addons/lean-approvals/entry.ts",
-      "file": "lean-approvals.user.js"
+      "entry": "src/addons/lean-approvals/entry.ts"
     },
     {
       "id": "re621",
       "name": "RE621 Responses",
       "description": "Close tickets with RE621's response templates",
-      "entry": "src/addons/re621/entry.ts",
-      "file": "re621.user.js"
+      "entry": "src/addons/re621/entry.ts"
     },
     {
       "id": "file-upload-helper",
       "name": "File Upload Helper",
       "description": "Fetch links e621 can't grab and upload them as files",
       "entry": "src/addons/file-upload-helper/entry.ts",
-      "file": "file-upload-helper.user.js",
       "default": true,
       "connect": [
         "twimg.com",
@@ -64,30 +58,26 @@
       "id": "quick-replies",
       "name": "Quick Replies",
       "description": "Stop retyping the same responses",
-      "entry": "src/addons/quick-replies/entry.ts",
-      "file": "quick-replies.user.js"
+      "entry": "src/addons/quick-replies/entry.ts"
     },
     {
       "id": "quick-feedbacks",
       "name": "Quick Feedbacks",
       "description": "Build records from your own reasons and the rules they cite",
-      "entry": "src/addons/quick-feedbacks/entry.ts",
-      "file": "quick-feedbacks.user.js"
+      "entry": "src/addons/quick-feedbacks/entry.ts"
     },
     {
       "id": "compare-replacements",
       "name": "Compare Replacements",
       "description": "See exactly what a replacement changed before you wave it through",
       "entry": "src/addons/compare-replacements/entry.ts",
-      "file": "compare-replacements.user.js",
       "connect": ["e621.net", "e926.net"]
     },
     {
       "id": "hover-zoom",
       "name": "Hover Zoom",
       "description": "Hold shift over a thumbnail to see the post itself",
-      "entry": "src/addons/hover-zoom/entry.ts",
-      "file": "hover-zoom.user.js"
+      "entry": "src/addons/hover-zoom/entry.ts"
     }
   ]
 }
