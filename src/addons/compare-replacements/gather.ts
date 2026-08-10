@@ -62,38 +62,49 @@ function humanToBytes(text: string): number | null {
   return factor && Number.isFinite(value) ? Math.round(value * factor) : null;
 }
 
-function readInfo(row: HTMLElement): {
+// e621's card states New: then Old: in one Image info field while the
+// replacement is pending, and only its own file otherwise.
+function readInfo(card: HTMLElement): {
   width: number;
   height: number;
   ext: string;
   size: number | null;
 } | null {
-  const dds = Array.from(row.querySelectorAll<HTMLElement>('dd'));
-  for (const dd of dds) {
-    const text = dd.textContent ?? '';
-    if (/current:/i.test(text)) continue;
-    const match = text.match(INFO);
-    if (match) {
-      return {
-        width: Number(match[1]),
-        height: Number(match[2]),
-        ext: match[3],
-        size: humanToBytes(match[4]),
-      };
-    }
-  }
-  return null;
+  const fields = Array.from(
+    card.querySelectorAll<HTMLElement>('.replacement-field'),
+  );
+  const field = fields.find(
+    (entry) =>
+      entry
+        .querySelector('.replacement-field-label')
+        ?.textContent?.trim()
+        .toLowerCase() === 'image info',
+  );
+  const text =
+    field?.querySelector('.replacement-field-value')?.textContent ?? '';
+  const start = text.search(/new:/i);
+  const old = text.search(/old:/i);
+  const own =
+    start >= 0 ? text.slice(start, old > start ? old : undefined) : text;
+  const match = own.match(INFO);
+  if (!match) return null;
+  return {
+    width: Number(match[1]),
+    height: Number(match[2]),
+    ext: match[3],
+    size: humanToBytes(match[4]),
+  };
 }
 
-function readCandidate(row: HTMLElement): CompareImage | null {
-  if (row.classList.contains('replacement-current-row')) return null;
-  const img = row.querySelector<HTMLImageElement>('img.replacement-thumb');
+function readCandidate(card: HTMLElement): CompareImage | null {
+  if (card.classList.contains('is-current')) return null;
+  const img = card.querySelector<HTMLImageElement>('img.replacement-thumb');
   if (!img) return null;
   const anchor = img.closest('a');
   const thumb = img.src;
   const full = anchor?.getAttribute('href') || thumb;
-  const info = readInfo(row);
-  const id = row.id.replace('replacement-', '');
+  const info = readInfo(card);
+  const id = card.id.replace('replacement-', '');
   return {
     key: `replacement-${id}`,
     label: `Replacement #${id}`,
@@ -103,23 +114,23 @@ function readCandidate(row: HTMLElement): CompareImage | null {
     height: info?.height ?? 0,
     ext: info?.ext ?? '',
     size: info?.size ?? null,
-    href: `#${row.id}`,
+    href: `#${card.id}`,
     video: info ? VIDEO_EXT.test(info.ext) : false,
   };
 }
 
 function readCandidates(root: ParentNode): CompareImage[] {
-  const rows = Array.from(
-    root.querySelectorAll<HTMLElement>('tr[id^="replacement-"]'),
+  const cards = Array.from(
+    root.querySelectorAll<HTMLElement>('.replacement-card[id^="replacement-"]'),
   );
-  const items = rows
-    .map((row) => ({ row, image: readCandidate(row) }))
-    .filter((entry): entry is { row: HTMLElement; image: CompareImage } =>
+  const items = cards
+    .map((card) => ({ card, image: readCandidate(card) }))
+    .filter((entry): entry is { card: HTMLElement; image: CompareImage } =>
       Boolean(entry.image),
     );
   items.sort((a, b) => {
-    const ap = a.row.classList.contains('replacement-pending-row') ? 0 : 1;
-    const bp = b.row.classList.contains('replacement-pending-row') ? 0 : 1;
+    const ap = a.card.classList.contains('is-pending') ? 0 : 1;
+    const bp = b.card.classList.contains('is-pending') ? 0 : 1;
     return ap - bp;
   });
   return items.map((entry) => entry.image);

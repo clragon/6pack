@@ -13,7 +13,7 @@ function firstPendingTarget(): ApprovalTarget | null {
   // e621's Reset To link shares replacement-approve-action with Approve and
   // renders only on cards that are not pending, so is-pending finds Approve.
   const link = document.querySelector<HTMLElement>(
-    'tr.replacement-pending-row a.replacement-approve-action',
+    '.replacement-card.is-pending a.replacement-approve-action',
   );
   if (!link) return null;
   const id = Number(link.dataset.replacementId);
