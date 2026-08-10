@@ -1,7 +1,7 @@
 {
   "name": "6pack",
   "private": true,
-  "version": "5.1.1",
+  "version": "6.0.0",
   "description": "Portable Areal Combustion Kit for e6: A weapon to surpass metal gear.",
   "author": "binaryfloof",
   "type": "module",
