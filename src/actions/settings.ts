@@ -31,6 +31,7 @@ export const settingsActions: Action[] = [
     keywords: ['settings', 'preferences', 'config', 'options'],
     hidden: true,
     weight: -1,
+    drillOnly: true,
     submenu: () => {
       const owners = addonManuals().filter(
         (manual) => manual.settings.length > 0,

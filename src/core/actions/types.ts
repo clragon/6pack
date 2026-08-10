@@ -14,6 +14,7 @@ export interface Action {
   keywords?: string[];
   when?: (page: PageContext) => boolean;
   hidden?: boolean;
+  secret?: boolean;
   weight?: number;
   submenuOnly?: boolean;
   surface?: boolean;

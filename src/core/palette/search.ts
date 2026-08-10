@@ -12,6 +12,15 @@ const uf = new uFuzzy({
   intraDel: 1,
 });
 
+export function namedExactly(action: Action, query: string): boolean {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return false;
+  return (
+    action.title.toLowerCase() === needle ||
+    (action.keywords ?? []).some((word) => word.toLowerCase() === needle)
+  );
+}
+
 export function searchActions(
   query: string,
   actions: Action[],

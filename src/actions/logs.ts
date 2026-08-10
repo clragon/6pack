@@ -11,7 +11,7 @@ export const logs: Action = {
   title: 'Logs',
   description: 'Recent 6pack activity and failures',
   keywords: ['logs', 'log', 'errors', 'history', 'activity', 'debug'],
-  hidden: true,
+  secret: true,
   weight: -4,
   submenu: () => {
     const entries = log.entries();

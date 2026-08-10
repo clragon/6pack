@@ -11,6 +11,7 @@ import { mode } from './mode';
 import { postActions } from './post';
 import { settingsActions } from './settings';
 import { viewUser } from './viewUser';
+import { welcome } from './welcome';
 
 export const allActions: Action[] = [
   copy,
@@ -24,6 +25,7 @@ export const allActions: Action[] = [
   mode,
   ...addonsActions,
   help,
+  welcome,
   logs,
   diagnostics,
 ];

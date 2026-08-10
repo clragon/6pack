@@ -121,6 +121,7 @@ export const help: Action = {
   title: 'Help',
   description: 'How the palette works, and what each add-on does',
   keywords: ['help', 'manual', 'docs', 'guide', 'about'],
+  drillOnly: true,
   submenu: () => [
     {
       id: 'help.overview',

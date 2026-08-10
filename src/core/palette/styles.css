@@ -322,10 +322,35 @@ button.sp-crumb:hover {
 }
 
 .sp-empty {
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 22px 16px;
   text-align: center;
   color: var(--color-text-muted, #9aa6bd);
   font-size: 13px;
+}
+
+.sp-empty-icon {
+  opacity: 0.5;
+}
+
+.sp-empty-link {
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--palette-text-yellow, #ffd666);
+  background: none;
+  border: none;
+  border-radius: 3px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.sp-empty-link:hover {
+  color: var(--palette-plain-yellow, #ecec26);
 }
 
 .sp-capture {

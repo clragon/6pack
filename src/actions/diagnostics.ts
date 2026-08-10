@@ -6,8 +6,16 @@ export const diagnostics: Action = {
   id: 'diagnostics',
   title: 'Diagnostics',
   description: 'Values the tools read this load, for debugging',
-  keywords: ['diagnostics', 'debug', 'signals', 'health', 'status', 'readings'],
-  hidden: true,
+  keywords: [
+    'diagnostics',
+    'diag',
+    'debug',
+    'signals',
+    'health',
+    'status',
+    'readings',
+  ],
+  secret: true,
   weight: -5,
   submenu: () => {
     void loadCurrentUser();

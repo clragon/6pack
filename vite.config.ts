@@ -2,6 +2,7 @@ import { defineConfig, type PluginOption } from 'vite';
 import monkey from 'vite-plugin-monkey';
 
 import { buildAddons } from './scripts/build-addons.mjs';
+import pkg from './package.json';
 
 const REPO = process.env.GITHUB_REPOSITORY ?? 'clragon/6pack';
 const RELEASE = `https://github.com/${REPO}/releases`;
@@ -21,6 +22,7 @@ export default defineConfig(({ command, mode }) => {
     define: {
       __FAT__: JSON.stringify(fat),
       __ADDON_BASE__: JSON.stringify(addonBase(command === 'serve')),
+      __VERSION__: JSON.stringify(pkg.version),
     },
     plugins: [
       !fat &&
