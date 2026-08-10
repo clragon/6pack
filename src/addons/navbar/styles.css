@@ -179,26 +179,20 @@
   outline-offset: -2px;
 }
 
-/* Too narrow for a row of cells, so the two text fields take a line each under
-   the buttons. Every cell keeps its place in the DOM, so the keyboard still walks
-   the same grid. */
+/* Too narrow for a row of cells, so the url drops to a line of its own and the
+   name keeps the top row with the buttons. Every cell holds its place in the DOM,
+   so the keyboard still walks the same grid. */
 @media (max-width: 640px) {
   .sp-nav-tools {
     flex-wrap: wrap;
   }
   .sp-nav-row {
     flex-wrap: wrap;
+    row-gap: 4px;
     padding: 6px 4px;
   }
-  .sp-nav-title,
   .sp-nav-url {
     flex: 1 1 100%;
     order: 1;
-  }
-  .sp-nav-toggle {
-    margin-left: auto;
-  }
-  .sp-nav-picker {
-    margin-left: 0;
   }
 }

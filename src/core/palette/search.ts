@@ -12,6 +12,17 @@ const uf = new uFuzzy({
   intraDel: 1,
 });
 
+// Whether the query names the action outright. Keywords count, so an action can
+// answer to more than one name.
+export function namedExactly(action: Action, query: string): boolean {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return false;
+  return (
+    action.title.toLowerCase() === needle ||
+    (action.keywords ?? []).some((word) => word.toLowerCase() === needle)
+  );
+}
+
 // Returns actions ranked by match quality. An empty query returns every action
 // (the caller orders those by recency). `extraTerms` folds a group's child
 // terms into its haystack so the group surfaces when a child matches the query.

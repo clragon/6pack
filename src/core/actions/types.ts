@@ -19,6 +19,10 @@ export interface Action {
   when?: (page: PageContext) => boolean;
   // Omit from the list when the search box is empty; still surfaces when matched.
   hidden?: boolean;
+  // Matched only by a query equal to the title or to one of the keywords.
+  // `hidden` still surfaces on an approximate match, and nothing approximate
+  // reaches this.
+  secret?: boolean;
   // Ranking bias: positive floats up, negative sinks. Default 0.
   weight?: number;
   // Excluded from the parent group's reach-in: reachable only by drilling into

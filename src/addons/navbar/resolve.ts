@@ -13,6 +13,8 @@ const TOKENS: TokenSpec[] = [
   },
 ];
 
+// A saved url stores these tokens verbatim, so the spelling is fixed. Changing
+// it leaves every stored entry holding a token nothing expands.
 export function expand(url: string): string {
   return expandTokens(url, TOKENS);
 }

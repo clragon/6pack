@@ -121,6 +121,9 @@ export const help: Action = {
   title: 'Help',
   description: 'How the palette works, and what each add-on does',
   keywords: ['help', 'manual', 'docs', 'guide', 'about'],
+  // A manual is worth reading only once you have drilled to it, so an add-on's
+  // name does not surface its help page in the root list.
+  drillOnly: true,
   submenu: () => [
     {
       id: 'help.overview',

@@ -4,6 +4,7 @@ import { record } from './core/diag';
 import { ActionRegistry } from './core/actions/registry';
 import { addons } from './core/addons/manager';
 import { mountPalette } from './core/palette/mount';
+import { mountNavButton } from './core/palette/navButton';
 import { isConfirmActive } from './core/palette/confirm';
 import { isDialogActive } from './core/palette/dialog';
 import { deepActiveElement, isEditableElement } from './core/palette/focus';
@@ -12,6 +13,7 @@ import { log } from './core/log';
 import { whenReady } from './core/ready';
 import { loadCurrentUser } from './site/user';
 import { allActions } from './actions';
+import { welcomeIfUnseen } from './actions/welcome';
 
 const page = detectContext();
 record('page', page);
@@ -31,7 +33,11 @@ whenReady(() => {
     if (user) record('level', `${user.levelString} (${user.level})`);
   });
 
+  // Ahead of the mount, because the dialog host reads the open dialog as it first
+  // renders and only subscribes to later ones in an effect.
+  welcomeIfUnseen();
   mountPalette(page, () => registry.available(page));
+  mountNavButton();
 
   log.info(
     page.kind === 'post'

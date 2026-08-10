@@ -6,14 +6,15 @@ function format(entry: LogEntry): string {
   return `[${time}] ${entry.level}: ${entry.message}`;
 }
 
-// Hidden until searched ("logs"). The buffer persists across reloads; drilling
-// in shows recent entries newest-first, each row copies its text.
+// Reached by naming it outright ("logs", "log", "errors"). The buffer persists
+// across reloads, and drilling in shows recent entries newest-first, each row
+// copying its text.
 export const logs: Action = {
   id: 'logs',
   title: 'Logs',
   description: 'Recent 6pack activity and failures',
   keywords: ['logs', 'log', 'errors', 'history', 'activity', 'debug'],
-  hidden: true,
+  secret: true,
   weight: -4,
   submenu: () => {
     const entries = log.entries();

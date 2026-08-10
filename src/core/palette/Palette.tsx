@@ -6,6 +6,8 @@ import {
   useState,
 } from 'preact/hooks';
 
+import { SearchX } from 'lucide-preact';
+
 import type { Action, ActionContext, SearchSuggestion } from '../actions/types';
 import type { PageContext } from '../context/types';
 import { log } from '../log';
@@ -24,7 +26,7 @@ import { captureNav, type Level, takeRestore } from './nav';
 import { getFrecency, recordUse, scoreFor } from './frecency';
 import { takePaletteTarget } from './store';
 import { formatTrigger } from '../config';
-import { searchActions } from './search';
+import { namedExactly, searchActions } from './search';
 import { WarningBanner } from './WarningBanner';
 
 interface PaletteProps {
@@ -219,7 +221,9 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   const reachableChildren = useCallback(
     (action: Action): Action[] | null => {
       const children = childrenOf(action);
-      return children ? children.filter((c) => !c.submenuOnly) : null;
+      return children
+        ? children.filter((c) => !c.submenuOnly && !c.secret)
+        : null;
     },
     [childrenOf],
   );
@@ -276,8 +280,14 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
     const pool =
       stack.length === 1 ? [...levelActions, ...chipActions] : levelActions;
     const query = filter.trim();
-    if (!query) return rankByUse(pool.filter((action) => !action.hidden));
-    return rankByUse(searchActions(query, pool, childTerms));
+    if (!query)
+      return rankByUse(
+        pool.filter((action) => !action.hidden && !action.secret),
+      );
+    const reachable = pool.filter(
+      (action) => !action.secret || namedExactly(action, query),
+    );
+    return rankByUse(searchActions(query, reachable, childTerms));
   }, [filter, levelActions, chipActions, stack.length, rankByUse, childTerms]);
 
   if (!open) return null;
@@ -331,6 +341,13 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
   // Drilling into a group always clears the query: it found the group, and its
   // contents shouldn't stay filtered by the term that matched the group's name.
   // Running a query-matched child directly is the reach-in row's job, not this.
+  // Offered when a query finds nothing at the root, where the manual is one of
+  // the actions in hand. A submenu has no such neighbour, so it gets no offer.
+  const helpAction =
+    stack.length === 1
+      ? levelActions.find((action) => action.id === 'help')
+      : undefined;
+
   const drillInto = (action: Action) => {
     const chip = chipById.get(action.id);
     if (chip) {
@@ -630,11 +647,31 @@ export function Palette({ open, page, actions, onClose }: PaletteProps) {
                 )}
               </li>
             ))}
-            {rows.length === 0 && (
-              <li class="sp-empty">
-                {searchSpec ? 'Type to search…' : 'No matching commands'}
-              </li>
-            )}
+            {rows.length === 0 &&
+              (searchSpec ? (
+                <li class="sp-empty">Type to search…</li>
+              ) : (
+                <li class="sp-empty">
+                  <SearchX size={22} class="sp-empty-icon" />
+                  <div>
+                    We dont have that in store.
+                    {helpAction && (
+                      <>
+                        {' '}
+                        See our catalogue{' '}
+                        <button
+                          type="button"
+                          class="sp-empty-link"
+                          onClick={() => drillInto(helpAction)}
+                        >
+                          here
+                        </button>
+                        .
+                      </>
+                    )}
+                  </div>
+                </li>
+              ))}
           </ul>
         </div>
       </div>

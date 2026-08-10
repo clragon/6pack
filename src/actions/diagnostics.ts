@@ -2,15 +2,24 @@ import type { Action } from '../core/actions/types';
 import { diagReadings } from '../core/diag';
 import { loadCurrentUser } from '../site/user';
 
-// Hidden until searched ("diag"/"debug"). Shows the values the tools actually
-// read this page load (see core/diag) rather than a re-derived snapshot; each row
-// copies its text. Recent log lines live in their own "Logs" command.
+// Reached by naming it outright ("diagnostics", "diag", "debug"). Shows the
+// values the tools actually read this page load (see core/diag) rather than a
+// re-derived snapshot, and each row copies its text. Recent log lines live in
+// their own "Logs" command.
 export const diagnostics: Action = {
   id: 'diagnostics',
   title: 'Diagnostics',
   description: 'Values the tools read this load, for debugging',
-  keywords: ['diagnostics', 'debug', 'signals', 'health', 'status', 'readings'],
-  hidden: true,
+  keywords: [
+    'diagnostics',
+    'diag',
+    'debug',
+    'signals',
+    'health',
+    'status',
+    'readings',
+  ],
+  secret: true,
   weight: -5,
   submenu: () => {
     // Retry the permission fetch if the startup load failed; a later open then
