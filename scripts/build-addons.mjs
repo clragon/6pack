@@ -13,6 +13,8 @@ const { addons } = JSON.parse(
 
 const NAMESPACE = 'https://clynamic.net';
 const MATCH = ['https://e621.net/*', 'https://e926.net/*'];
+const REPO = process.env.GITHUB_REPOSITORY ?? 'clragon/6pack';
+const RELEASE = `https://github.com/${REPO}/releases`;
 
 // Resolves once the watcher has written its first bundle, so callers can wait for
 // the artifacts to exist before serving them.
@@ -54,6 +56,8 @@ export async function buildAddons({ watch = false } = {}) {
             // Hosts a standalone install reaches with GM_xmlhttpRequest; managed
             // installs use 6pack's own @connect grants.
             connect: addon.connect,
+            updateURL: `${RELEASE}/latest/download/${addon.id}.user.js`,
+            downloadURL: `${RELEASE}/latest/download/${addon.id}.user.js`,
           },
         }),
       ],
