@@ -22,8 +22,8 @@ export interface Lease {
   heartbeat: number;
 }
 
-const BURNS_KEY = 'sp.burn.pile';
-const LEASE_KEY = 'sp.burn.lease';
+const BURNS_KEY = 'sp.flamethrower.pile';
+const LEASE_KEY = 'sp.flamethrower.lease';
 
 interface Stored {
   burns: Burn[];

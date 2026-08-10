@@ -8,7 +8,7 @@ export interface LogEntry {
   message: string;
 }
 
-const KEY = 'sp.log';
+const KEY = 'sp.core.log';
 const MAX = 200;
 const RETENTION_MS = 60 * 60 * 1000;
 

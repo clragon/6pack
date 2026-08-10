@@ -20,10 +20,10 @@ import {
 } from './burntComments';
 import { isModeratorPlus, loadCurrentUser } from '../../site/user';
 
-const CHECKBOX_CLASS = 'sixpack-burner';
-const ALL_CLASS = 'sixpack-burner-all';
-const COUNT_CLASS = 'sixpack-burner-count';
-const REGION_ID = 'sixpack-burner-controls';
+const CHECKBOX_CLASS = 'sp-ft-check';
+const ALL_CLASS = 'sp-ft-all';
+const COUNT_CLASS = 'sp-ft-count';
+const REGION_ID = 'sp-ft-controls';
 
 function refOf(item: Burnable): BurnRef {
   return { type: item.type, id: item.id };

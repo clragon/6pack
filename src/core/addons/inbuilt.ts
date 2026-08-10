@@ -1,5 +1,5 @@
 import type { SixpackAddon } from './types';
-import { burnAddon } from '../../addons/burn';
+import { flamethrowerAddon } from '../../addons/flamethrower';
 import { navbarAddon } from '../../addons/navbar';
 import { ticketsAddon } from '../../addons/tickets';
 
@@ -13,7 +13,7 @@ interface InbuiltAddon {
 
 export const INBUILT: InbuiltAddon[] = [
   {
-    addon: burnAddon,
+    addon: flamethrowerAddon,
     description:
       'Select comments, forum posts and users, then act on them together',
     default: true,

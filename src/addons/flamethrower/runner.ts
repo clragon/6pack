@@ -113,6 +113,7 @@ async function drain(): Promise<void> {
 }
 
 export function installBurnRunner(): () => void {
+  // registerChipSource has no removal path, so the source outlives the runner.
   installBurnChip();
   const unsubscribe = subscribe(() => void drain());
   const timer = setInterval(() => void drain(), WATCH_MS);

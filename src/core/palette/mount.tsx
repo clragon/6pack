@@ -50,7 +50,7 @@ export function mountPalette(
   resolveActions: () => Action[],
 ): void {
   const host = document.createElement('div');
-  host.id = 'sixpack-palette-host';
+  host.id = 'sp-palette-host';
   document.body.appendChild(host);
 
   const shadow = host.attachShadow({ mode: 'open' });

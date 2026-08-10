@@ -7,7 +7,7 @@ import { log } from '../log';
 
 const BASE_URL = __ADDON_BASE__;
 
-const CACHE_PREFIX = 'sp.addons.code.';
+const CACHE_PREFIX = 'sp.core.addons.code.';
 
 function cacheKey(file: string): string {
   return CACHE_PREFIX + BASE_URL + file;

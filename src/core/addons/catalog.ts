@@ -43,7 +43,7 @@ export const CATALOG: CatalogEntry[] = [
   ),
 ];
 
-const KEY = 'sp.addons.state';
+const KEY = 'sp.core.addons.state';
 
 function states(): Record<string, boolean> {
   return readJson<Record<string, boolean> | null>(KEY, null) ?? {};

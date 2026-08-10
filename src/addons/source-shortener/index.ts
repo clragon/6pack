@@ -1,7 +1,7 @@
 import type { SixpackAddon } from '../../core/addons/types';
 import { getSourceLabel } from '../../core/sources/url';
 
-const STASH = 'sixpackSource';
+const STASH = 'spSrcOriginal';
 
 const ANCHOR_SELECTOR =
   '.source-link a[href^="http"]:not(.jsv-replacement-anchor)';

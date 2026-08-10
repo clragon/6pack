@@ -3,8 +3,8 @@ import { Flame } from 'lucide-preact';
 
 import { openPaletteAt } from './store';
 
-export const ICON_BTN_CLASS = 'sixpack-icon-btn';
-const STYLE_ID = 'sixpack-icon-btn-style';
+export const ICON_BTN_CLASS = 'sp-icon-btn';
+const STYLE_ID = 'sp-icon-btn-style';
 
 export function ensureIconButtonStyles(): void {
   if (document.getElementById(STYLE_ID)) return;

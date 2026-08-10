@@ -7,7 +7,7 @@ export interface TriggerConfig {
   shift?: boolean;
 }
 
-const STORAGE_KEY = 'sp.palette.trigger';
+const STORAGE_KEY = 'sp.core.palette.trigger';
 
 // e621's HotkeysConfig binds no Alt combination, and browsers claim Ctrl+K and
 // Ctrl+Q with their Cmd forms, so Alt+Q reaches the palette unopposed.
