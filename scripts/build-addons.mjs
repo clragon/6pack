@@ -9,6 +9,8 @@ const { addons } = JSON.parse(
 
 const NAMESPACE = 'https://clynamic.net';
 const MATCH = ['https://e621.net/*', 'https://e926.net/*'];
+const REPO = process.env.GITHUB_REPOSITORY ?? 'clragon/6pack';
+const RELEASE = `https://github.com/${REPO}/releases`;
 
 function firstBuild(watcher) {
   return new Promise((resolve, reject) => {
@@ -42,6 +44,8 @@ export async function buildAddons({ watch = false } = {}) {
             namespace: NAMESPACE,
             match: MATCH,
             connect: addon.connect,
+            updateURL: `${RELEASE}/latest/download/${addon.id}.user.js`,
+            downloadURL: `${RELEASE}/latest/download/${addon.id}.user.js`,
           },
         }),
       ],
