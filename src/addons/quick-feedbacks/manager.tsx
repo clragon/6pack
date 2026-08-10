@@ -20,12 +20,16 @@ import { exportJson, importJson } from '../../core/transfer';
 import { RULES } from './rules';
 import { RuleGroups } from './ruleGroups';
 import { rove } from '../../core/palette/rove';
-import { recordStore, type RecordCategory, type RecordTemplate } from './store';
+import {
+  templateStore,
+  type FeedbackCategory,
+  type FeedbackTemplate,
+} from './store';
 import { ensureStyles, STYLES } from './styles';
 
 // Opens the template manager (a palette dialog when 6pack is present, a standalone
 // modal otherwise).
-export function openRecordsManager(): void {
+export function openTemplateManager(): void {
   // The slotted editor is light DOM, so it needs the sheet in document.head.
   ensureStyles();
   spawnDialog({
@@ -39,11 +43,11 @@ export function openRecordsManager(): void {
 }
 
 function exportToFile(): void {
-  exportJson('quick-feedbacks', recordStore.list());
+  exportJson('quick-feedbacks', templateStore.list());
 }
 
 function importFromFile(): void {
-  importJson<RecordTemplate>(
+  importJson<FeedbackTemplate>(
     (v) =>
       typeof v.title === 'string' && typeof v.reason === 'string'
         ? {
@@ -56,14 +60,14 @@ function importFromFile(): void {
             pinned: v.pinned === true,
           }
         : null,
-    (incoming) => recordStore.set([...recordStore.list(), ...incoming]),
+    (incoming) => templateStore.set([...templateStore.list(), ...incoming]),
   );
 }
 
-function useRecords(): RecordTemplate[] {
+function useTemplates(): FeedbackTemplate[] {
   const [, force] = useState(0);
-  useEffect(() => recordStore.subscribe(() => force((n) => n + 1)), []);
-  return recordStore.list();
+  useEffect(() => templateStore.subscribe(() => force((n) => n + 1)), []);
+  return templateStore.list();
 }
 
 function useNarrow(): boolean {
@@ -79,7 +83,7 @@ function useNarrow(): boolean {
   return narrow;
 }
 
-const CATEGORIES: { value: RecordCategory; label: string }[] = [
+const CATEGORIES: { value: FeedbackCategory; label: string }[] = [
   { value: 'positive', label: 'Positive' },
   { value: 'neutral', label: 'Neutral' },
   { value: 'negative', label: 'Negative' },
@@ -94,15 +98,15 @@ const DURATIONS: { value: number; label: string }[] = [
 ];
 
 function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
-  const records = useRecords();
+  const templates = useTemplates();
   const [selectedId, setSelectedId] = useState<string | undefined>(
-    records[0]?.id,
+    templates[0]?.id,
   );
   const [menuOpen, setMenuOpen] = useState(false);
   // Narrow screens are a master-detail: list, then the editor, one at a time.
   const [view, setView] = useState<'list' | 'detail'>('list');
   const narrow = useNarrow();
-  const selected = records.find((t) => t.id === selectedId);
+  const selected = templates.find((t) => t.id === selectedId);
   const rootRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const toolMenuRef = useRef<HTMLDivElement>(null);
@@ -117,14 +121,14 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
   const reorderTo = (targetId: string): void => {
     const from = dragId.current;
     if (!from || from === targetId) return;
-    const list = recordStore.list();
+    const list = templateStore.list();
     const fromIndex = list.findIndex((t) => t.id === from);
     const toIndex = list.findIndex((t) => t.id === targetId);
     if (fromIndex < 0 || toIndex < 0) return;
     const next = [...list];
     const [moved] = next.splice(fromIndex, 1);
     next.splice(toIndex, 0, moved);
-    recordStore.set(next);
+    templateStore.set(next);
   };
 
   // Reflect the collapsed detail view in the breadcrumb, so it can go back.
@@ -168,9 +172,9 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
     }
   }
 
-  const rovingId = records.some((t) => t.id === selectedId)
+  const rovingId = templates.some((t) => t.id === selectedId)
     ? selectedId
-    : records[0]?.id;
+    : templates[0]?.id;
 
   const MEMBER = '.sp-qf-list-item, .sp-qf-add, .sp-qf-more-btn';
   const members = (): HTMLElement[] =>
@@ -190,7 +194,7 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
       const delta = event.key === 'ArrowDown' ? 1 : -1;
       const id = active.dataset.id;
       if (event.altKey && id) {
-        recordStore.move(id, delta);
+        templateStore.move(id, delta);
         requestAnimationFrame(() =>
           focusMember(
             listRef.current?.querySelector<HTMLElement>(
@@ -218,7 +222,7 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
         tabIndex={-1}
         onKeyDown={onListKeyDown}
       >
-        {records.map((template) => (
+        {templates.map((template) => (
           <button
             type="button"
             key={template.id}
@@ -264,9 +268,11 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
             <button
               type="button"
               class="sp-qf-add"
-              tabIndex={records.length ? -1 : 0}
+              tabIndex={templates.length ? -1 : 0}
               onClick={() =>
-                select(recordStore.add({ title: '', reason: '', rules: [] }).id)
+                select(
+                  templateStore.add({ title: '', reason: '', rules: [] }).id,
+                )
               }
             >
               <Plus size={16} />
@@ -311,8 +317,8 @@ function Manager({ setTrail }: { setTrail: (trail: DialogCrumb[]) => void }) {
             key={selected.id}
             template={selected}
             onDelete={() => {
-              recordStore.remove(selected.id);
-              setSelectedId(recordStore.list()[0]?.id);
+              templateStore.remove(selected.id);
+              setSelectedId(templateStore.list()[0]?.id);
               if (narrow) showList();
             }}
           />
@@ -328,7 +334,7 @@ function Editor({
   template,
   onDelete,
 }: {
-  template: RecordTemplate;
+  template: FeedbackTemplate;
   onDelete: () => void;
 }) {
   const id = template.id;
@@ -355,7 +361,7 @@ function Editor({
       className: 'sp-qf-reason-editor',
       rows: 5,
       placeholder: 'Reason',
-      onInput: (value) => recordStore.update(id, { reason: value }),
+      onInput: (value) => templateStore.update(id, { reason: value }),
     });
     const root = container.getRootNode();
     const shadowHost =
@@ -412,7 +418,7 @@ function Editor({
     const next = new Set(template.rules);
     if (next.has(key)) next.delete(key);
     else next.add(key);
-    recordStore.update(id, { rules: [...next] });
+    templateStore.update(id, { rules: [...next] });
   };
 
   return (
@@ -450,14 +456,16 @@ function Editor({
             placeholder="Title"
             value={template.title}
             onInput={(e) =>
-              recordStore.update(id, { title: e.currentTarget.value })
+              templateStore.update(id, { title: e.currentTarget.value })
             }
           />
           <button
             type="button"
             class={'sp-qf-icon-btn' + (template.pinned ? ' sp-qf-pinned' : '')}
             title={template.pinned ? 'Shown on the strip' : 'Show on the strip'}
-            onClick={() => recordStore.update(id, { pinned: !template.pinned })}
+            onClick={() =>
+              templateStore.update(id, { pinned: !template.pinned })
+            }
           >
             <Pin size={16} fill={template.pinned ? 'currentColor' : 'none'} />
           </button>
@@ -492,7 +500,7 @@ function Editor({
             'sp-qf-pill sp-qf-cat-none' +
             (!template.category ? ' sp-qf-on' : '')
           }
-          onClick={() => recordStore.update(id, { category: undefined })}
+          onClick={() => templateStore.update(id, { category: undefined })}
         >
           None
         </button>
@@ -506,7 +514,9 @@ function Editor({
               category.value +
               (template.category === category.value ? ' sp-qf-on' : '')
             }
-            onClick={() => recordStore.update(id, { category: category.value })}
+            onClick={() =>
+              templateStore.update(id, { category: category.value })
+            }
           >
             {category.label}
           </button>
@@ -533,7 +543,7 @@ function Editor({
                   (template.duration === option.value ? ' sp-qf-on' : '')
                 }
                 onClick={() =>
-                  recordStore.update(id, { duration: option.value })
+                  templateStore.update(id, { duration: option.value })
                 }
               >
                 {option.label}
@@ -548,7 +558,7 @@ function Editor({
               value={template.duration != null ? String(template.duration) : ''}
               onInput={(e) => {
                 const value = e.currentTarget.value;
-                recordStore.update(id, {
+                templateStore.update(id, {
                   duration: value === '' ? undefined : Number(value),
                 });
               }}
@@ -560,7 +570,7 @@ function Editor({
             aria-checked={template.preventLogin ? 'true' : 'false'}
             class="sp-qf-switch-row"
             onClick={() =>
-              recordStore.update(id, { preventLogin: !template.preventLogin })
+              templateStore.update(id, { preventLogin: !template.preventLogin })
             }
           >
             <span>Prevent login</span>

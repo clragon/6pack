@@ -2,7 +2,6 @@ import { expandTokens, type TokenSpec } from '../../core/template';
 import { currentUser } from '../../site/user';
 import { navStore, type NavEntry } from './store';
 
-// Tokens an entry's url may carry, the same spelling RE621's header tabs use.
 const TOKENS: TokenSpec[] = [
   { token: 'username', resolve: () => currentUser()?.name ?? null },
   {

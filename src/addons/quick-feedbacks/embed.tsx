@@ -4,12 +4,12 @@ import { ChevronDown, ChevronUp, Flame } from 'lucide-preact';
 import { unsafeWindow } from 'vite-plugin-monkey/dist/client';
 
 import { assembleRecord } from './compositor';
-import { openRecordsManager } from './manager';
+import { openTemplateManager } from './manager';
 import { RULES } from './rules';
 import { RuleGroups } from './ruleGroups';
 import { rove } from '../../core/palette/rove';
 import { rankRules, recordRuleUse } from './ruleFrecency';
-import { recordStore, type RecordTemplate } from './store';
+import { templateStore, type FeedbackTemplate } from './store';
 import { STYLES } from './styles';
 import type { EmbedTarget } from './targets';
 
@@ -27,10 +27,10 @@ function getFormatter(anchor: Element): Formatter | null {
   return (found as Formatter) ?? null;
 }
 
-function useRecords(): RecordTemplate[] {
+function useTemplates(): FeedbackTemplate[] {
   const [, force] = useState(0);
-  useEffect(() => recordStore.subscribe(() => force((n) => n + 1)), []);
-  return recordStore.list();
+  useEffect(() => templateStore.subscribe(() => force((n) => n + 1)), []);
+  return templateStore.list();
 }
 
 // A list of source links: always one trailing empty field to type into, an "x" to
@@ -113,9 +113,9 @@ function Embed({
   const [sources, setSources] = useState<string[]>(['']);
   const [moreOpen, setMoreOpen] = useState(false);
   const [templatesExpanded, setTemplatesExpanded] = useState(false);
-  const records = useRecords();
-  const pinned = records.filter((t) => t.pinned);
-  const shownTemplates = templatesExpanded ? records : pinned;
+  const templates = useTemplates();
+  const pinned = templates.filter((t) => t.pinned);
+  const shownTemplates = templatesExpanded ? templates : pinned;
 
   const started = useRef(false);
   const switched = useRef(false);
@@ -205,7 +205,7 @@ function Embed({
             {template.title || '(untitled)'}
           </button>
         ))}
-        {records.length > pinned.length && (
+        {templates.length > pinned.length && (
           <button
             type="button"
             class="sp-qf-strip-more"
@@ -224,7 +224,7 @@ function Embed({
           type="button"
           class="sp-qf-strip-flame"
           tabIndex={shownTemplates.length ? -1 : 0}
-          onClick={() => openRecordsManager()}
+          onClick={() => openTemplateManager()}
         >
           <Flame size={16} fill="currentColor" />
           <span>Quick feedbacks</span>

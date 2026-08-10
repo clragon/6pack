@@ -52,7 +52,7 @@ function targetable(page: PageContext): boolean {
 }
 
 export const approveReplacementAction: Action = {
-  id: 'compare-replacements.approve',
+  id: 'replacement.approve',
   title: 'Approve replacement',
   description: 'Accept the pending replacement on this post',
   keywords: ['approve', 'replacement', 'accept'],

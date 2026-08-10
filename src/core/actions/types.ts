@@ -6,6 +6,11 @@ export interface ActionContext {
 }
 
 export interface Action {
+  // The first registration of an id wins, and frecency is stored under it, so a
+  // rename drops the action's ranking. Ids are spelled `<domain>.<verb>` after
+  // what the action acts on rather than the add-on that provides it, so
+  // `post.burnt-comments` joins `post.delete` under `post`, and a group's
+  // children extend its id.
   id: string;
   title: string;
   description?: string;

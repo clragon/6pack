@@ -1,15 +1,13 @@
-import type { RecordTemplate } from './store';
+import type { FeedbackTemplate } from './store';
 
-// The starter templates a fresh install seeds: the usual set (reasons lifted from
-// REMT), pinned by observed frequency, all editable/reorderable/deletable after.
-export function seedRecords(): RecordTemplate[] {
+export function seedTemplates(): FeedbackTemplate[] {
   const make = (
     title: string,
     reason: string,
     rules: string[],
     pinned: boolean,
-    extra: Partial<RecordTemplate> = {},
-  ): RecordTemplate => ({
+    extra: Partial<FeedbackTemplate> = {},
+  ): FeedbackTemplate => ({
     id: crypto.randomUUID(),
     title,
     reason,

@@ -4,9 +4,20 @@ import { log } from '../log';
 
 export class ActionRegistry {
   private readonly actions: Action[] = [];
+  private readonly ids = new Set<string>();
 
+  // An id claimed twice keeps the first registration, as settings specs and
+  // add-ons do. Ids reach the frecency store, so a second holder would rank and
+  // surface against the first one's history.
   register(...actions: Action[]): void {
-    this.actions.push(...actions);
+    for (const action of actions) {
+      if (this.ids.has(action.id)) {
+        log.warn(`action ${action.id} already registered, ignoring`);
+        continue;
+      }
+      this.ids.add(action.id);
+      this.actions.push(action);
+    }
   }
 
   available(page: PageContext): Action[] {
