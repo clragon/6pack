@@ -13,7 +13,7 @@ const DE_THRESHOLD = 2.3;
 const INTENSITY_SCALE = 16;
 
 export interface DiffResult {
-  url: string;
+  heat: ImageData;
   width: number;
   height: number;
   divergentPercent: number;
@@ -109,6 +109,73 @@ function fetchBlob(url: string): Promise<Blob> {
   });
 }
 
+// Whether this engine will play a blob: media source under e621's CSP. A tiny
+// invalid clip is enough, because the element errors either way and only a CSP
+// refusal also fires a media-src violation.
+let blobMedia: Promise<boolean> | null = null;
+function blobMediaAllowed(): Promise<boolean> {
+  if (blobMedia) return blobMedia;
+  blobMedia = new Promise<boolean>((resolve) => {
+    let refused = false;
+    const onViolation = (event: SecurityPolicyViolationEvent) => {
+      // The page loads media of its own, and only a refusal of a blob: answers
+      // the question being asked here.
+      if (
+        event.effectiveDirective === 'media-src' &&
+        event.blockedURI.startsWith('blob')
+      ) {
+        refused = true;
+      }
+    };
+    document.addEventListener('securitypolicyviolation', onViolation);
+    const probe = document.createElement('video');
+    const url = URL.createObjectURL(
+      new Blob([new Uint8Array(8)], { type: 'video/mp4' }),
+    );
+    const settle = () => {
+      document.removeEventListener('securitypolicyviolation', onViolation);
+      URL.revokeObjectURL(url);
+      resolve(!refused);
+    };
+    // The refusal and the element's error arrive in no fixed order, so a blocked
+    // load gets a moment to report itself before the answer is read.
+    probe.addEventListener('error', () => setTimeout(settle, 250), {
+      once: true,
+    });
+    setTimeout(settle, 3000);
+    probe.src = url;
+  });
+  return blobMedia;
+}
+
+const mediaPairCache = new Map<string, Promise<[string, string]>>();
+
+// Sources the pair can play and still be diffed from. Chrome refuses a blob:
+// under media-src, while Firefox taints a canvas drawn from the remote file, so
+// the route that yields readable frames differs by engine. Both sides take the
+// same one: a streamed half stalls and drifts against a local one. A failed
+// fetch drops both back to their urls and is not cached, so a remount retries.
+export function resolveMediaPair(
+  first: string,
+  second: string,
+): Promise<[string, string]> {
+  const key = `${first}\n${second}`;
+  const hit = mediaPairCache.get(key);
+  if (hit) return hit;
+  const pending = blobMediaAllowed()
+    .then(async (allowed): Promise<[string, string]> => {
+      if (!allowed) return [first, second];
+      const [a, b] = await Promise.all([fetchBlob(first), fetchBlob(second)]);
+      return [URL.createObjectURL(a), URL.createObjectURL(b)];
+    })
+    .catch((): [string, string] => {
+      mediaPairCache.delete(key);
+      return [first, second];
+    });
+  mediaPairCache.set(key, pending);
+  return pending;
+}
+
 function fetchImage(url: string): Promise<Fetched> {
   return fetchBlob(url).then((blob) =>
     createImageBitmap(blob).then(
@@ -118,24 +185,6 @@ function fetchImage(url: string): Promise<Fetched> {
       },
     ),
   );
-}
-
-const objectUrlCache = new Map<string, Promise<string>>();
-
-// A same-origin object URL for a media file. Replacement files carry no CORS
-// header, so a <video> pointed at one can neither stream crossorigin nor feed the
-// heatmap canvas, and routing it through a blob does both. Cached for the page.
-export function fetchObjectUrl(url: string): Promise<string> {
-  const hit = objectUrlCache.get(url);
-  if (hit) return hit;
-  const pending = fetchBlob(url)
-    .then((blob) => URL.createObjectURL(blob))
-    .catch((error) => {
-      objectUrlCache.delete(url);
-      throw error;
-    });
-  objectUrlCache.set(url, pending);
-  return pending;
 }
 
 // Both sources land in an identical box, aspect preserved with transparent
@@ -177,16 +226,13 @@ function box(aw: number, ah: number, bw: number, bh: number): [number, number] {
   ];
 }
 
-// Walk two sampled buffers, paint the amber divergence overlay into `ctx`, and
-// return the divergent pixel count.
-function paintHeat(
+function buildHeat(
   a: Uint8ClampedArray,
   b: Uint8ClampedArray,
   width: number,
   height: number,
-  ctx: CanvasRenderingContext2D,
-): number {
-  const heat = ctx.createImageData(width, height);
+): { heat: ImageData; divergent: number } {
+  const heat = new ImageData(width, height);
   const heatData = heat.data;
   let divergent = 0;
   for (let i = 0; i < a.length; i += 4) {
@@ -219,8 +265,7 @@ function paintHeat(
       heatData[i + 3] = Math.min(230, 90 + intensity);
     }
   }
-  ctx.putImageData(heat, 0, 0);
-  return divergent;
+  return { heat, divergent };
 }
 
 // Diff the current frame of two videos straight onto a display canvas, returning
@@ -245,13 +290,13 @@ export function diffFrame(
   out.height = height;
   const ctx = out.getContext('2d');
   if (!ctx) return null;
-  const divergent = paintHeat(pa, pb, width, height, ctx);
+  const { heat, divergent } = buildHeat(pa, pb, width, height);
+  ctx.putImageData(heat, 0, 0);
   return (divergent / (width * height)) * 100;
 }
 
 // Diffs are keyed by their image pair and kept for the life of the page: the
-// heatmap remounts every time the mode is switched back to it, and the object
-// URL each result owns is never revoked so a cache hit stays displayable.
+// heatmap remounts every time the mode is switched back to it.
 const cache = new Map<string, Promise<DiffResult>>();
 
 export function computeDiff(
@@ -305,22 +350,10 @@ async function computeUncached(
   current.bitmap.close();
   candidate.bitmap.close();
 
-  const out = document.createElement('canvas');
-  out.width = width;
-  out.height = height;
-  const ctx = out.getContext('2d');
-  if (!ctx) throw new Error('no 2d context');
-  const divergent = paintHeat(a, b, width, height, ctx);
-
-  const url = await new Promise<string>((resolve, reject) => {
-    out.toBlob((blob) => {
-      if (blob) resolve(URL.createObjectURL(blob));
-      else reject(new Error('failed to encode heatmap'));
-    });
-  });
+  const { heat, divergent } = buildHeat(a, b, width, height);
 
   return {
-    url,
+    heat,
     width,
     height,
     divergentPercent: (divergent / (width * height)) * 100,

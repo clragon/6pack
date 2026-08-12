@@ -4,17 +4,17 @@ import { Eye, EyeOff } from 'lucide-preact';
 
 import { MediaTag } from '../MediaTag';
 import { SliderChrome } from '../SliderChrome';
-import { diffFrame, fetchObjectUrl } from '../diff';
+import { diffFrame, resolveMediaPair } from '../diff';
 import { useZoomPan } from '../zoomPan';
 import type { CompareImage } from '../types';
 import { Transport } from './Transport';
 import { useSyncedPair, type Playback } from './sync';
+import { EMPTY_CLOCK, frameLength, useFrameClock } from './frames';
 
 export type VideoMode = 'side-by-side' | 'slider' | 'heatmap';
 
 // One pair of <video>s serves all three tabs: the element stays mounted while the
-// mode only re-styles it, so switching tabs never reloads or reseeks. Both load as
-// same-origin blobs so playback stays in sync and the heatmap can read frames.
+// mode only re-styles it, so switching tabs never reloads or reseeks.
 export function VideoStage({
   current,
   candidate,
@@ -33,23 +33,20 @@ export function VideoStage({
   const [error, setError] = useState<string | null>(null);
   const [underlay, setUnderlay] = useState(true);
   const [percent, setPercent] = useState<number | null>(null);
-  const transport = useSyncedPair(a, b, shared);
+  const diffed = useRef('');
+  const clockA = useFrameClock(a);
+  const clockB = useFrameClock(b);
+  const transport = useSyncedPair(a, b, shared, clockA, clockB);
 
   const slider = mode === 'slider';
   const heatmap = mode === 'heatmap';
   const side = mode === 'side-by-side';
   const z = useZoomPan(current.width, current.height, slider);
 
-  // Both sides load as same-origin blobs. The replacement is auth-gated and
-  // CORS-less (no crossorigin stream), and matching the current to it keeps sync
-  // smooth: a streamed half stalls and drifts against a local one.
   useEffect(() => {
     let alive = true;
-    Promise.all([
-      fetchObjectUrl(current.full),
-      fetchObjectUrl(candidate.full),
-    ]).then(
-      ([ua, ub]) => alive && setSrcs({ a: ua, b: ub }),
+    resolveMediaPair(current.full, candidate.full).then(
+      ([a, b]) => alive && setSrcs({ a, b }),
       (e: unknown) =>
         alive && setError(e instanceof Error ? e.message : String(e)),
     );
@@ -65,37 +62,55 @@ export function VideoStage({
     const cv = canvas.current;
     if (!av || !bv || !cv) return;
     let raf = 0;
-    let lastDiffed = -1;
-    // Pause-to-diff: only once both frames have settled onto the same time, and
-    // only once per frame (a scrub re-diffs, sitting still does not).
+    let failed = false;
+    // Pause-to-diff, once per pair of presented frames: a scrub re-diffs, sitting
+    // still does not.
     const loop = () => {
+      if (failed) return;
       raf = requestAnimationFrame(loop);
+      if (av.seeking || bv.seeking) return;
       if (av.readyState < 2 || bv.readyState < 2) return;
-      if (Math.abs(av.currentTime - bv.currentTime) > 0.02) return;
-      if (av.currentTime === lastDiffed) return;
+      const ca = clockA.current ?? EMPTY_CLOCK;
+      const cb = clockB.current ?? EMPTY_CLOCK;
+      const at = ca.mediaTime ?? av.currentTime;
+      const bt = cb.mediaTime ?? bv.currentTime;
+      // A paused seek need not present a new frame, so a clock can describe a
+      // position the element has already left.
+      if (Math.abs(at - av.currentTime) > frameLength(ca)) return;
+      if (Math.abs(bt - bv.currentTime) > frameLength(cb)) return;
+      // Each element presents the last frame at or before the target, so the
+      // longer of the two frames is how far apart an aligned pair can sit.
+      if (Math.abs(at - bt) > Math.max(frameLength(ca), frameLength(cb)))
+        return;
+      const pair = `${at}|${bt}`;
+      if (pair === diffed.current) return;
       try {
         const p = diffFrame(av, bv, cv);
         if (p !== null) {
           setPercent(p);
-          lastDiffed = av.currentTime;
+          diffed.current = pair;
         }
       } catch (e) {
+        failed = true;
         setError(e instanceof Error ? e.message : String(e));
-        return;
       }
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [heatmap, transport.playing]);
+  }, [heatmap, transport.playing, clockA, clockB]);
 
   // Drop the stale diff whenever the frame is about to change (play, or a scrub),
-  // so pausing/scrubbing shows the spinner until the fresh aligned diff lands.
+  // so pausing/scrubbing shows the spinner until the fresh aligned diff lands. A
+  // scrub within one frame leaves both presentations untouched, so the key of the
+  // last diffed pair is cleared alongside it.
   useEffect(() => {
     setPercent(null);
+    diffed.current = '';
   }, [transport.playing]);
 
   const seek = (t: number) => {
     setPercent(null);
+    diffed.current = '';
     transport.seek(t);
   };
 
