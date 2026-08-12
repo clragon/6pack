@@ -4,11 +4,12 @@ import { Eye, EyeOff } from 'lucide-preact';
 
 import { MediaTag } from '../MediaTag';
 import { SliderChrome } from '../SliderChrome';
-import { diffFrame, fetchObjectUrl } from '../diff';
+import { diffFrame, resolveMediaPair } from '../diff';
 import { useZoomPan } from '../zoomPan';
 import type { CompareImage } from '../types';
 import { Transport } from './Transport';
 import { useSyncedPair, type Playback } from './sync';
+import { EMPTY_CLOCK, frameLength, useFrameClock } from './frames';
 
 export type VideoMode = 'side-by-side' | 'slider' | 'heatmap';
 
@@ -30,7 +31,10 @@ export function VideoStage({
   const [error, setError] = useState<string | null>(null);
   const [underlay, setUnderlay] = useState(true);
   const [percent, setPercent] = useState<number | null>(null);
-  const transport = useSyncedPair(a, b, shared);
+  const diffed = useRef('');
+  const clockA = useFrameClock(a);
+  const clockB = useFrameClock(b);
+  const transport = useSyncedPair(a, b, shared, clockA, clockB);
 
   const slider = mode === 'slider';
   const heatmap = mode === 'heatmap';
@@ -39,11 +43,8 @@ export function VideoStage({
 
   useEffect(() => {
     let alive = true;
-    Promise.all([
-      fetchObjectUrl(current.full),
-      fetchObjectUrl(candidate.full),
-    ]).then(
-      ([ua, ub]) => alive && setSrcs({ a: ua, b: ub }),
+    resolveMediaPair(current.full, candidate.full).then(
+      ([a, b]) => alive && setSrcs({ a, b }),
       (e: unknown) =>
         alive && setError(e instanceof Error ? e.message : String(e)),
     );
@@ -59,33 +60,45 @@ export function VideoStage({
     const cv = canvas.current;
     if (!av || !bv || !cv) return;
     let raf = 0;
-    let lastDiffed = -1;
+    let failed = false;
     const loop = () => {
+      if (failed) return;
       raf = requestAnimationFrame(loop);
+      if (av.seeking || bv.seeking) return;
       if (av.readyState < 2 || bv.readyState < 2) return;
-      if (Math.abs(av.currentTime - bv.currentTime) > 0.02) return;
-      if (av.currentTime === lastDiffed) return;
+      const ca = clockA.current ?? EMPTY_CLOCK;
+      const cb = clockB.current ?? EMPTY_CLOCK;
+      const at = ca.mediaTime ?? av.currentTime;
+      const bt = cb.mediaTime ?? bv.currentTime;
+      if (Math.abs(at - av.currentTime) > frameLength(ca)) return;
+      if (Math.abs(bt - bv.currentTime) > frameLength(cb)) return;
+      if (Math.abs(at - bt) > Math.max(frameLength(ca), frameLength(cb)))
+        return;
+      const pair = `${at}|${bt}`;
+      if (pair === diffed.current) return;
       try {
         const p = diffFrame(av, bv, cv);
         if (p !== null) {
           setPercent(p);
-          lastDiffed = av.currentTime;
+          diffed.current = pair;
         }
       } catch (e) {
+        failed = true;
         setError(e instanceof Error ? e.message : String(e));
-        return;
       }
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [heatmap, transport.playing]);
+  }, [heatmap, transport.playing, clockA, clockB]);
 
   useEffect(() => {
     setPercent(null);
+    diffed.current = '';
   }, [transport.playing]);
 
   const seek = (t: number) => {
     setPercent(null);
+    diffed.current = '';
     transport.seek(t);
   };
 

@@ -7,7 +7,7 @@ const DE_THRESHOLD = 2.3;
 const INTENSITY_SCALE = 16;
 
 export interface DiffResult {
-  url: string;
+  heat: ImageData;
   width: number;
   height: number;
   divergentPercent: number;
@@ -98,6 +98,63 @@ function fetchBlob(url: string): Promise<Blob> {
   });
 }
 
+let blobMedia: Promise<boolean> | null = null;
+function blobMediaAllowed(): Promise<boolean> {
+  if (blobMedia) return blobMedia;
+  blobMedia = new Promise<boolean>((resolve) => {
+    let refused = false;
+    const onViolation = (event: SecurityPolicyViolationEvent) => {
+      if (
+        event.effectiveDirective === 'media-src' &&
+        event.blockedURI.startsWith('blob')
+      ) {
+        refused = true;
+      }
+    };
+    document.addEventListener('securitypolicyviolation', onViolation);
+    const probe = document.createElement('video');
+    const url = URL.createObjectURL(
+      new Blob([new Uint8Array(8)], { type: 'video/mp4' }),
+    );
+    const settle = () => {
+      document.removeEventListener('securitypolicyviolation', onViolation);
+      URL.revokeObjectURL(url);
+      resolve(!refused);
+    };
+    probe.addEventListener('error', () => setTimeout(settle, 250), {
+      once: true,
+    });
+    setTimeout(settle, 3000);
+    probe.src = url;
+  });
+  return blobMedia;
+}
+
+const mediaPairCache = new Map<string, Promise<[string, string]>>();
+
+// Chrome refuses a blob: source under e621's media-src directive, while Firefox
+// taints a canvas drawn from the remote file, so the route differs.
+export function resolveMediaPair(
+  first: string,
+  second: string,
+): Promise<[string, string]> {
+  const key = `${first}\n${second}`;
+  const hit = mediaPairCache.get(key);
+  if (hit) return hit;
+  const pending = blobMediaAllowed()
+    .then(async (allowed): Promise<[string, string]> => {
+      if (!allowed) return [first, second];
+      const [a, b] = await Promise.all([fetchBlob(first), fetchBlob(second)]);
+      return [URL.createObjectURL(a), URL.createObjectURL(b)];
+    })
+    .catch((): [string, string] => {
+      mediaPairCache.delete(key);
+      return [first, second];
+    });
+  mediaPairCache.set(key, pending);
+  return pending;
+}
+
 function fetchImage(url: string): Promise<Fetched> {
   return fetchBlob(url).then((blob) =>
     createImageBitmap(blob).then(
@@ -107,21 +164,6 @@ function fetchImage(url: string): Promise<Fetched> {
       },
     ),
   );
-}
-
-const objectUrlCache = new Map<string, Promise<string>>();
-
-export function fetchObjectUrl(url: string): Promise<string> {
-  const hit = objectUrlCache.get(url);
-  if (hit) return hit;
-  const pending = fetchBlob(url)
-    .then((blob) => URL.createObjectURL(blob))
-    .catch((error) => {
-      objectUrlCache.delete(url);
-      throw error;
-    });
-  objectUrlCache.set(url, pending);
-  return pending;
 }
 
 function sampleContain(
@@ -159,14 +201,13 @@ function box(aw: number, ah: number, bw: number, bh: number): [number, number] {
   ];
 }
 
-function paintHeat(
+function buildHeat(
   a: Uint8ClampedArray,
   b: Uint8ClampedArray,
   width: number,
   height: number,
-  ctx: CanvasRenderingContext2D,
-): number {
-  const heat = ctx.createImageData(width, height);
+): { heat: ImageData; divergent: number } {
+  const heat = new ImageData(width, height);
   const heatData = heat.data;
   let divergent = 0;
   for (let i = 0; i < a.length; i += 4) {
@@ -199,8 +240,7 @@ function paintHeat(
       heatData[i + 3] = Math.min(230, 90 + intensity);
     }
   }
-  ctx.putImageData(heat, 0, 0);
-  return divergent;
+  return { heat, divergent };
 }
 
 export function diffFrame(
@@ -223,7 +263,8 @@ export function diffFrame(
   out.height = height;
   const ctx = out.getContext('2d');
   if (!ctx) return null;
-  const divergent = paintHeat(pa, pb, width, height, ctx);
+  const { heat, divergent } = buildHeat(pa, pb, width, height);
+  ctx.putImageData(heat, 0, 0);
   return (divergent / (width * height)) * 100;
 }
 
@@ -280,22 +321,10 @@ async function computeUncached(
   current.bitmap.close();
   candidate.bitmap.close();
 
-  const out = document.createElement('canvas');
-  out.width = width;
-  out.height = height;
-  const ctx = out.getContext('2d');
-  if (!ctx) throw new Error('no 2d context');
-  const divergent = paintHeat(a, b, width, height, ctx);
-
-  const url = await new Promise<string>((resolve, reject) => {
-    out.toBlob((blob) => {
-      if (blob) resolve(URL.createObjectURL(blob));
-      else reject(new Error('failed to encode heatmap'));
-    });
-  });
+  const { heat, divergent } = buildHeat(a, b, width, height);
 
   return {
-    url,
+    heat,
     width,
     height,
     divergentPercent: (divergent / (width * height)) * 100,

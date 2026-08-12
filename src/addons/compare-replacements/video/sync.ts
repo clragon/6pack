@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { RefObject } from 'preact';
 
-const NUDGE_BAND = 0.04;
+import { EMPTY_CLOCK, frameLength, type FrameClock } from './frames';
+
+const NUDGE_FRAMES = 1.5;
+const NUDGE_GAIN = 1.5;
 const RESYNC_GAP = 0.5;
 
 export interface Playback {
@@ -21,6 +24,8 @@ export function useSyncedPair(
   a: RefObject<HTMLVideoElement>,
   b: RefObject<HTMLVideoElement>,
   shared: RefObject<Playback>,
+  clockA: RefObject<FrameClock>,
+  clockB: RefObject<FrameClock>,
 ): Transport {
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(shared.current?.time ?? 0);
@@ -72,14 +77,24 @@ export function useSyncedPair(
       if (Number.isFinite(dur) && av.currentTime >= dur) {
         av.currentTime = 0;
         bv.currentTime = 0;
+        if (av.paused) void av.play();
+        if (bv.paused) void bv.play();
       }
-      const drift = av.currentTime - bv.currentTime;
+      const at = clockA.current?.mediaTime ?? av.currentTime;
+      const bt = clockB.current?.mediaTime ?? bv.currentTime;
+      const band =
+        NUDGE_FRAMES *
+        Math.max(
+          frameLength(clockA.current ?? EMPTY_CLOCK),
+          frameLength(clockB.current ?? EMPTY_CLOCK),
+        );
+      const drift = at - bt;
       const gap = Math.abs(drift);
       if (gap > RESYNC_GAP) {
         bv.currentTime = av.currentTime;
         bv.playbackRate = 1;
-      } else if (gap > NUDGE_BAND) {
-        bv.playbackRate = Math.max(0.5, Math.min(1.5, 1 + drift * 3));
+      } else if (gap > band) {
+        bv.playbackRate = Math.max(0.5, Math.min(1.5, 1 + drift * NUDGE_GAIN));
       } else if (bv.playbackRate !== 1) {
         bv.playbackRate = 1;
       }
@@ -93,7 +108,7 @@ export function useSyncedPair(
       cancelAnimationFrame(raf.current);
       if (bv) bv.playbackRate = 1;
     };
-  }, [playing, a, b, shared]);
+  }, [playing, a, b, shared, clockA, clockB]);
 
   const toggle = () => {
     const av = a.current;

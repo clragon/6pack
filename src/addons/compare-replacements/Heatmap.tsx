@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { Eye, EyeOff } from 'lucide-preact';
 
 import { computeDiff, type DiffResult } from './diff';
@@ -20,11 +20,14 @@ export function Heatmap({
   candidate: CompareImage;
 }) {
   const [underlay, setUnderlay] = useState(true);
+  const [underlayFailed, setUnderlayFailed] = useState(false);
   const [state, setState] = useState<State>({ phase: 'loading' });
+  const heat = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     let mounted = true;
     setState({ phase: 'loading' });
+    setUnderlayFailed(false);
     computeDiff(current.full, candidate.full).then(
       (diff) => {
         if (mounted) setState({ phase: 'ready', diff });
@@ -41,6 +44,24 @@ export function Heatmap({
   }, [current.full, candidate.full]);
 
   const diff = state.phase === 'ready' ? state.diff : null;
+
+  useEffect(() => {
+    const canvas = heat.current;
+    if (!diff || !canvas) return;
+    canvas.width = diff.width;
+    canvas.height = diff.height;
+    // e621's img-src directive admits no blob: url, so the heat goes onto a
+    // canvas rather than an img.
+    canvas.getContext('2d')?.putImageData(diff.heat, 0, 0);
+  }, [diff]);
+
+  const failure =
+    state.phase === 'error'
+      ? `failed to compute diff: ${state.message}`
+      : underlayFailed && underlay
+        ? `failed to load underlay: ${current.label}`
+        : null;
+
   return (
     <div class="sp-cmp-heat">
       <div class="sp-cmp-heat-stage">
@@ -50,13 +71,15 @@ export function Heatmap({
               class="sp-cmp-heat-under"
               src={current.full}
               alt={current.label}
+              onError={() => setUnderlayFailed(true)}
             />
           )}
           {diff && (
-            <img
+            <canvas
+              ref={heat}
               class="sp-cmp-heat-diff"
-              src={diff.url}
-              alt="difference heatmap"
+              role="img"
+              aria-label="difference heatmap"
               style={{ mixBlendMode: underlay ? 'screen' : 'normal' }}
             />
           )}
@@ -66,10 +89,8 @@ export function Heatmap({
               computing diff…
             </div>
           )}
-          {state.phase === 'error' && (
-            <div class="sp-cmp-heat-status sp-cmp-heat-error">
-              failed to compute diff: {state.message}
-            </div>
+          {failure && (
+            <div class="sp-cmp-heat-status sp-cmp-heat-error">{failure}</div>
           )}
           <button
             type="button"
