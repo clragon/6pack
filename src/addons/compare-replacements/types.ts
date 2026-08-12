@@ -16,3 +16,7 @@ export interface CompareData {
   current: CompareImage;
   candidates: CompareImage[];
 }
+
+export type GatherResult =
+  | { kind: 'ready'; data: CompareData }
+  | { kind: 'hidden' };

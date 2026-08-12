@@ -531,3 +531,10 @@
     border-top: 1px solid var(--color-table-border, #313d52);
   }
 }
+
+.sp-cmp-unavailable {
+  padding: 0.85rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-text-muted, #8091a0);
+}
