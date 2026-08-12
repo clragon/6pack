@@ -1,4 +1,4 @@
-import type { CompareData, CompareImage } from './types';
+import type { CompareImage, GatherResult } from './types';
 
 const VIDEO_EXT = /^(webm|mp4)$/i;
 const INFO = /(\d+)\s*x\s*(\d+)\s+(\w+)\s*\(([^)]+)\)/;
@@ -100,13 +100,15 @@ function readInfo(card: HTMLElement): {
   };
 }
 
+// Null when the card yields no file url. e621 renders that link for staff only,
+// and the API hides the storage id its url is keyed by, so there is no second
+// route to the bytes.
 function readCandidate(card: HTMLElement): CompareImage | null {
-  if (card.classList.contains('is-current')) return null;
   const img = card.querySelector<HTMLImageElement>('img.replacement-thumb');
   if (!img) return null;
-  const anchor = img.closest('a');
+  const full = img.closest('a')?.getAttribute('href');
+  if (!full) return null;
   const thumb = img.src;
-  const full = anchor?.getAttribute('href') || thumb;
   const info = readInfo(card);
   const id = card.id.replace('replacement-', '');
   return {
@@ -124,11 +126,14 @@ function readCandidate(card: HTMLElement): CompareImage | null {
 }
 
 // Pending replacements sort first, so the panel defaults to the version
-// awaiting review.
-function readCandidates(root: ParentNode): CompareImage[] {
+// awaiting review. `hidden` counts the cards whose file this viewer may not see.
+function readCandidates(root: ParentNode): {
+  images: CompareImage[];
+  hidden: number;
+} {
   const cards = Array.from(
     root.querySelectorAll<HTMLElement>('.replacement-card[id^="replacement-"]'),
-  );
+  ).filter((card) => !card.classList.contains('is-current'));
   const items = cards
     .map((card) => ({ card, image: readCandidate(card) }))
     .filter((entry): entry is { card: HTMLElement; image: CompareImage } =>
@@ -139,16 +144,22 @@ function readCandidates(root: ParentNode): CompareImage[] {
     const bp = b.card.classList.contains('is-pending') ? 0 : 1;
     return ap - bp;
   });
-  return items.map((entry) => entry.image);
+  // Counted from the markup that states the permission rather than from whatever
+  // readCandidate rejected, so a card e621 reshapes never reads as a hidden file.
+  const hidden = cards.filter((card) => {
+    const img = card.querySelector<HTMLImageElement>('img.replacement-thumb');
+    return Boolean(img) && !img?.closest('a')?.getAttribute('href');
+  }).length;
+  return { images: items.map((entry) => entry.image), hidden };
 }
 
 export async function gather(
   postId: number,
   root: ParentNode,
-): Promise<CompareData | null> {
-  const candidates = readCandidates(root);
-  if (candidates.length === 0) return null;
+): Promise<GatherResult | null> {
+  const { images, hidden } = readCandidates(root);
+  if (images.length === 0) return hidden > 0 ? { kind: 'hidden' } : null;
   const current = await fetchCurrent(postId);
   if (!current) return null;
-  return { postId, current, candidates };
+  return { kind: 'ready', data: { postId, current, candidates: images } };
 }

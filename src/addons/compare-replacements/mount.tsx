@@ -14,6 +14,17 @@ function findList(): HTMLElement | null {
   return card?.parentElement ?? null;
 }
 
+function Unavailable() {
+  return (
+    <div class="sp-cmp">
+      <div class="sp-cmp-head">
+        <span class="sp-cmp-title">Compare replacement</span>
+      </div>
+      <div class="sp-cmp-unavailable">no comparison available</div>
+    </div>
+  );
+}
+
 // An empty or unscoped search renders no listing, so the panel has nowhere to
 // attach and the page goes untouched.
 export function mountPanel(postId: number): () => void {
@@ -26,13 +37,20 @@ export function mountPanel(postId: number): () => void {
 
   let disposed = false;
   gather(postId, document).then(
-    (data) => {
+    (result) => {
       if (disposed) return;
-      if (!data) {
+      if (!result) {
         host.remove();
         return;
       }
-      render(<Comparison data={data} />, host);
+      render(
+        result.kind === 'ready' ? (
+          <Comparison data={result.data} />
+        ) : (
+          <Unavailable />
+        ),
+        host,
+      );
     },
     () => {
       if (!disposed) host.remove();

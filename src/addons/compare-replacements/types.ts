@@ -1,7 +1,7 @@
 // One image side of the comparison: enough to display it and to fetch its bytes
-// for the diff. `full` is the highest resolution the viewer may see (a signed
-// replacement url, or a post's file url), and `thumb` is the always-available
-// preview used as a fallback and as the low-cost first paint.
+// for the diff. `full` is the file itself (a signed replacement url, or a post's
+// file url), and `thumb` is the always-available preview used as the low-cost
+// first paint.
 export interface CompareImage {
   key: string;
   label: string;
@@ -20,3 +20,9 @@ export interface CompareData {
   current: CompareImage;
   candidates: CompareImage[];
 }
+
+// e621 links a replacement's file for staff only, so every other viewer gets
+// cards whose files cannot be fetched.
+export type GatherResult =
+  | { kind: 'ready'; data: CompareData }
+  | { kind: 'hidden' };
