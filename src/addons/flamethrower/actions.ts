@@ -30,7 +30,6 @@ async function incinerate(items: BurnRef[], markType?: string): Promise<void> {
       targets: ids.map((id) => ({ id, status: 'pending' as const })),
     });
   }
-  burnPile.clear();
 }
 
 function copyLinks(items: BurnRef[]): void {
