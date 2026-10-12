@@ -32,7 +32,6 @@ async function incinerate(items: BurnRef[], markType?: string): Promise<void> {
       targets: ids.map((id) => ({ id, status: 'pending' as const })),
     });
   }
-  burnPile.clear();
 }
 
 // Selected items as e621 search URLs, grouped by type, for pasting elsewhere.
