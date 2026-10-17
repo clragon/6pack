@@ -4,5 +4,6 @@ export type PageContext =
   | { kind: 'user'; id: number }
   | { kind: 'userFeedbacks'; userId: number | null }
   | { kind: 'postReplacements'; postId: number | null }
+  | { kind: 'postReplacement'; postId: number | null }
   | { kind: 'upload' }
   | { kind: 'unknown' };

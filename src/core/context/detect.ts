@@ -30,6 +30,13 @@ export function detectContext(): PageContext {
       postId: raw && /^\d+$/.test(raw) ? Number(raw) : null,
     };
   }
+  if (path === '/post_replacements/new') {
+    const raw = new URLSearchParams(window.location.search).get('post_id');
+    return {
+      kind: 'postReplacement',
+      postId: raw && /^\d+$/.test(raw) ? Number(raw) : null,
+    };
+  }
   if (path === '/uploads/new') return { kind: 'upload' };
   return { kind: 'unknown' };
 }
