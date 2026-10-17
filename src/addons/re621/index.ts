@@ -42,6 +42,6 @@ export const re621Addon: SixpackAddon = {
   id: 're621',
   name: 'RE621 Responses',
   description:
-    'The ticket responses held by RE621 Mod Tools are made available to the palette, so that any close flow reaches them by name. Requires RE621 to be installed.',
+    'Makes the ticket responses from RE621 available in the palette.',
   ticketResponses: provider,
 };

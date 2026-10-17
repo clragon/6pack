@@ -38,7 +38,7 @@ export const fileUploadHelperAddon: SixpackAddon = {
   id: 'file-upload-helper',
   name: 'File Upload Helper',
   description:
-    'Artwork is fetched from hosts that decline to serve a file to e621, Twitter and pixiv among them, and attached to the upload form. An upload therefore proceeds from the source link alone, with no intermediate save to disk.',
+    "Grabs the image from sites that refuse e621's downloader and drops it into the upload form.",
   when: isUploadForm,
   actions: [fixUpload],
   setup: (ctx) => {

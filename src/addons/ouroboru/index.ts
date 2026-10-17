@@ -164,8 +164,7 @@ function mount(): () => void {
 export const ouroboruAddon: SixpackAddon = {
   id: 'ouroboru',
   name: 'Ouroboru',
-  description:
-    'The following page of a search is loaded on approach to the bottom, so that a listing is presented as one continuous run. A reload resumes at the position last read.',
+  description: 'Infinite scrolling for post listings.',
   setup: (ctx) => {
     let disposed = false;
     let teardown: (() => void) | undefined;

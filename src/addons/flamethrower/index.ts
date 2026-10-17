@@ -11,7 +11,7 @@ export const flamethrowerAddon: SixpackAddon = {
   id: 'flamethrower',
   name: 'Flamethrower',
   description:
-    'Comments, forum posts, blips and users are selected with a checkbox and acted on together. The pile survives while a page is read, and the palette holds the commands that work it: incinerate, mark, copy, clear. Work runs through a throttled queue that persists across reloads and is shared between tabs, so a long run continues where it stopped and reports what failed.',
+    'Select comments, forum posts, blips or users and act on them together. Continues to work in the background.',
   actions: [burnable, burntComments],
   setup: (ctx) => {
     const disposers: Array<() => void> = [];

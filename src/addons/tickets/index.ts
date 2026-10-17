@@ -15,8 +15,7 @@ import { publishOpenTicket } from './registry';
 export const ticketsAddon: SixpackAddon = {
   id: 'tickets',
   name: 'Tickets',
-  description:
-    'A ticket open in one tab is reachable from every other tab: the palette lists it as a chip, and it can be claimed, unclaimed or closed from wherever the user is. Closing composes the reply on the tab that holds the ticket, drawing on the responses every add-on offers. On a ticket itself, the reported content resolves ahead of the click, and the accused is one command away from their own activity.',
+  description: 'Lets you claim or close a ticket that is open in another tab.',
   actions: ticketActions,
   setup: (ctx) => {
     ctx.whenReady(() => {

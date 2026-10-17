@@ -136,7 +136,7 @@ export const sourcesAddon: SixpackAddon = {
   id: 'source-shortener',
   name: 'Source Shortener',
   description:
-    "Each source in a post's sidebar is labeled by its identifying part: the artist's handle, the id, or the filename. The origin of a post, and any duplication among its sources, is therefore apparent without reading the addresses in full. The complete address remains available on hover.",
+    'Shortens source links to the artist handle, post id or filename.',
   when: (page) => page.kind === 'post',
   setup: (ctx) => {
     let disposed = false;

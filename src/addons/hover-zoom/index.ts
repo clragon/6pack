@@ -277,8 +277,7 @@ function mount(settings: SettingsApi): () => void {
 export const hoverZoomAddon: SixpackAddon = {
   id: 'hover-zoom',
   name: 'Hover Zoom',
-  description:
-    'A thumbnail under the cursor with shift held is shown beside it at size, fitted to the screen and tracking the mouse. The resolution and file size are named underneath, beside the score, favourites, comments and rating the listing itself carries. Videos play in place, muted unless sound is enabled. The zoom ends when shift is released or the cursor leaves the thumbnail.',
+  description: 'Hold shift over a thumbnail to see the full post.',
   settings: [
     {
       key: AUDIO,

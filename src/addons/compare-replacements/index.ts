@@ -7,7 +7,7 @@ export const compareReplacementsAddon: SixpackAddon = {
   id: 'compare-replacements',
   name: 'Compare Replacements',
   description:
-    'The content of a replacement is presented for examination before approval. The proposed file and the current one are shown side by side, under a slider that wipes between them, or as a heatmap of the differing pixels, with zoom and pan applied to both at once. The proportion of the image that changed is stated, so that a benign resize is distinguishable from an edit accompanying it.',
+    'Compares a replacement against the current file before you approve it.',
   when: (page) => page.kind === 'postReplacements' && page.postId !== null,
   actions: [approveReplacementAction],
   setup: (ctx) => {
