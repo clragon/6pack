@@ -25,7 +25,7 @@ const SEED: Record<string, number> = {
   harassment: 1.1,
   plagiarism: 0.4,
   extremecontent: 0.1,
-  noteabuse: 0.1,
+  badnotes: 0.1,
 };
 
 const decay = (from: number, to: number): number =>
@@ -33,6 +33,11 @@ const decay = (from: number, to: number): number =>
 
 function load(): Store {
   const stored = readJson<Store | null>(KEY, null);
+  if (stored?.noteabuse) {
+    stored.badnotes = stored.noteabuse;
+    delete stored.noteabuse;
+    writeJson(KEY, stored);
+  }
   if (stored !== null) return stored;
   const now = Date.now();
   const seeded: Store = {};

@@ -30,6 +30,7 @@ export const RULES: Record<string, CocRule> = {
       'Do not promote ideologies that are harmful to public safety.',
       'Do not brag about saving DNP or pirated material, and do not encourage others to do so.',
       'Do not maliciously impersonate any individuals or organizations.',
+      'Do not make public accusations that a post uses "disallowed AI assistance":[/help/uploading_guidelines#:~:text=AI%20Generated%20content]; "flag":[/help/flag_for_deletion] the post so staff can investigate the matter without needless drama & potentially unfounded reputational harm.',
       'Do not demand that certain administrative actions be taken against another user. Do not claim personal influence over staff decisions.',
       'Do not disobey any direct instructions made by staff members.',
     ],
@@ -58,7 +59,7 @@ export const RULES: Record<string, CocRule> = {
     title: 'Sexual Identity and Orientation',
     group: RULE_GROUPS.messages,
     lines: [
-      'Do not insultingly refer to any aspect of sexual identity or orientation, both in reference to yourself or to others.',
+      'Do not insultingly refer to any aspect of sexual identity/orientation or gender identity both in reference to yourself or to others. That also includes usage or allusions to slurs or symbols, regardless of intent to "reclaim" such slurs or symbols.',
       'Do not purposefully misgender or deadname users, characters, or anyone else.',
     ],
   },
@@ -152,7 +153,7 @@ export const RULES: Record<string, CocRule> = {
       '* Dead links to pages where the artwork could be found in the past are still considered valid and should instead be disabled by prefixing them with `-`.',
     ],
   },
-  noteabuse: {
+  badnotes: {
     title: 'Note Abuse',
     group: RULE_GROUPS.posts,
     lines: [
